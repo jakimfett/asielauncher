@@ -42,6 +42,9 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 		pack();
 	}
 	
+	public boolean getLaunchedMinecraft() { return launcher.launchedMinecraft; }
+	public boolean isActive() { return launcher.isActive(); }
+	
 	public boolean validateLaunch() {
 		return (loginField.getText().length() > 1);
 	}

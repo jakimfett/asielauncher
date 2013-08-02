@@ -95,6 +95,10 @@ public class MinecraftFrame extends Frame implements WindowListener {
 		}
 
 	}
+	
+	public boolean isAppletActive() {
+		return applet.isActive();
+	}
 
 	@Override
 	public void windowClosing(WindowEvent e) {

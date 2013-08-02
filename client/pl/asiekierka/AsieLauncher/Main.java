@@ -8,13 +8,22 @@ public class Main {
 			System.out.println("Error connecting!");
 			System.exit(1);
 		}
-		while(al.isRunning) {
-			al.repaint();
-			try { Thread.sleep(50); }
+		boolean isRunning = true;
+		while(al.isRunning && isRunning) {
+			int sleepLength = 1000;
+			if(!al.getLaunchedMinecraft()){
+				al.repaint();
+				sleepLength = 75;
+			} else { // Launched Minecraft
+				al.setVisible(false);
+				if(!al.isActive()) {
+					isRunning = false;
+				}
+			}
+			try { Thread.sleep(sleepLength); }
 			catch(Exception e) { e.printStackTrace(); }
 		}
 		System.out.println("Shutting down.");
 		System.exit(0);
-		//al.install();
 	}
 }

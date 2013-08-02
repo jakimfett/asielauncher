@@ -18,11 +18,12 @@ public class AsieLauncher implements IProgressUpdater {
 	public ArrayList<ModFile> baseFiles;
 	protected String directory;
 	private String OS;
-	private JSONObject file;
-	private JSONObject oldFile;
+	private JSONObject file, oldFile;
 	private int fullProgress, fullTotal;
 	public IProgressUpdater updater;
-
+	public boolean launchedMinecraft = false;
+	private MinecraftFrame frame;
+	
 	public static JSONObject readJSONFile(String filename) {
 		try {
 			JSONParser tmp = new JSONParser();
@@ -183,13 +184,19 @@ public class AsieLauncher implements IProgressUpdater {
 		return true;
 	}
 	
+	public boolean isActive() {
+		return !launchedMinecraft || frame.isAppletActive();
+	}
+	
 	public void launch(String username, String sessionID) {
-		MinecraftFrame frame = new MinecraftFrame(WINDOW_NAME, new ImageIcon(this.getClass().getResource("/resources/icon.png")));
+		frame = new MinecraftFrame(WINDOW_NAME, new ImageIcon(this.getClass().getResource("/resources/icon.png")));
 		if(updater != null) updater.update(100,100);
 		this.setStatus(Strings.LAUNCHING);
 		frame.launch(new File(directory),
 				new File(directory, "bin"),
 				username, sessionID,
 				"", new Dimension(854, 480), false);
+		try { Thread.sleep(500); } catch(Exception e){}
+		launchedMinecraft = true;
 	}
 }
