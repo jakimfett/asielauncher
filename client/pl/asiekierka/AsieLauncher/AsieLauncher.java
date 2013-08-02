@@ -111,6 +111,7 @@ public class AsieLauncher implements IProgressUpdater {
 		} else {
 			oldFile = readJSONFile(directory + "also.json");
 		}
+		System.setProperty("user.dir", (new File(directory).getAbsolutePath()));
 		OS = Utils.getSystemName();
 		System.out.println("OS: " + OS);
 	}
