@@ -1,0 +1,12 @@
+{
+  "name": "also",
+  "description": "ALSO, AsieLauncher Server Organizer",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "3.x",
+    "underscore": ">=1.4.0",
+    "wrench": "1.5.x",
+    "adm-zip": ">=0.4.3"
+  }
+}

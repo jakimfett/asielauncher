@@ -1,0 +1,14 @@
+{ "loggedDirs": ["mods", "coremods", "texturepacks", "bin", "lib"],
+  "zippedDirs": ["config"],
+  "blacklist": ["mods/Dynmap", "mods/ForgeIRC", "lib/jython"],
+  "port": 8080,
+  "options": [
+    {
+      "id": "example",
+      "name": "Example",
+      "description": "Example option",
+      "default": false,
+      "zip": false
+    }
+  ]
+}
