@@ -22,14 +22,17 @@ public class MinecraftFrame extends Frame implements WindowListener {
 	private Launcher applet = null;
 
 	public static void main(String[] args) {
+		System.out.println(args.toString());
 		String username = args[0];
 		String sessionid = args[1];
+		if(sessionid == "null") sessionid = "";
 		String titleName = args[2];
 		File instPath = new File(args[3]);
 		File lwjglPath = new File(args[4]);
 		int width = Integer.parseInt(args[5]);
 		int height = Integer.parseInt(args[6]);
 		String serverAddress = args[7];
+		if(serverAddress == "null") serverAddress = "";
 		boolean doConnect = Boolean.parseBoolean(args[8]);
 		ImageIcon icon = new ImageIcon(Launcher.class.getResource("/resources/icon.png"));
 		MinecraftFrame me = new MinecraftFrame(titleName, icon);

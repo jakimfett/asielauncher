@@ -79,7 +79,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 	}
 	
 	public String getJVMArgs() {
-		int ramSize = new Integer(ramAmount.getText());
+		int ramSize = new Integer(ramAmount.getText().trim());
 		if(ramSize == 0) ramSize = 640;
 		if(ramSize < 320) ramSize = 320;
 		if(otherArgs.getText().length() > 0) {
@@ -134,7 +134,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new FileWriter(filename));
-			writer.write(OPTIONS_VERSION + '\n');
+			writer.write(("" + OPTIONS_VERSION) + '\n');
 			writer.write(ramAmount.getText() + '\n');
 			writer.write(otherArgs.getText() + '\n');
 			for(JCheckBox box: optionBoxes.values()) {

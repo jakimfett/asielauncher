@@ -24,6 +24,7 @@ public class AsieLauncher implements IProgressUpdater {
 	public IProgressUpdater updater;
 	public boolean launchedMinecraft = false;
 	private MinecraftFrame frame;
+	private String loadDir;
 	
 	public int getFileRevision(JSONObject source) {
 		Long revNew = (Long)(source.get("client_revision"));
@@ -134,7 +135,8 @@ public class AsieLauncher implements IProgressUpdater {
 		} else {
 			oldFile = readJSONFile(directory + "also.json");
 		}
-		System.setProperty("user.dir", (new File(directory).getAbsolutePath()));
+		loadDir = (new File(".").getAbsolutePath());
+		loadDir = loadDir.substring(0,loadDir.length()-1);
 		OS = Utils.getSystemName();
 		System.out.println("OS: " + OS);
 	}
@@ -258,20 +260,29 @@ public class AsieLauncher implements IProgressUpdater {
 		args.add(new File(directory).getAbsolutePath());
 		args.add(new File(directory, "bin").getAbsolutePath());
 		args.add("854"); args.add("480");
-		args.add(""); args.add("false");
+		args.add("null"); args.add("false");
+		System.out.println("Launching with arguments: " + args.toString());
 		return args;
 	}
 	
 	public void launch(String username, String sessionID, String jvmArgs) {
+		String realSessionID = sessionID;
+		if(sessionID.length() == 0) realSessionID = "null";
 		String separator = System.getProperty("file.separator");
 	    String classpath = System.getProperty("java.class.path");
+	    System.out.println(loadDir);
+	    System.out.println(classpath);
+	    if(classpath.indexOf(separator) == -1) {
+	    	classpath = (new File(loadDir, classpath)).getAbsolutePath();
+	    }
+	    System.out.println(classpath);
 	    String path = System.getProperty("java.home")
-	            + separator + "bin" + separator + "java";
+	            + separator + "bin" + separator + Utils.getJavaBinaryName();
 		if(updater != null) updater.update(100,100);
 		this.setStatus(Strings.LAUNCHING);
 	    if((new File(path)).exists()) {
 	    	System.out.println("Launching via process spawner");
-	    	ProcessBuilder processBuilder = new ProcessBuilder(getMCArguments(path,classpath,username,sessionID,jvmArgs));
+	    	ProcessBuilder processBuilder = new ProcessBuilder(getMCArguments(path,classpath,username,realSessionID,jvmArgs));
 	    	try {
 	    		processBuilder.directory(new File(directory));
 	    		Process process = processBuilder.start();
@@ -283,6 +294,7 @@ public class AsieLauncher implements IProgressUpdater {
 	    }
 	    if(!launchedMinecraft) {
 	    	System.out.println("Launching via internal Java process");
+	    	System.setProperty("user.dir", (new File(directory).getAbsolutePath()));
 	    	frame = new MinecraftFrame(WINDOW_NAME, new ImageIcon(this.getClass().getResource("/resources/icon.png")));
 			frame.launch(new File(directory),
 					new File(directory, "bin"),
