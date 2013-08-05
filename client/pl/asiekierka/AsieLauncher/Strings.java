@@ -21,4 +21,6 @@ public class Strings {
 	public static final String TITLE = "AsieLauncher";
 	public static final String OPTIONAL_MODS = "Optional mods:";
 	public static final String WRONG_CLIENT_REVISION = "You are using the wrong client version! Get the latest one at your server's homepage.";
+	public static final String RAM_AMOUNT_MB = "RAM amount (MB):";
+	public static final String OTHER_JVM_ARGS = "JVM arguments:";
 }

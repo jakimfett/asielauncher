@@ -15,7 +15,7 @@ public class LauncherThread extends Thread {
 
 	public void run() {
 		if(!online || launcher.install(options.options, options.oldOptions)) {
-			launcher.launch(u,se);
+			launcher.launch(u,se,options.getJVMArgs());
 		}
 	}
 }

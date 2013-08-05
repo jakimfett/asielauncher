@@ -1,5 +1,6 @@
 package pl.asiekierka.AsieLauncher;
 
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,6 +16,7 @@ import javax.swing.*;
 import org.json.simple.*;
 
 public class AsieLauncherOptionsGUI extends JFrame {
+	public static final int OPTIONS_VERSION = 1;
 	private static final long serialVersionUID = 1079662238420276795L;
 	private JPanel panel;
 	private HashMap<String, JCheckBox> optionBoxes;
@@ -23,6 +25,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 	public String filename;
 	public ArrayList<String> oldOptions;
 	public ArrayList<String> options;
+	private JTextField ramAmount, otherArgs;
 	
 	public AsieLauncherOptionsGUI(Map<String, JSONObject> optionMap, String fn) {
 		filename=fn;
@@ -34,8 +37,6 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		getContentPane().add(panel);
 		panel.setLayout(new GridLayout(optionMap.size()+2, 1));
 		panel.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
-		JLabel label1 = new JLabel(Strings.OPTIONAL_MODS);
-		panel.add(label1);
 		optionBoxes = new HashMap<String, JCheckBox>(optionMap.size());
 		optionBoxIDs = new HashMap<JCheckBox, String>(optionMap.size());
 		for(String optionID : optionMap.keySet()) {
@@ -46,8 +47,22 @@ public class AsieLauncherOptionsGUI extends JFrame {
 			optionBoxes.put(optionID, box);
 			optionBoxIDs.put(box, optionID);
 		}
+		
+		ramAmount = new JTextField("1024", 5);
+		otherArgs = new JTextField();
+		JPanel innerPanel = new JPanel();
+		panel.add(innerPanel);
+		innerPanel.setLayout(new GridLayout(2,2));
+		innerPanel.add(new JLabel(Strings.RAM_AMOUNT_MB));
+		innerPanel.add(ramAmount);
+		innerPanel.add(new JLabel(Strings.OTHER_JVM_ARGS));
+		innerPanel.add(otherArgs);
 		quitButton = new JButton(Strings.OK);
 		quitButton.setAlignmentX(RIGHT_ALIGNMENT);
+		quitButton.setPreferredSize(new Dimension(60,30));
+		quitButton.setSize(new Dimension(60,30));
+		quitButton.setMinimumSize(new Dimension(60,30));
+		quitButton.setMaximumSize(new Dimension(60,30));
 	    quitButton.addActionListener(new ActionListener() {
 	    	@Override
 	        public void actionPerformed(ActionEvent event) {
@@ -61,6 +76,17 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		options = getOptions();
 		pack();
 		validate();
+	}
+	
+	public String getJVMArgs() {
+		int ramSize = new Integer(ramAmount.getText());
+		if(ramSize == 0) ramSize = 640;
+		if(ramSize < 320) ramSize = 320;
+		if(otherArgs.getText().length() > 0) {
+			return "-Xmx"+ramSize+"m -Xms"+ramSize+"m "+otherArgs.getText();
+		} else {
+			return "-Xmx"+ramSize+"m -Xms"+ramSize+"m";
+		}
 	}
 	
 	public ArrayList<String> getOptions() {
@@ -86,6 +112,13 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			line = reader.readLine();
+			int currentVersion = new Integer(line);
+			if(currentVersion == 0) { reader.close(); return; }
+			if(currentVersion > 0) {
+				ramAmount.setText(reader.readLine());
+				otherArgs.setText(reader.readLine());
+			}
+			line = reader.readLine();
 			while(line != null) {
 				JCheckBox box = optionBoxes.get(line);
 				if(box != null) box.setSelected(true);
@@ -101,6 +134,9 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new FileWriter(filename));
+			writer.write(OPTIONS_VERSION + '\n');
+			writer.write(ramAmount.getText() + '\n');
+			writer.write(otherArgs.getText() + '\n');
 			for(JCheckBox box: optionBoxes.values()) {
 				if(box != null && box.isSelected()) writer.write(optionBoxIDs.get(box) + '\n');
 			}

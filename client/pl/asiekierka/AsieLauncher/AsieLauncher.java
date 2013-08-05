@@ -225,18 +225,71 @@ public class AsieLauncher implements IProgressUpdater {
 	}
 	
 	public boolean isActive() {
-		return !launchedMinecraft || frame.isAppletActive();
+		return !launchedMinecraft || (frame != null && frame.isAppletActive());
 	}
 	
-	public void launch(String username, String sessionID) {
-		frame = new MinecraftFrame(WINDOW_NAME, new ImageIcon(this.getClass().getResource("/resources/icon.png")));
+	// StackOverflow
+	private static void pipeOutput(Process process) {
+	    pipe(process.getErrorStream(), System.err);
+	    pipe(process.getInputStream(), System.out);
+	}
+
+	private static void pipe(final InputStream src, final PrintStream dest) {
+	    new Thread(new Runnable() {
+	        public void run() {
+	            try {
+	                byte[] buffer = new byte[1024];
+	                for (int n = 0; n != -1; n = src.read(buffer)) {
+	                    dest.write(buffer, 0, n);
+	                }
+	            } catch (IOException e) { // just exit
+	            }
+	        }
+	    }).start();
+	}
+	
+	public ArrayList<String> getMCArguments(String path, String classpath, String username, String sessionID, String jvmArgs) {
+		ArrayList<String> args = new ArrayList<String>();
+		args.add(path);
+		args.addAll(Arrays.asList(jvmArgs.split(" ")));
+		args.add("-cp"); args.add(classpath);
+		args.add("org.smbarbour.mcu.MinecraftFrame");
+		args.add(username); args.add(sessionID); args.add(WINDOW_NAME);
+		args.add(new File(directory).getAbsolutePath());
+		args.add(new File(directory, "bin").getAbsolutePath());
+		args.add("854"); args.add("480");
+		args.add(""); args.add("false");
+		return args;
+	}
+	
+	public void launch(String username, String sessionID, String jvmArgs) {
+		String separator = System.getProperty("file.separator");
+	    String classpath = System.getProperty("java.class.path");
+	    String path = System.getProperty("java.home")
+	            + separator + "bin" + separator + "java";
 		if(updater != null) updater.update(100,100);
 		this.setStatus(Strings.LAUNCHING);
-		frame.launch(new File(directory),
-				new File(directory, "bin"),
-				username, sessionID,
-				"", new Dimension(854, 480), false);
-		try { Thread.sleep(500); } catch(Exception e){}
-		launchedMinecraft = true;
+	    if((new File(path)).exists()) {
+	    	System.out.println("Launching via process spawner");
+	    	ProcessBuilder processBuilder = new ProcessBuilder(getMCArguments(path,classpath,username,sessionID,jvmArgs));
+	    	try {
+	    		processBuilder.directory(new File(directory));
+	    		Process process = processBuilder.start();
+		    	pipeOutput(process);
+	    		try { Thread.sleep(500); } catch(Exception e){}
+	    		launchedMinecraft = true;
+	    	}
+	    	catch(Exception e) { }
+	    }
+	    if(!launchedMinecraft) {
+	    	System.out.println("Launching via internal Java process");
+	    	frame = new MinecraftFrame(WINDOW_NAME, new ImageIcon(this.getClass().getResource("/resources/icon.png")));
+			frame.launch(new File(directory),
+					new File(directory, "bin"),
+					username, sessionID,
+					"", new Dimension(854, 480), false);
+			try { Thread.sleep(500); } catch(Exception e){}
+			launchedMinecraft = true;
+	    }
 	}
 }
