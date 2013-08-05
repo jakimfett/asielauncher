@@ -18,4 +18,6 @@ public class Strings {
 	public static final String START_UPDATE = "Starting update...";
 	public static final String OK = "OK";
 	public static final String OPTIONS = "Options";
+	public static final String TITLE = "AsieLauncher";
+	public static final String OPTIONAL_MODS = "Optional mods:";
 }

@@ -16,13 +16,16 @@ public class AsieLauncherOptionsGUI extends JFrame {
 	private JButton quitButton;
 	
 	public AsieLauncherOptionsGUI(Map<String, JSONObject> options) {
-		setTitle("Options");
+		setTitle(Strings.OPTIONS);
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		panel = new JPanel();
 		getContentPane().add(panel);
-		panel.setLayout(new GridLayout(options.size()+1, 1));
+		panel.setLayout(new GridLayout(options.size()+2, 1));
+		panel.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
+		JLabel label1 = new JLabel(Strings.OPTIONAL_MODS);
+		panel.add(label1);
 		optionBoxes = new HashMap<String, JCheckBox>(options.size());
 		for(String optionID : options.keySet()) {
 			JSONObject option = options.get(optionID);
@@ -31,7 +34,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 			panel.add(box);
 			optionBoxes.put(optionID, box);
 		}
-		quitButton = new JButton("Quit");
+		quitButton = new JButton(Strings.OK);
 		quitButton.setAlignmentX(RIGHT_ALIGNMENT);
 	    quitButton.addActionListener(new ActionListener() {
 	    	@Override

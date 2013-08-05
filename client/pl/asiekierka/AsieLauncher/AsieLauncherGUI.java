@@ -24,7 +24,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 		launcher = new AsieLauncher();
 		launcher.updater = (IProgressUpdater)this;
 		isRunning = true;
-		setTitle("asieLauncher");
+		setTitle(Strings.TITLE);
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
