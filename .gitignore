@@ -1,0 +1,4 @@
+update.sh
+server/node_modules
+server/zips/*
+.DS_Store

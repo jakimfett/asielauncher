@@ -15,10 +15,14 @@ public class ModFileHTTP extends ModFile {
 	}
 	@Override
 	public boolean install(IProgressUpdater updater) {
+		return install(updater, false);
+	}
+	
+	public boolean install(IProgressUpdater updater, boolean forceOverwrite) {
 		super.createDirsIfMissing();
 		// Check MD5
 		if(file.exists()) {
-			if(!overwrite) return false;
+			if(!overwrite && !forceOverwrite) return true;
 			try {
 				String fileMD5 = Utils.md5(file);
 				System.out.println("Comparison: "+md5+" "+fileMD5);
@@ -45,7 +49,7 @@ public class ModFileHTTP extends ModFile {
     			updater.update(totalCount, filesize);
     		}
     	}
-    	catch(Exception e) { e.printStackTrace(); downloaded = false; }
+    	catch(Exception e) { e.printStackTrace(); System.out.println("Download error!"); downloaded = false; }
     	finally {
     		try {
     			if (in != null) in.close();

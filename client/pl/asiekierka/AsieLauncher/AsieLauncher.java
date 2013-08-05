@@ -272,7 +272,7 @@ public class AsieLauncher implements IProgressUpdater {
 	    String classpath = System.getProperty("java.class.path");
 	    System.out.println(loadDir);
 	    System.out.println(classpath);
-	    if(classpath.indexOf(separator) == -1) {
+	    if(classpath.indexOf(separator) == -1 || (loadDir.indexOf("/") == 0 && classpath.indexOf("/") != 0)) {
 	    	classpath = (new File(loadDir, classpath)).getAbsolutePath();
 	    }
 	    System.out.println(classpath);

@@ -18,6 +18,13 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	private AsieLauncherOptionsGUI options;
 	public boolean hasInternet = true;
 	private double scaleFactor;
+	private boolean controlDown = false;
+	
+	private void setControl(boolean c) {
+		controlDown = c;
+	    if(!controlDown && hasInternet) launchButton.setText(Strings.LAUNCH_UPDATE);
+	    else launchButton.setText(Strings.LAUNCH_ONLY);
+	}
 	
 	public AsieLauncherGUI() {
 		scaleFactor = Utils.getScaleFactor();
@@ -88,7 +95,19 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	        	   options.repaint();
 	           }
 	       });
-	       
+
+	       panel.addKeyListener(new KeyListener() {
+	    	   @Override
+	    	   public void keyTyped(KeyEvent event) { }
+	    	   @Override
+	    	   public void keyPressed(KeyEvent event) {
+	    		   if(event.getKeyCode() == KeyEvent.VK_CONTROL) setControl(true);
+	    	   }
+	    	   @Override
+	    	   public void keyReleased(KeyEvent event) {
+	    		   if(event.getKeyCode() == KeyEvent.VK_CONTROL) setControl(false);
+	    	   }
+	       });
 	       launchButton = new JButton(Strings.LAUNCH_UPDATE);
 	       if(!hasInternet) launchButton.setText(Strings.LAUNCH_ONLY);
 	       launchButton.setBounds(90, 189, 149, 25);
@@ -106,7 +125,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	    			   panel.add(progressBar);
 	    			   statusLabel.setText(Strings.START_UPDATE);
 	    			   repaint();
-	    			   LauncherThread thread = new LauncherThread(launcher, options, loginField.getText(), "", hasInternet);
+	    			   LauncherThread thread = new LauncherThread(launcher, options, loginField.getText(), "", hasInternet && !controlDown);
 	    			   thread.start();
 	    		   } else {
 	    			   statusLabel.setText(Strings.INVALID_LOGIN);
