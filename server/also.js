@@ -49,7 +49,9 @@ function getSize(file) {
 }
 
 function getDirectoriesList(name, addLocation) {
-  return _.union(getDirectoryList(name, name+"/", addLocation), getDirectoryList(name+"-client", name+"/", addLocation));
+  var destName = name+"/";
+  if(name == "root") destName = "";
+  return _.union(getDirectoryList(name, destName, addLocation), getDirectoryList(name+"-client", destName, addLocation));
 }
 
 function getDirectoriesSize(name) {
@@ -106,7 +108,7 @@ _.each(config.zippedDirs, function(dir) {
   zip.addLocalFolder(dir);
   if(fs.existsSync(dir+"-client")) zip.addLocalFolder(dir+"-client");
   zip.writeZip("./zips/"+dir+".zip");
-  var zipData = {"filename": dir+".zip", "directory": dir, "size": getSize("./zips/"+dir+".zip"), "md5": md5("./zips/"+dir+".zip"),
+  var zipData = {"filename": dir+".zip", "directory": dir == "root" ? "" : dir, "size": getSize("./zips/"+dir+".zip"), "md5": md5("./zips/"+dir+".zip"),
                  "overwrite": !(_.contains(config.noOverwrite, dir)) };
   infoData.zips.push(zipData);
   infoData.size += zipData.size;
