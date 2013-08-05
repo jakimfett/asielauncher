@@ -139,6 +139,11 @@ public class AsieLauncher implements IProgressUpdater {
 		return (JSONObject)platforms.get(OS);
 	}
 
+	public JSONObject getOptionData(JSONObject source, String id) {
+		JSONObject options = (JSONObject)source.get("options");
+		return (JSONObject)options.get(id);
+	}
+	
 	public void update(int progress, int total) {
 		if(updater != null) updater.update((fullProgress+progress), fullTotal);
 		if(progress == total) fullProgress += total;
@@ -148,10 +153,16 @@ public class AsieLauncher implements IProgressUpdater {
 		if(updater != null) updater.setStatus(status);
 	}
 	
-	public ArrayList<ModFile> getFileList(JSONObject source) {
+	public ArrayList<ModFile> getFileList(JSONObject source, ArrayList<String> options) {
 		ArrayList<ModFile> files = loadModFiles(source, "http");
 		files.addAll(loadModFiles(source, "zip"));
 		files.addAll(loadModFiles(getPlatformData(source), "http", "platform/"+OS+"/"));
+		for(String id: options) {
+			JSONObject data = getOptionData(source, id);
+			if(data == null) continue;
+			boolean doZip = (Boolean)data.get("zip");
+			files.addAll(loadModFiles(data, doZip?"zip":"http", "option/"+id+"/"));
+		}
 		System.out.println("getFileList: got " + files.size() + " files");
 		return files;
 	}
@@ -165,10 +176,15 @@ public class AsieLauncher implements IProgressUpdater {
 	}
 	
 	public boolean install() {
-		ArrayList<ModFile> installFiles = getFileList(file);
+		ArrayList<String> options = new ArrayList<String>();
+		ArrayList<String> oldOptions = new ArrayList<String>();
+		return install(options, oldOptions);
+	}
+	public boolean install(ArrayList<String> options, ArrayList<String> oldOptions) {
+		ArrayList<ModFile> installFiles = getFileList(file, options);
 		ArrayList<ModFile> oldInstallFiles = null;
 		if(oldFile != null) {
-			oldInstallFiles = getFileList(oldFile);
+			oldInstallFiles = getFileList(oldFile, oldOptions);
 			// Delete old files
 			for(ModFile mf: oldInstallFiles) {
 				if(!installFiles.contains(mf)) {

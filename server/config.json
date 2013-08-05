@@ -2,6 +2,7 @@
 { "loggedDirs": ["mods", "coremods", "texturepacks", "bin", "lib"],
   "zippedDirs": ["config", "root"],
   "noOverwrite": ["root"],
+  "client_revision": 2,
   "blacklist": ["mods/Dynmap", "mods/ForgeIRC", "lib/jython"],
   "port": 8080,
   "options": [

@@ -102,10 +102,11 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	    		       loginLabel.setBounds(10, 162, 70, 15);
 	    			   panel.remove(loginField);
 	    			   AsieLauncher.saveString(launcher.directory + "nickname.txt", loginField.getText());
+	    			   options.saveSelectedOptions(options.filename);
 	    			   panel.add(progressBar);
 	    			   statusLabel.setText(Strings.START_UPDATE);
 	    			   repaint();
-	    			   LauncherThread thread = new LauncherThread(launcher, loginField.getText(), "", hasInternet);
+	    			   LauncherThread thread = new LauncherThread(launcher, options, loginField.getText(), "", hasInternet);
 	    			   thread.start();
 	    		   } else {
 	    			   statusLabel.setText(Strings.INVALID_LOGIN);

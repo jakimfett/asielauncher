@@ -20,4 +20,5 @@ public class Strings {
 	public static final String OPTIONS = "Options";
 	public static final String TITLE = "AsieLauncher";
 	public static final String OPTIONAL_MODS = "Optional mods:";
+	public static final String WRONG_CLIENT_REVISION = "You are using the wrong client version! Get the latest one at your server's homepage.";
 }

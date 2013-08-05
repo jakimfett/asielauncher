@@ -20,9 +20,11 @@ public class AsieLauncherOptionsGUI extends JFrame {
 	private HashMap<String, JCheckBox> optionBoxes;
 	private HashMap<JCheckBox, String> optionBoxIDs;
 	private JButton quitButton;
-	private String filename;
+	public String filename;
+	public ArrayList<String> oldOptions;
+	public ArrayList<String> options;
 	
-	public AsieLauncherOptionsGUI(Map<String, JSONObject> options, String fn) {
+	public AsieLauncherOptionsGUI(Map<String, JSONObject> optionMap, String fn) {
 		filename=fn;
 		setTitle(Strings.OPTIONS);
 		setResizable(false);
@@ -36,8 +38,8 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		panel.add(label1);
 		optionBoxes = new HashMap<String, JCheckBox>(options.size());
 		optionBoxIDs = new HashMap<JCheckBox, String>(options.size());
-		for(String optionID : options.keySet()) {
-			JSONObject option = options.get(optionID);
+		for(String optionID : optionMap.keySet()) {
+			JSONObject option = optionMap.get(optionID);
 			JCheckBox box = new JCheckBox((String)option.get("name"), (Boolean)option.get("default"));
 			box.setToolTipText((String)option.get("description"));
 			panel.add(box);
@@ -49,14 +51,28 @@ public class AsieLauncherOptionsGUI extends JFrame {
 	    quitButton.addActionListener(new ActionListener() {
 	    	@Override
 	        public void actionPerformed(ActionEvent event) {
-	    		saveSelectedOptions(filename);
+	    		setOptions();
 	        	setVisible(false);
 	        }
 	    });
 		panel.add(quitButton);
 		loadSelectedOptions(filename);
+		oldOptions = getOptions();
+		options = getOptions();
 		pack();
 		validate();
+	}
+	
+	public ArrayList<String> getOptions() {
+		ArrayList<String> options = new ArrayList<String>();
+		for(JCheckBox box: optionBoxes.values()) {
+			if(box.isSelected()) options.add(optionBoxIDs.get(box));
+		}
+		return options;
+	}
+	
+	public void setOptions() {
+		options = getOptions();
 	}
 	
 	public void loadSelectedOptions(String filename) {

@@ -73,9 +73,10 @@ app.use("/launcher", express.static("./launcher_files"));
 
 infoData.files = [];
 infoData.zips = [];
-infoData.options = [];
+infoData.options = {};
 infoData.platforms = {};
 infoData.size = 0;
+infoData.client_revision = config.client_revision;
 
 _.each(config.loggedDirs, function(dir) {
 	if(!fs.existsSync(dir)) {
@@ -125,19 +126,21 @@ _.each(config.options, function(option) {
   if(!option.zip) { // Directory
     var list = getDirectoryList(dir, "", false);
     var size = getDirectoriesSize(list);
-    infoData.options.push(_.extend(option, {"files": list, "size": size}));
+    infoData.options[option.id]=_.extend(option, {"files": list, "size": size});
   } else { // ZIP
     var zip = new Zip()
       , zipFile = "./zips/option-"+option.id+".zip";
     zip.addLocalFolder(dir);
     zip.writeZip(zipFile);
-   infoData.options.push(_.extend(option, {"filename": "option-"+option.id+".zip", "directory": "", "size": getSize(zipFile), "md5": md5(zipFile)}));
+   infoData.options[option.id]=_.extend(option, {"filename": "option-"+option.id+".zip", "directory": "", "size": getSize(zipFile), "md5": md5(zipFile)});
   }
 });
 
 app.use("/also.json", function(req, res) {
   res.json(infoData);
 });
+
+app.use("/", express.static("./htdocs"));
 
 app.listen(config.port);
 
