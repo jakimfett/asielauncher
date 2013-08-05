@@ -14,7 +14,7 @@ import org.smbarbour.mcu.*;
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 2;
 	private static final String WINDOW_NAME = "Fluttercraft";
-	public static final String URL = "http://127.0.0.1:8080/";
+	public static final String URL = "http://asiekierka.humee.pl:8080/";
 	private static final String PREFIX = "/.asielauncher/FluttercraftMC/";
 	public ArrayList<ModFile> baseFiles;
 	protected String directory;
@@ -24,6 +24,12 @@ public class AsieLauncher implements IProgressUpdater {
 	public IProgressUpdater updater;
 	public boolean launchedMinecraft = false;
 	private MinecraftFrame frame;
+	
+	public int getFileRevision(JSONObject source) {
+		Long revNew = (Long)(source.get("client_revision"));
+		if(revNew == null) return 1;
+		return revNew.intValue();
+	}
 	
 	public boolean sameClientRevision() {
 		Long revNew = (Long)(file.get("client_revision"));
@@ -165,11 +171,11 @@ public class AsieLauncher implements IProgressUpdater {
 		ArrayList<ModFile> files = loadModFiles(source, "http");
 		files.addAll(loadModFiles(source, "zip"));
 		files.addAll(loadModFiles(getPlatformData(source), "http", "platform/"+OS+"/"));
-		for(String id: options) {
+		if(getFileRevision(source) >= 2) for(String id: options) {
 			JSONObject data = getOptionData(source, id);
 			if(data == null) continue;
 			boolean doZip = (Boolean)data.get("zip");
-			files.addAll(loadModFiles(data, doZip?"zip":"http", "option/"+id+"/"));
+			files.addAll(loadModFiles(data, doZip?"zip":"http", "options/"+id+"/"));
 		}
 		System.out.println("getFileList: got " + files.size() + " files");
 		return files;
