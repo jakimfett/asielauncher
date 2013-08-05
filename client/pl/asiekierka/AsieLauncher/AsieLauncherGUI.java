@@ -4,17 +4,19 @@ import com.camick.BackgroundPanel;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import org.json.simple.*;
 
 public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	private static final long serialVersionUID = 550781190397000747L;
 	public boolean isRunning;
 	private AsieLauncher launcher;
 	private BackgroundPanel panel;
-	private JButton quitButton, launchButton;
+	private JButton quitButton, launchButton, optionsButton;
 	private JLabel statusLabel, loginLabel;
 	private JTextField loginField;
 	private JProgressBar progressBar;
 	private Image background;
+	private AsieLauncherOptionsGUI options;
 	public boolean hasInternet = true;
 	
 	public AsieLauncherGUI() {
@@ -74,9 +76,19 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	           }
 	       });
 	       
+	       optionsButton = new JButton(Strings.OPTIONS);
+	       optionsButton.setBounds(8, 189, 76, 25);
+	       optionsButton.addActionListener(new ActionListener() {
+	    	   @Override
+	           public void actionPerformed(ActionEvent event) {
+	        	   options.setVisible(true);
+	        	   options.repaint();
+	           }
+	       });
+	       
 	       launchButton = new JButton(Strings.LAUNCH_UPDATE);
 	       if(!hasInternet) launchButton.setText(Strings.LAUNCH_ONLY);
-	       launchButton.setBounds(94, 189, 145, 25);
+	       launchButton.setBounds(90, 189, 149, 25);
 	       launchButton.addActionListener(new ActionListener() {
 	    	   @Override
 	           public void actionPerformed(ActionEvent event) {
@@ -112,6 +124,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	       progressBar.setBounds(86, 160, 224, 20);
 	       
 	       panel.add(launchButton);
+	       panel.add(optionsButton);
 	       panel.add(quitButton);
 	       panel.add(statusLabel);
 	       panel.add(loginLabel);
@@ -120,6 +133,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	}
 	public boolean init() {
 		boolean linit = launcher.init();
+		options = new AsieLauncherOptionsGUI(launcher.getOptionMap());
 		if(!linit) hasInternet = false;
 		setVisible(true);
 		initGUILogin();

@@ -13,7 +13,7 @@ import org.smbarbour.mcu.*;
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
 	private static final String WINDOW_NAME = "Fluttercraft";
-	public static final String URL = "http://asiekierka.humee.pl:8080/";
+	public static final String URL = "http://127.0.0.1:8080/";
 	private static final String PREFIX = "/.asielauncher/FluttercraftMC/";
 	public ArrayList<ModFile> baseFiles;
 	protected String directory;
@@ -104,6 +104,15 @@ public class AsieLauncher implements IProgressUpdater {
 		return loadModFiles(object, mode, "");
 	}
 	
+	public HashMap<String, JSONObject> getOptionMap() {
+		HashMap<String, JSONObject> optionMap = new HashMap<String, JSONObject>();
+		JSONArray array = (JSONArray)file.get("options");
+		for(Object o: array) {
+			JSONObject option = (JSONObject)o;
+			optionMap.put((String)option.get("id"), option);
+		}
+		return optionMap;
+	}
 	public AsieLauncher() {
 		directory = System.getProperty("user.home") + PREFIX;
 		if(!(new File(directory).exists())) {

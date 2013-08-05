@@ -6,10 +6,18 @@
   "port": 8080,
   "options": [
     {
-      "id": "example",
-      "name": "Example",
+      "id": "example1",
+      "name": "Example1",
       "description": "Example option",
       "default": false,
+      "zip": false,
+      "overwrite": true
+		},
+		{
+      "id": "example2",
+      "name": "Example2",
+      "description": "Example option",
+      "default": true,
       "zip": false,
       "overwrite": true
     }
