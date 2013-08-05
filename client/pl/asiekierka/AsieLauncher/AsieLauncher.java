@@ -12,7 +12,7 @@ import org.smbarbour.mcu.*;
 
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
-	public static final int VERSION = 2;
+	public static final int VERSION = 3;
 	private static final String WINDOW_NAME = "Fluttercraft";
 	public static final String URL = "http://asiekierka.humee.pl:8080/";
 	private static final String PREFIX = "/.asielauncher/FluttercraftMC/";
