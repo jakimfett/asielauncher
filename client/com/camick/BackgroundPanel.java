@@ -1,6 +1,7 @@
 package com.camick;
 
 import java.awt.*;
+
 import javax.swing.*;
 
 /*
@@ -221,6 +222,7 @@ public class BackgroundPanel extends JPanel
 	/*
 	 *  Custom painting code for drawing a SCALED image as the background
 	 */
+	// modified for retina support by asie
 	private void drawScaled(Graphics g)
 	{
 		Dimension d = getSize();

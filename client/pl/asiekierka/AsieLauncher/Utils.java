@@ -1,5 +1,6 @@
 package pl.asiekierka.AsieLauncher;
 
+import java.awt.Toolkit;
 import java.io.*;
 import java.math.*;
 import java.security.*;
@@ -20,6 +21,15 @@ public class Utils {
 		// ToDon't: Check the SID version for the zealots.
 	}
 	
+	public static double getScaleFactor() {
+		Object appleScaleFactor = Toolkit.getDefaultToolkit().getDesktopProperty("apple.awt.contentScaleFactor");
+		if(appleScaleFactor instanceof String) {
+			return Double.parseDouble((String)appleScaleFactor);
+		} else if(appleScaleFactor instanceof Float) {
+			return (double)((Float)appleScaleFactor);
+		}
+		return 1.0;
+	}
 	public static String fixURLString(String old) {
 		return old.replaceAll(" ", "%20");
 	}

@@ -4,7 +4,6 @@ import com.camick.BackgroundPanel;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import org.json.simple.*;
 
 public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	private static final long serialVersionUID = 550781190397000747L;
@@ -18,8 +17,10 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	private Image background;
 	private AsieLauncherOptionsGUI options;
 	public boolean hasInternet = true;
+	private double scaleFactor;
 	
 	public AsieLauncherGUI() {
+		scaleFactor = Utils.getScaleFactor();
 		launcher = new AsieLauncher();
 		launcher.updater = (IProgressUpdater)this;
 		isRunning = true;
@@ -32,7 +33,9 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 				isRunning = false;
 			}
 		});
-		background = getToolkit().getImage(getClass().getResource("/resources/background.png"));
+		boolean has2x = getClass().getResource("/resources/background@2x.png") != null;
+		if(!has2x || scaleFactor <= 1.0) background = getToolkit().getImage(getClass().getResource("/resources/background.png"));
+		else background = getToolkit().getImage(getClass().getResource("/resources/background@2x.png"));
 		panel = new BackgroundPanel(background);
 		panel.setTransparentAdd(false);
 		getContentPane().setSize(320,240);
