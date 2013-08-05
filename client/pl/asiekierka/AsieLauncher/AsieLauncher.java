@@ -12,8 +12,9 @@ import org.smbarbour.mcu.*;
 
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
+	public static final int VERSION = 2;
 	private static final String WINDOW_NAME = "Fluttercraft";
-	public static final String URL = "http://asiekierka.humee.pl:8080/";
+	public static final String URL = "http://127.0.0.1:8080/";
 	private static final String PREFIX = "/.asielauncher/FluttercraftMC/";
 	public ArrayList<ModFile> baseFiles;
 	protected String directory;
@@ -23,6 +24,13 @@ public class AsieLauncher implements IProgressUpdater {
 	public IProgressUpdater updater;
 	public boolean launchedMinecraft = false;
 	private MinecraftFrame frame;
+	
+	public boolean sameClientRevision() {
+		Long revNew = (Long)(file.get("client_revision"));
+		if(revNew == null && VERSION != 1) return false;
+		if(revNew == null && VERSION == 1) return true;
+		return revNew.intValue() == VERSION;
+	}
 	
 	public static JSONObject readJSONFile(String filename) {
 		try {
@@ -106,8 +114,8 @@ public class AsieLauncher implements IProgressUpdater {
 	
 	public HashMap<String, JSONObject> getOptionMap() {
 		HashMap<String, JSONObject> optionMap = new HashMap<String, JSONObject>();
-		JSONArray array = (JSONArray)file.get("options");
-		for(Object o: array) {
+		JSONObject options = (JSONObject)file.get("options");
+		for(Object o: options.values()) {
 			JSONObject option = (JSONObject)o;
 			optionMap.put((String)option.get("id"), option);
 		}

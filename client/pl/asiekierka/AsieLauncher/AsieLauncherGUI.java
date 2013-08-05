@@ -141,6 +141,9 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 		if(!linit) hasInternet = false;
 		setVisible(true);
 		initGUILogin();
+		if(!launcher.sameClientRevision()) {
+			JOptionPane.showMessageDialog(this, Strings.WRONG_CLIENT_REVISION);
+		}
 		return true;
 	}
 }

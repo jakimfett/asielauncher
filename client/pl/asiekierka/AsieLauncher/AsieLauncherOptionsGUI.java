@@ -32,12 +32,12 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		panel = new JPanel();
 		getContentPane().add(panel);
-		panel.setLayout(new GridLayout(options.size()+2, 1));
+		panel.setLayout(new GridLayout(optionMap.size()+2, 1));
 		panel.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
 		JLabel label1 = new JLabel(Strings.OPTIONAL_MODS);
 		panel.add(label1);
-		optionBoxes = new HashMap<String, JCheckBox>(options.size());
-		optionBoxIDs = new HashMap<JCheckBox, String>(options.size());
+		optionBoxes = new HashMap<String, JCheckBox>(optionMap.size());
+		optionBoxIDs = new HashMap<JCheckBox, String>(optionMap.size());
 		for(String optionID : optionMap.keySet()) {
 			JSONObject option = optionMap.get(optionID);
 			JCheckBox box = new JCheckBox((String)option.get("name"), (Boolean)option.get("default"));
