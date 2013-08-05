@@ -11,7 +11,7 @@ var app = express()
   , config = require("./config.json")
   , infoData = {};
 
-function getDirectoryList(name, addLocation) {
+function getDirectoryList(name, destName, addLocation) {
   if(!fs.existsSync(name)) return [];
   return _.chain(wrench.readdirSyncRecursive(name))
           .filter(function(file) {
@@ -28,7 +28,13 @@ function getDirectoryList(name, addLocation) {
           })
           .map(function(file) {
             var fileNew = {"filename": file, "size": getSize(name+"/"+file), "md5": md5(name+"/"+file)};
+						var destination = destName+file;
             if(addLocation) fileNew.location = name+"/"+file;
+				    fileNew.overwrite = !(_.contains(config.noOverwrite, file));
+						if(fileNew.overwrite)
+				      fileNew.overwrite = !(_.some(config.noOverwrite, function(nameNO) {
+				        return (destination.indexOf(nameNO) == 0);
+				      }));
             return fileNew;
           })
           .value();          
@@ -43,7 +49,7 @@ function getSize(file) {
 }
 
 function getDirectoriesList(name, addLocation) {
-  return _.union(getDirectoryList(name, addLocation), getDirectoryList(name+"-client", addLocation));
+  return _.union(getDirectoryList(name, name+"/", addLocation), getDirectoryList(name+"-client", name+"/", addLocation));
 }
 
 function getDirectoriesSize(name) {
@@ -72,6 +78,10 @@ infoData.platforms = {};
 infoData.size = 0;
 
 _.each(config.loggedDirs, function(dir) {
+	if(!fs.existsSync(dir)) {
+		console.log("WARNING: Directory "+dir+" not found!");
+		return;
+	}
   console.log("Adding logged directory "+dir);
   var list = getDirectoriesList(dir, false);
   infoData.files = _.union(infoData.files, _.map(list, function(file) {
@@ -85,20 +95,25 @@ _.each(config.loggedDirs, function(dir) {
 });
 
 _.each(config.zippedDirs, function(dir) {
+	if(!fs.existsSync(dir)) {
+		console.log("WARNING: Directory "+dir+" not found!");
+		return;
+	}
   console.log("Adding zipped directory "+dir);
   var list = getDirectoriesList(dir, true)
     , zip = new Zip();
   zip.addLocalFolder(dir);
   if(fs.existsSync(dir+"-client")) zip.addLocalFolder(dir+"-client");
   zip.writeZip("./zips/"+dir+".zip");
-  var zipData = {"filename": dir+".zip", "directory": dir, "size": getSize("./zips/"+dir+".zip"), "md5": md5("./zips/"+dir+".zip")};
+  var zipData = {"filename": dir+".zip", "directory": dir, "size": getSize("./zips/"+dir+".zip"), "md5": md5("./zips/"+dir+".zip"),
+                 "overwrite": !(_.contains(config.noOverwrite, dir)) };
   infoData.zips.push(zipData);
   infoData.size += zipData.size;
 });
 
 _.each(fs.readdirSync("./platform"), function(platform) {
   console.log("Adding platform "+platform);
-  var list = getDirectoryList("./platform/"+platform, false);
+  var list = getDirectoryList("./platform/"+platform, "", false);
   var size = getDirectoriesSize(list);
   infoData.platforms[platform] = {"files": list, "size": size};
 });
@@ -108,7 +123,7 @@ _.each(config.options, function(option) {
   if(!fs.existsSync(dir)) return;
   console.log("Adding option "+option.id+" ["+option.name+"]");
   if(!option.zip) { // Directory
-    var list = getDirectoryList(dir, false);
+    var list = getDirectoryList(dir, "", false);
     var size = getDirectoriesSize(list);
     infoData.options.push(_.extend(option, {"files": list, "size": size}));
   } else { // ZIP

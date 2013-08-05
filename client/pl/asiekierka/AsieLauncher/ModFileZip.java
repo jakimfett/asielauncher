@@ -20,7 +20,7 @@ public class ModFileZip extends ModFileHTTP {
     	dirFile.mkdir();
 		updater.setStatus(Strings.UNPACKING+" "+filename+"...");
     	try {
-    		Utils.extract(absoluteFilename, directory);
+    		Utils.extract(absoluteFilename, directory, overwrite);
     	} catch(Exception e) { e.printStackTrace(); return false; }
     	return true;
 	}

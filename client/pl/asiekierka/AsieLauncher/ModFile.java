@@ -10,6 +10,7 @@ public abstract class ModFile {
 	protected AsieLauncher launcher;
 	protected JSONObject information;
 	public int filesize;
+	public boolean overwrite;
 	
 	public ModFile(AsieLauncher _launcher, JSONObject data, String prefix) {
 		launcher = _launcher;
@@ -19,6 +20,9 @@ public abstract class ModFile {
 		filesize = longFilesize.intValue();
 		absoluteFilename = launcher.directory + (String)information.get("filename");
 		file = new File(absoluteFilename);
+		overwrite = information.containsKey("overwrite")
+					? (Boolean)(information.get("overwrite"))
+					: true;
 	}
 	
 	public abstract boolean install(IProgressUpdater updater);

@@ -18,6 +18,7 @@ public class ModFileHTTP extends ModFile {
 		super.createDirsIfMissing();
 		// Check MD5
 		if(file.exists()) {
+			if(!overwrite) return false;
 			try {
 				String fileMD5 = Utils.md5(file);
 				System.out.println("Comparison: "+md5+" "+fileMD5);

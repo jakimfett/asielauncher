@@ -48,7 +48,7 @@ public class Utils {
 		}
 	
 	// From StackOverflow
-	public static void extract(String zipFile, String newPath) throws ZipException, IOException 
+	public static void extract(String zipFile, String newPath, boolean overwrite) throws ZipException, IOException 
 	{
 	    System.out.println(zipFile);
 	    int BUFFER = 2048;
@@ -74,6 +74,7 @@ public class Utils {
 
 	        if (!entry.isDirectory())
 	        {
+	        	if(!overwrite && destFile.exists()) continue;
 	            BufferedInputStream is = new BufferedInputStream(zip
 	            .getInputStream(entry));
 	            int currentByte;
