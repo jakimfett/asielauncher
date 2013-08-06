@@ -1,6 +1,5 @@
 package pl.asiekierka.AsieLauncher;
 
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,7 +48,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		}
 		
 		ramAmount = new JTextField("1024", 5);
-		otherArgs = new JTextField();
+		otherArgs = new JTextField(20);
 		JPanel innerPanel = new JPanel();
 		panel.add(innerPanel);
 		innerPanel.setLayout(new GridLayout(2,2));
@@ -58,11 +57,6 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		innerPanel.add(new JLabel(Strings.OTHER_JVM_ARGS));
 		innerPanel.add(otherArgs);
 		quitButton = new JButton(Strings.OK);
-		quitButton.setAlignmentX(RIGHT_ALIGNMENT);
-		quitButton.setPreferredSize(new Dimension(60,30));
-		quitButton.setSize(new Dimension(60,30));
-		quitButton.setMinimumSize(new Dimension(60,30));
-		quitButton.setMaximumSize(new Dimension(60,30));
 	    quitButton.addActionListener(new ActionListener() {
 	    	@Override
 	        public void actionPerformed(ActionEvent event) {
