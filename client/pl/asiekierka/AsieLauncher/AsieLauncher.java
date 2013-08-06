@@ -26,6 +26,8 @@ public class AsieLauncher implements IProgressUpdater {
 	public boolean launchedMinecraft = false;
 	private MinecraftFrame frame;
 	private String loadDir;
+	private boolean onlineMode = false;
+	private Authentication auth;
 	
 	public int getFileRevision(JSONObject source) {
 		Long revNew = (Long)(source.get("client_revision"));
@@ -273,9 +275,20 @@ public class AsieLauncher implements IProgressUpdater {
 		return args;
 	}
 	
-	public void launch(String username, String sessionID, String jvmArgs) {
-		String realSessionID = sessionID;
-		if(sessionID.length() == 0) realSessionID = "null";
+	public void launch(String _username, String password, String jvmArgs) {
+		String username = _username;
+		String sessionID = "null";
+		if(onlineMode) {
+			auth = new AuthenticationMojangLegacy();
+			if(!auth.authenticate(username, password)) {
+				if(updater != null) updater.setStatus("Login error: " + auth.getErrorMessage());
+				return;
+			} else {
+				username = auth.getUsername();
+				sessionID = auth.getSessionID();
+			}
+		}
+		if(sessionID.length() == 0) sessionID = "null";
 		String separator = System.getProperty("file.separator");
 	    String classpath = System.getProperty("java.class.path");
 	    System.out.println(loadDir);
@@ -290,7 +303,7 @@ public class AsieLauncher implements IProgressUpdater {
 		this.setStatus(Strings.LAUNCHING);
 	    if((new File(path)).exists()) {
 	    	System.out.println("Launching via process spawner");
-	    	ProcessBuilder processBuilder = new ProcessBuilder(getMCArguments(path,classpath,username,realSessionID,jvmArgs));
+	    	ProcessBuilder processBuilder = new ProcessBuilder(getMCArguments(path,classpath,username,sessionID,jvmArgs));
 	    	try {
 	    		processBuilder.directory(new File(directory));
 	    		Process process = processBuilder.start();
