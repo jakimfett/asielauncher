@@ -53,15 +53,20 @@ public class AsieLauncher implements IProgressUpdater {
 		} catch(Exception e) { e.printStackTrace(); return null; }
 	}
 	
-	public static JSONObject readJSONNetworkFile(String url) {
+	public static JSONObject readJSONUrlFile(URL url) {
 		try {
 			JSONParser tmp = new JSONParser();
-			Object o = tmp.parse(new InputStreamReader(new URL(url).openStream()));
+			Object o = tmp.parse(new InputStreamReader(url.openStream()));
 			if(!(o instanceof JSONObject)) return null;
 			else return (JSONObject)o;
 		} catch(Exception e) { e.printStackTrace(); return null; }
 	}
 	
+	public static JSONObject readJSONUrlFile(String url) {
+		try {
+			return readJSONUrlFile(new URL(url));
+		} catch(Exception e) { e.printStackTrace(); return null; }
+	}
 	public static boolean saveString(String filename, String data) {
 		BufferedWriter writer = null;
 		try {
@@ -134,7 +139,7 @@ public class AsieLauncher implements IProgressUpdater {
 		return optionMap;
 	}
 	public void configureConfig() {
-		configFile = readJSONFile(getClass().getResource("/resources/config.json").getPath());
+		configFile = readJSONUrlFile(getClass().getResource("/resources/config.json"));
 		PREFIX = "/.asielauncher/"+(String)configFile.get("directoryName")+"/";
 		URL = (String)configFile.get("serverUrl");
 		WINDOW_NAME = (String)configFile.get("windowName");
@@ -155,7 +160,7 @@ public class AsieLauncher implements IProgressUpdater {
 	}
 	
 	public boolean init() {
-		file = readJSONNetworkFile(URL + "also.json");
+		file = readJSONUrlFile(URL + "also.json");
 		return (file instanceof JSONObject);
 	}
 	
