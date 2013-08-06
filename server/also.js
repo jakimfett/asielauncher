@@ -51,7 +51,10 @@ function getSize(file) {
 function getDirectoriesList(name, addLocation) {
   var destName = name+"/";
   if(name == "root") destName = "";
-  return _.union(getDirectoryList(name, destName, addLocation), getDirectoryList(name+"-client", destName, addLocation));
+  return _.union(getDirectoryList(name, destName, addLocation),
+                 getDirectoryList(name+"-client", destName, addLocation),
+                 getDirectoryList("AsieLauncher/"+name, destName, addLocation)
+         );
 }
 
 function getDirectoriesSize(name) {
@@ -81,7 +84,7 @@ infoData.size = 0;
 infoData.client_revision = config.client_revision;
 
 _.each(config.loggedDirs, function(dir) {
-	if(!fs.existsSync(dir)) {
+	if(!fs.existsSync(dir) && !fs.existsSync(dir+"-client") && !fs.existsSync("./AsieLauncher/"+dir)) {
 		console.log("WARNING: Directory "+dir+" not found!");
 		return;
 	}
@@ -93,7 +96,7 @@ _.each(config.loggedDirs, function(dir) {
     return file;
   }));
   // Express
-  app.use("/"+dir, express.static("./"+dir));
+  if(fs.existsSync(dir)) app.use("/"+dir, express.static("./"+dir));
   if(fs.existsSync(dir+"-client")) app.use("/"+dir, express.static("./"+dir+"-client"));
 });
 
@@ -142,7 +145,7 @@ app.use("/also.json", function(req, res) {
   res.json(infoData);
 });
 
-app.use("/", express.static("./htdocs"));
+app.use("/", express.static("./AsieLauncher"));
 
 app.listen(config.port);
 
