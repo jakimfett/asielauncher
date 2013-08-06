@@ -11,8 +11,9 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	private AsieLauncher launcher;
 	private BackgroundPanel panel;
 	private JButton quitButton, launchButton, optionsButton;
-	private JLabel statusLabel, loginLabel;
+	private JLabel statusLabel, loginLabel, passwordLabel;
 	private JTextField loginField;
+	private JPasswordField passwordField;
 	private JProgressBar progressBar;
 	private Image background;
 	private AsieLauncherOptionsGUI options;
@@ -119,12 +120,18 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	    			   loginLabel.setText(Strings.PROGRESS+":");
 	    		       loginLabel.setBounds(10, 162, 70, 15);
 	    			   panel.remove(loginField);
+	    			   String password = "";
+	    			   if(passwordField != null) {
+	    				   password = new String(passwordField.getPassword());
+	    				   panel.remove(passwordLabel);
+	    				   panel.remove(passwordField);
+	    			   }
 	    			   AsieLauncher.saveString(launcher.directory + "nickname.txt", loginField.getText());
 	    			   options.saveSelectedOptions(options.filename);
 	    			   panel.add(progressBar);
 	    			   statusLabel.setText(Strings.START_UPDATE);
 	    			   repaint();
-	    			   LauncherThread thread = new LauncherThread(launcher, options, loginField.getText(), "", hasInternet && !controlDown);
+	    			   LauncherThread thread = new LauncherThread(launcher, options, loginField.getText(), password, hasInternet && !controlDown);
 	    			   thread.start();
 	    		   } else {
 	    			   statusLabel.setText(Strings.INVALID_LOGIN);
@@ -137,11 +144,23 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	       statusLabel.setBounds(6, 219, 300, 15);
 	       
 	       loginLabel = new JLabel(Strings.LOGIN+":");
-	       loginLabel.setBounds(10, 160, 50, 15);
-	       
 	       loginField = new JTextField();
-	       loginField.setBounds(60, 156, 251, 24);
 	       loginField.setText(AsieLauncher.loadString(launcher.directory + "nickname.txt"));
+	       
+	       if(launcher.isOnlineMode()) {
+	    	   passwordLabel = new JLabel(Strings.PASSWORD+":");
+	    	   passwordField = new JPasswordField();
+		       passwordLabel.setBounds(10, 160, 70, 15);
+		       passwordField.setBounds(80, 156, 231, 24); 
+		       loginLabel.setBounds(10, 134, 50, 15);
+		       loginField.setBounds(80, 130, 231, 24); 
+		       panel.add(passwordLabel);
+		       panel.add(passwordField);
+	       } else {
+		       loginLabel.setBounds(10, 160, 50, 15);
+		       loginField.setBounds(60, 156, 251, 24); 
+	       }
+	       
 	       progressBar = new JProgressBar();
 	       progressBar.setBounds(86, 160, 224, 20);
 	       

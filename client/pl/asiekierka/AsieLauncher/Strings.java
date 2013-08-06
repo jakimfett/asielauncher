@@ -11,6 +11,8 @@ public class Strings {
 	public static final String LAUNCH_ONLY = "Launch only";
 	public static final String VERSION = "Version";
 	public static final String LOGIN = "Login";
+	public static final String LOGIN_ERROR = "Login error";
+	public static final String PASSWORD = "Password";
 	public static final String PROGRESS = "Progress";
 	public static final String QUIT = "Quit";
 	public static final String LAUNCH_UPDATE = "Launch/Update";
@@ -18,6 +20,7 @@ public class Strings {
 	public static final String INVALID_LOGIN = "Invalid login!";
 	public static final String START_UPDATE = "Starting update...";
 	public static final String OK = "OK";
+	public static final String AUTH_STATUS = "Authenticating...";
 	public static final String OPTIONS = "Options";
 	public static final String TITLE = "AsieLauncher";
 	public static final String OPTIONAL_MODS = "Optional mods:";

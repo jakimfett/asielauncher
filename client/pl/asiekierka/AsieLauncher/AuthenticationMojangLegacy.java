@@ -19,7 +19,7 @@ public class AuthenticationMojangLegacy extends Authentication {
 			HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
 			con.setRequestMethod("POST");
 			con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			String params = "?user="+username+"&password="+password+"&version=13";
+			String params = "user="+username+"&password="+password+"&version=13";
 			con.setDoOutput(true);
 			DataOutputStream dos = new DataOutputStream(con.getOutputStream());
 			dos.writeBytes(params);

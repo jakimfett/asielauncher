@@ -2,20 +2,20 @@ package pl.asiekierka.AsieLauncher;
 
 public class LauncherThread extends Thread {
 	private AsieLauncher launcher;
-	private String u, se;
+	private String u, pass;
 	private boolean online;
 	private AsieLauncherOptionsGUI options;
-	public LauncherThread(AsieLauncher l, AsieLauncherOptionsGUI o, String username, String sessionID, boolean _online) {
+	public LauncherThread(AsieLauncher l, AsieLauncherOptionsGUI o, String username, String password, boolean _online) {
 		launcher = l;
 		options = o;
 		u = username;
-		se = sessionID;
+		pass = password;
 		online = _online;
 	}
 
 	public void run() {
 		if(!online || launcher.install(options.options, options.oldOptions)) {
-			launcher.launch(u,se,options.getJVMArgs());
+			launcher.launch(u,pass,options.getJVMArgs());
 		}
 	}
 }

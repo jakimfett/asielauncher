@@ -13,7 +13,7 @@ import org.smbarbour.mcu.*;
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 3;
-	public static final String VERSION_STRING = "0.2.4-dev";
+	public static final String VERSION_STRING = "0.2.4";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "/.asielauncher/default/";
@@ -26,8 +26,10 @@ public class AsieLauncher implements IProgressUpdater {
 	public boolean launchedMinecraft = false;
 	private MinecraftFrame frame;
 	private String loadDir;
-	private boolean onlineMode = false;
+	private boolean onlineMode;
 	private Authentication auth;
+	
+	public boolean isOnlineMode() { return onlineMode; }
 	
 	public int getFileRevision(JSONObject source) {
 		Long revNew = (Long)(source.get("client_revision"));
@@ -136,6 +138,7 @@ public class AsieLauncher implements IProgressUpdater {
 		PREFIX = "/.asielauncher/"+(String)configFile.get("directoryName")+"/";
 		URL = (String)configFile.get("serverUrl");
 		WINDOW_NAME = (String)configFile.get("windowName");
+		onlineMode = (Boolean)configFile.get("onlineMode");
 	}
 	public AsieLauncher() {
 		configureConfig();
@@ -279,9 +282,10 @@ public class AsieLauncher implements IProgressUpdater {
 		String username = _username;
 		String sessionID = "null";
 		if(onlineMode) {
+			if(updater != null) updater.setStatus(Strings.AUTH_STATUS);
 			auth = new AuthenticationMojangLegacy();
 			if(!auth.authenticate(username, password)) {
-				if(updater != null) updater.setStatus("Login error: " + auth.getErrorMessage());
+				if(updater != null) updater.setStatus(Strings.LOGIN_ERROR+": " + auth.getErrorMessage());
 				return;
 			} else {
 				username = auth.getUsername();
