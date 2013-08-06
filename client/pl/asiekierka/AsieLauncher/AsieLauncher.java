@@ -16,6 +16,7 @@ public class AsieLauncher implements IProgressUpdater {
 	private static final String WINDOW_NAME = "Fluttercraft";
 	public static final String URL = "http://asiekierka.humee.pl:8080/";
 	private static final String PREFIX = "/.asielauncher/FluttercraftMC/";
+	public static final String VERSION_STRING = "0.2.4-dev";
 	public ArrayList<ModFile> baseFiles;
 	protected String directory;
 	private String OS;

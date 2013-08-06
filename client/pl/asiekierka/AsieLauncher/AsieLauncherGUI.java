@@ -134,7 +134,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	           }
 	       });
 	       
-	       statusLabel = new JLabel(Strings.READY);
+	       statusLabel = new JLabel(Strings.READY + " ("+Strings.VERSION+": "+AsieLauncher.VERSION_STRING+")");
 	       statusLabel.setBounds(6, 219, 300, 15);
 	       
 	       loginLabel = new JLabel(Strings.LOGIN+":");

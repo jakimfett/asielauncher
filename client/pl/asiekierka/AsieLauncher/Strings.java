@@ -9,6 +9,7 @@ public class Strings {
 	public static final String LAUNCHING = "Launching Minecraft!";
 	public static final String UNPACKING = "Unpacking";
 	public static final String LAUNCH_ONLY = "Launch only";
+	public static final String VERSION = "Version";
 	public static final String LOGIN = "Login";
 	public static final String PROGRESS = "Progress";
 	public static final String QUIT = "Quit";
