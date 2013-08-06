@@ -31,7 +31,6 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 		launcher = new AsieLauncher();
 		launcher.updater = (IProgressUpdater)this;
 		isRunning = true;
-		setTitle(Strings.TITLE);
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -156,6 +155,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	}
 	public boolean init() {
 		boolean linit = launcher.init();
+		setTitle("AsieLauncher - " + launcher.WINDOW_NAME);
 		options = new AsieLauncherOptionsGUI(launcher.getOptionMap(), launcher.directory + "also-options.txt");
 		if(!linit) hasInternet = false;
 		setVisible(true);

@@ -10,7 +10,7 @@ public class ModFileHTTP extends ModFile {
 	public ModFileHTTP(AsieLauncher _launcher, JSONObject data, String prefix) {
 		super(_launcher, data, prefix);
 		md5 = (String)data.get("md5");
-		try { url = new URL(Utils.fixURLString(AsieLauncher.URL + prefix + filename)); }
+		try { url = new URL(Utils.fixURLString(launcher.URL + prefix + filename)); }
 		catch(Exception e) { e.printStackTrace(); url = null; }
 	}
 	@Override

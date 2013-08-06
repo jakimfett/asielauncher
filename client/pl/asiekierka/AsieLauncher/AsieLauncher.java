@@ -13,14 +13,14 @@ import org.smbarbour.mcu.*;
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 3;
-	private static final String WINDOW_NAME = "Fluttercraft";
-	public static final String URL = "http://asiekierka.humee.pl:8080/";
-	private static final String PREFIX = "/.asielauncher/FluttercraftMC/";
 	public static final String VERSION_STRING = "0.2.4-dev";
+	public String WINDOW_NAME = "AsieLauncher";
+	public String URL = "http://127.0.0.1:8080/";
+	private String PREFIX = "/.asielauncher/default/";
 	public ArrayList<ModFile> baseFiles;
 	protected String directory;
 	private String OS;
-	private JSONObject file, oldFile;
+	private JSONObject file, oldFile, configFile;
 	private int fullProgress, fullTotal;
 	public IProgressUpdater updater;
 	public boolean launchedMinecraft = false;
@@ -129,7 +129,14 @@ public class AsieLauncher implements IProgressUpdater {
 		}
 		return optionMap;
 	}
+	public void configureConfig() {
+		configFile = readJSONFile(getClass().getResource("/resources/config.json").getPath());
+		PREFIX = "/.asielauncher/"+(String)configFile.get("directoryName")+"/";
+		URL = (String)configFile.get("serverUrl");
+		WINDOW_NAME = (String)configFile.get("windowName");
+	}
 	public AsieLauncher() {
+		configureConfig();
 		directory = System.getProperty("user.home") + PREFIX;
 		if(!(new File(directory).exists())) {
 			new File(directory).mkdirs();
