@@ -8,7 +8,7 @@ var express = require('express')
   , crypto = require('crypto');
 
 var app = express()
-  , config = require("./config.json")
+  , config = require("./AsieLauncher/config.json")
   , infoData = {};
 
 function getDirectoryList(name, destName, addLocation) {
@@ -70,11 +70,10 @@ function toUnix(date) {
 console.log("ALSO");
 
 // init folders
-fs.mkdir("zips", function(){ });
-app.use("/zips", express.static("./zips"));
-app.use("/platform", express.static("./platform"));
-app.use("/options", express.static("./options"));
-app.use("/launcher", express.static("./launcher_files"));
+fs.mkdir("AsieLauncher/zips", function(){ });
+app.use("/AsieLauncher/zips", express.static("./zips"));
+app.use("/AsieLauncher/platform", express.static("./platform"));
+app.use("/AsieLauncher/options", express.static("./options"));
 
 infoData.files = [];
 infoData.zips = [];
@@ -98,6 +97,7 @@ _.each(config.loggedDirs, function(dir) {
   // Express
   if(fs.existsSync(dir)) app.use("/"+dir, express.static("./"+dir));
   if(fs.existsSync(dir+"-client")) app.use("/"+dir, express.static("./"+dir+"-client"));
+  if(fs.existsSync("./AsieLauncher/"+dir)) app.use("/"+dir, express.static("./AsieLauncher/"+dir));
 });
 
 _.each(config.zippedDirs, function(dir) {
@@ -110,22 +110,22 @@ _.each(config.zippedDirs, function(dir) {
     , zip = new Zip();
   zip.addLocalFolder(dir);
   if(fs.existsSync(dir+"-client")) zip.addLocalFolder(dir+"-client");
-  zip.writeZip("./zips/"+dir+".zip");
-  var zipData = {"filename": dir+".zip", "directory": dir == "root" ? "" : dir, "size": getSize("./zips/"+dir+".zip"), "md5": md5("./zips/"+dir+".zip"),
+  zip.writeZip("./AsieLauncher/zips/"+dir+".zip");
+  var zipData = {"filename": dir+".zip", "directory": dir == "root" ? "" : dir, "size": getSize("./AsieLauncher/zips/"+dir+".zip"), "md5": md5("./AsieLauncher/zips/"+dir+".zip"),
                  "overwrite": !(_.contains(config.noOverwrite, dir)) };
   infoData.zips.push(zipData);
   infoData.size += zipData.size;
 });
 
-_.each(fs.readdirSync("./platform"), function(platform) {
+_.each(fs.readdirSync("./AsieLauncher/platform"), function(platform) {
   console.log("Adding platform "+platform);
-  var list = getDirectoryList("./platform/"+platform, "", false);
+  var list = getDirectoryList("./AsieLauncher/platform/"+platform, "", false);
   var size = getDirectoriesSize(list);
   infoData.platforms[platform] = {"files": list, "size": size};
 });
 
 _.each(config.options, function(option) {
-  var dir = "./options/"+option.id;
+  var dir = "./AsieLauncher/options/"+option.id;
   if(!fs.existsSync(dir)) return;
   console.log("Adding option "+option.id+" ["+option.name+"]");
   if(!option.zip) { // Directory
@@ -134,7 +134,7 @@ _.each(config.options, function(option) {
     infoData.options[option.id]=_.extend(option, {"files": list, "size": size});
   } else { // ZIP
     var zip = new Zip()
-      , zipFile = "./zips/option-"+option.id+".zip";
+      , zipFile = "./AsieLauncher/zips/option-"+option.id+".zip";
     zip.addLocalFolder(dir);
     zip.writeZip(zipFile);
    infoData.options[option.id]=_.extend(option, {"filename": "option-"+option.id+".zip", "directory": "", "size": getSize(zipFile), "md5": md5(zipFile)});
@@ -145,7 +145,7 @@ app.use("/also.json", function(req, res) {
   res.json(infoData);
 });
 
-app.use("/", express.static("./AsieLauncher"));
+app.use("/", express.static("./AsieLauncher/htdocs"));
 
 app.listen(config.port);
 
