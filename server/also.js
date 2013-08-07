@@ -79,9 +79,11 @@ infoData.files = [];
 infoData.zips = [];
 infoData.options = {};
 infoData.platforms = {};
+
 infoData.size = 0;
 infoData.client_revision = config.client_revision;
 infoData.servers = config.servers || {};
+infoData.onlineMode = config.onlineMode || false;
 
 _.each(config.loggedDirs, function(dir) {
 	if(!fs.existsSync(dir) && !fs.existsSync(dir+"-client") && !fs.existsSync("./AsieLauncher/"+dir)) {

@@ -3,6 +3,7 @@
   "zippedDirs": ["config", "root"],
   "noOverwrite": ["root"],
   "client_revision": 4,
+  "onlineMode": true,
   "blacklist": ["mods/Dynmap", "mods/ForgeIRC", "lib/jython"],
   "port": 8080,
   "servers": {

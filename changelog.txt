@@ -6,6 +6,7 @@
 [SERVER]
 + Send a serverlist to the client.
 * Fixed the whole code after accidentally moving files to AsieLauncher/ wrong.
+/ Move onlineMode option from client to server. Makes more sense that way.
 
 0.2.5:
 [CLIENT]

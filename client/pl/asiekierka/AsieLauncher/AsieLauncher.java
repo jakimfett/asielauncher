@@ -31,7 +31,7 @@ public class AsieLauncher implements IProgressUpdater {
 	public boolean launchedMinecraft = false;
 	private MinecraftFrame frame;
 	private String loadDir;
-	private boolean onlineMode;
+	private boolean onlineMode = true;
 	private Authentication auth;
 	
 	public boolean isOnlineMode() { return onlineMode; }
@@ -148,7 +148,6 @@ public class AsieLauncher implements IProgressUpdater {
 		PREFIX = "/.asielauncher/"+(String)configFile.get("directoryName")+"/";
 		URL = (String)configFile.get("serverUrl");
 		WINDOW_NAME = (String)configFile.get("windowName");
-		onlineMode = (Boolean)configFile.get("onlineMode");
 	}
 	public AsieLauncher() {
 		configureConfig();
@@ -167,7 +166,12 @@ public class AsieLauncher implements IProgressUpdater {
 	
 	public boolean init() {
 		file = readJSONUrlFile(URL + "also.json");
-		return (file instanceof JSONObject);
+		if(file instanceof JSONObject) { // Set variables;.
+			Object o = file.get("onlineMode");
+			if(o instanceof Boolean) onlineMode = ((Boolean)o);
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean save() {
