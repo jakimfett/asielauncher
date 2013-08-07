@@ -1,3 +1,7 @@
+0.2.6-dev:
+[CLIENT]
+* Show proper changelog filesize.
+
 0.2.5:
 [CLIENT]
 + Add changelog.

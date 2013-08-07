@@ -16,7 +16,7 @@ import org.smbarbour.mcu.*;
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 3;
-	public static final String VERSION_STRING = "0.2.5";
+	public static final String VERSION_STRING = "0.2.6-dev";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "/.asielauncher/default/";
@@ -224,6 +224,7 @@ public class AsieLauncher implements IProgressUpdater {
 	public boolean install(ArrayList<String> options, ArrayList<String> oldOptions, boolean dry) {
 		ArrayList<ModFile> installFiles = getFileList(file, options);
 		ArrayList<ModFile> oldInstallFiles = null;
+		int dryTotal = 0;
 		installLog = new ArrayList<String>();
 		if(oldFile != null) {
 			oldInstallFiles = getFileList(oldFile, oldOptions);
@@ -232,6 +233,7 @@ public class AsieLauncher implements IProgressUpdater {
 				if(!installFiles.contains(mf)) {
 					if(dry && !(mf instanceof ModFileZip)) { // Dry run
 						installLog.add("[-] " + mf.filename);
+						dryTotal -= mf.filesize;
 						continue;
 					}
 					this.setStatus(Strings.REMOVING+" "+mf.filename+"...");
@@ -246,6 +248,7 @@ public class AsieLauncher implements IProgressUpdater {
 		fullTotal = calculateTotalSize(installFiles);
 		for(ModFile mf: installFiles) {
 			if(dry && mf.shouldTouch()) {
+				dryTotal += mf.filesize;
 				if(mf instanceof ModFileZip) {
 					ModFileZip mfz = (ModFileZip) mf;
 					installLog.add("[+] " + mfz.filename + " => ./" + mfz.installDirectory);
@@ -264,7 +267,7 @@ public class AsieLauncher implements IProgressUpdater {
 			this.setStatus(Strings.SAVING);
 			this.save();
 		} else {
-			installLog.add("Total installation size: " + Math.round(fullTotal/1024) + "KB");
+			installLog.add("Total installation size: " + Math.round(dryTotal/1024) + "KB");
 		}
 		return true;
 	}
