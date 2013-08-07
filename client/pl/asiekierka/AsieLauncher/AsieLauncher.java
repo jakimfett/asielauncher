@@ -18,22 +18,30 @@ import org.smbarbour.mcu.*;
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 4;
 	private ServerListHandler serverlist;
-	public static final String VERSION_STRING = "0.2.6-dev";
+	public static final String VERSION_STRING = "0.3.0-dev";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "/.asielauncher/default/";
-	public ArrayList<ModFile> baseFiles;
+	private ArrayList<ModFile> baseFiles;
 	protected String directory;
 	private String OS;
 	private JSONObject file, oldFile, configFile;
 	private int fullProgress, fullTotal;
-	public IProgressUpdater updater;
-	public boolean launchedMinecraft = false;
+	private IProgressUpdater updater;
+	private boolean launchedMinecraft = false;
 	private MinecraftFrame frame;
 	private String loadDir;
 	private boolean onlineMode = true;
 	private Authentication auth;
-	
+
+	public IProgressUpdater getUpdater() {
+		return updater;
+	}
+
+	public void setUpdater(IProgressUpdater updater) {
+		this.updater = updater;
+	}
+
 	public boolean isOnlineMode() { return onlineMode; }
 	
 	public int getFileRevision(JSONObject source) {

@@ -30,7 +30,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	public AsieLauncherGUI() {
 		scaleFactor = Utils.getScaleFactor();
 		launcher = new AsieLauncher();
-		launcher.updater = (IProgressUpdater)this;
+		launcher.setUpdater((IProgressUpdater)this);
 		isRunning = true;
 		setResizable(false);
 		setLocationRelativeTo(null);
@@ -54,7 +54,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 		pack();
 	}
 	
-	public boolean getLaunchedMinecraft() { return launcher.launchedMinecraft; }
+	public boolean getLaunchedMinecraft() { return !launcher.isActive(); }
 	public boolean isActive() { return launcher.isActive(); }
 	
 	public boolean validateLaunch() {
