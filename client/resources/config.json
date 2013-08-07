@@ -1,5 +1,5 @@
 {   "windowName": "Fluttercraft",
-	"serverUrl": "http://asiekierka.humee.pl:8080/",
+	"serverUrl": "http://127.0.0.1:8080/",
 	"directoryName": "FluttercraftMC",
 	"onlineMode": true
 }

@@ -1,6 +1,7 @@
 0.2.6-dev:
 * Bump config revision to 4.
 [CLIENT]
++ Modify and/or generate servers.dat based on data sent from the server to the client.
 * Show proper changelog filesize.
 [SERVER]
 + Send a serverlist to the client.

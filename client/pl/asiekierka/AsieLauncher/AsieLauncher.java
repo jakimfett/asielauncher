@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 import javax.swing.ImageIcon;
 
@@ -15,7 +16,8 @@ import org.smbarbour.mcu.*;
 
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
-	public static final int VERSION = 3;
+	public static final int VERSION = 4;
+	private ServerListHandler serverlist;
 	public static final String VERSION_STRING = "0.2.6-dev";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
@@ -151,6 +153,7 @@ public class AsieLauncher implements IProgressUpdater {
 	public AsieLauncher() {
 		configureConfig();
 		directory = System.getProperty("user.home") + PREFIX;
+		serverlist = new ServerListHandler(directory + "servers.dat", false);
 		if(!(new File(directory).exists())) {
 			new File(directory).mkdirs();
 		} else {
@@ -312,6 +315,7 @@ public class AsieLauncher implements IProgressUpdater {
 	}
 	
 	public void launch(String _username, String password, String jvmArgs) {
+		// Authenticate, if necessary.
 		String username = _username;
 		String sessionID = "null";
 		if(updater != null) updater.update(100,100);
@@ -327,6 +331,20 @@ public class AsieLauncher implements IProgressUpdater {
 			}
 		}
 		if(sessionID.length() == 0) sessionID = "null";
+		// Update serverlist.
+		if(updater != null) updater.setStatus(Strings.UPDATE_SERVERLIST);
+		HashMap<String, String> servers = new HashMap<String, String>();
+		JSONObject serversJson = (JSONObject)file.get("servers");
+		for(Object o: serversJson.entrySet()) {
+			if(!(o instanceof Entry)) continue;
+			@SuppressWarnings("unchecked")
+			Entry<? extends Object, ? extends Object> e = (Entry<? extends Object, ? extends Object>)o;
+			if(!(e.getKey() instanceof String)) continue;
+			if(!(e.getValue() instanceof String)) continue;
+			servers.put((String)e.getKey(), (String)e.getValue());
+		}
+		serverlist.updateServerList(servers);
+		// Launch Minecraft.
 		String separator = System.getProperty("file.separator");
 	    String classpath = System.getProperty("java.class.path");
 	    System.out.println(loadDir);
