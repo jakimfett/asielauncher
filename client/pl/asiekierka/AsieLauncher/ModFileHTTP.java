@@ -6,10 +6,10 @@ import org.json.simple.*;
 
 public class ModFileHTTP extends ModFile {
 	protected URL url;
-	protected String md5;
+
 	public ModFileHTTP(AsieLauncher _launcher, JSONObject data, String prefix) {
 		super(_launcher, data, prefix);
-		md5 = (String)data.get("md5");
+
 		try { url = new URL(Utils.fixURLString(launcher.URL + prefix + filename)); }
 		catch(Exception e) { e.printStackTrace(); url = null; }
 	}
@@ -20,17 +20,9 @@ public class ModFileHTTP extends ModFile {
 	
 	public boolean install(IProgressUpdater updater, boolean forceOverwrite) {
 		super.createDirsIfMissing();
-		// Check MD5
-		if(file.exists()) {
-			if(!overwrite && !forceOverwrite) return true;
-			try {
-				String fileMD5 = Utils.md5(file);
-				System.out.println("Comparison: "+md5+" "+fileMD5);
-				if(fileMD5.equalsIgnoreCase(md5)) {
-					updater.update(filesize, filesize);
-					return true;
-				}
-			} catch(Exception e) { /* Can be ignored. */ }
+		if(!shouldTouch() && !forceOverwrite) {
+			updater.update(filesize, filesize);
+			return true;
 		}
 		// Download
 		updater.setStatus(Strings.DOWNLOADING+" "+filename+"...");

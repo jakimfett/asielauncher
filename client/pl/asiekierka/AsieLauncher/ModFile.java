@@ -1,11 +1,12 @@
 package pl.asiekierka.AsieLauncher;
 
 import java.io.*;
+
 import org.json.simple.*;
 
 public abstract class ModFile {
 	public String filename;
-	protected String absoluteFilename;
+	protected String absoluteFilename, md5;
 	protected File file;
 	protected AsieLauncher launcher;
 	protected JSONObject information;
@@ -16,6 +17,7 @@ public abstract class ModFile {
 		launcher = _launcher;
 		information = data;
 		filename = (String)information.get("filename");
+		md5 = (String)data.get("md5");
 		Long longFilesize = (Long)(information.get("size"));
 		filesize = longFilesize.intValue();
 		absoluteFilename = launcher.directory + (String)information.get("filename");
@@ -28,6 +30,19 @@ public abstract class ModFile {
 	public abstract boolean install(IProgressUpdater updater);
 	public abstract boolean remove();
 	
+	public boolean shouldTouch() {
+		if(file.exists()) {
+			if(!overwrite) return false;
+			try {
+				String fileMD5 = Utils.md5(file);
+				System.out.println("Comparison: "+md5+" "+fileMD5);
+				if(fileMD5.equalsIgnoreCase(md5)) {
+					return false;
+				}
+			} catch(Exception e) { /* Can be ignored. */ }
+		}
+		return true;
+	}
 	public void createDirsIfMissing() {
 		File path = new File(file.getParentFile().getPath());
 		path.mkdirs();

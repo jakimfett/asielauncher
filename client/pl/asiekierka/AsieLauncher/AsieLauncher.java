@@ -229,11 +229,11 @@ public class AsieLauncher implements IProgressUpdater {
 			oldInstallFiles = getFileList(oldFile, oldOptions);
 			// Delete old files
 			for(ModFile mf: oldInstallFiles) {
-				if(dry && !(mf instanceof ModFileZip)) { // Dry run
-					installLog.add("[-] " + mf.filename);
-					continue;
-				}
 				if(!installFiles.contains(mf)) {
+					if(dry && !(mf instanceof ModFileZip)) { // Dry run
+						installLog.add("[-] " + mf.filename);
+						continue;
+					}
 					this.setStatus(Strings.REMOVING+" "+mf.filename+"...");
 					if(!mf.remove()) {
 						this.setStatus(Strings.REMOVING+" "+Strings.FAILED);
@@ -245,7 +245,7 @@ public class AsieLauncher implements IProgressUpdater {
 		else oldInstallFiles = new ArrayList<ModFile>();
 		fullTotal = calculateTotalSize(installFiles);
 		for(ModFile mf: installFiles) {
-			if(dry) {
+			if(dry && mf.shouldTouch()) {
 				if(mf instanceof ModFileZip) {
 					ModFileZip mfz = (ModFileZip) mf;
 					installLog.add("[+] " + mfz.filename + " => ./" + mfz.installDirectory);
@@ -253,7 +253,7 @@ public class AsieLauncher implements IProgressUpdater {
 					installLog.add("[+] " + mf.filename);
 				}
 				continue;
-			}
+			} else if(dry) continue;
 			this.setStatus(Strings.INSTALLING+" "+mf.filename+"...");
 			if(!mf.install(this)) {
 				this.setStatus(Strings.INSTALLING+" "+Strings.FAILED);
