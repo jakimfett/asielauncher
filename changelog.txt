@@ -1,0 +1,49 @@
+0.2.5-dev:
+[CLIENT]
++ Add changelog.
++ Add "Launch Only" option while holding Control.
+* Fix options GUI look.
+[SERVER]
+/ Move files to AsieLauncher/, mostly.
+
+0.2.4:
+[CLIENT]
++ Add support for Mojang authentication.
++ Add config.json for recompile-less branding.
+* Fix a bug where too long JVM arguments would make the Options GUI impossibly long.
+
+0.2.3:
+* Bump config revision to 3.
+[CLIENT]
+* Fix regression from 0.2.2 where running from a shell in Linux/OS X would not work.
+* Fix ZIPs with overwrite set to "false" stopping the installation process.
+[SERVER]
++ Support a "root" folder, which is essentially /
+
+0.2.2:
+[CLIENT]
+* Fix Windows bugs from 0.2. Really.
+
+0.2.1:
+[CLIENT]
+* Fix Windows bugs from 0.2.
+
+0.2:
+[CLIENT]
++ Add an options menu with the ability to change the JVM args and amount of RAM allocated.
++ Add support for optional components client-side.
++ Added support for Retina displays. (Apple-only for now, still needs information in Info.plist)
++ If possible, the client now launches a separate JVM instance, fixing the lag issues from 0.1.
+[BOTH]
++ Add "client_revision" for marking the JSON data format revision.
++ Added support for not overwriting files for specific directories, files or ZIPs.
+
+0.1:
+[CLIENT]
++ First release.
++ Support offline-mode login.
++ Support reading and updating from server.
+[SERVER]
++ Support reading mod files and storing the information in also.json.
++ Support ZIP file creation.
++ Support optional components (server-side only).
