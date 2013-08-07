@@ -4,6 +4,7 @@
 * Show proper changelog filesize.
 [SERVER]
 + Send a serverlist to the client.
+* Fixed the whole code after accidentally moving files to AsieLauncher/ wrong.
 
 0.2.5:
 [CLIENT]

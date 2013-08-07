@@ -71,9 +71,9 @@ console.log("ALSO");
 
 // init folders
 fs.mkdir("AsieLauncher/zips", function(){ });
-app.use("/AsieLauncher/zips", express.static("./zips"));
-app.use("/AsieLauncher/platform", express.static("./platform"));
-app.use("/AsieLauncher/options", express.static("./options"));
+app.use("/zips", express.static("./AsieLauncher/zips"));
+app.use("/platform", express.static("./AsieLauncher/platform"));
+app.use("/options", express.static("./AsieLauncher/options"));
 
 infoData.files = [];
 infoData.zips = [];
