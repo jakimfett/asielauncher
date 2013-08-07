@@ -22,9 +22,9 @@ public class ModFileZip extends ModFileHTTP {
     	}
     	File dirFile = new File(directory);
     	dirFile.mkdir();
-		updater.setStatus(Strings.UNPACKING+" "+filename+"...");
+		updater.setStatus(Strings.UNPACKING+" "+this.getFilename()+"...");
     	try {
-    		Utils.extract(absoluteFilename, directory, overwrite);
+    		Utils.extract(absoluteFilename, directory, this.isOverwrite());
     	} catch(Exception e) { e.printStackTrace(); return false; }
     	return true;
 	}

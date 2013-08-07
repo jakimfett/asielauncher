@@ -9,8 +9,7 @@ public class ModFileHTTP extends ModFile {
 
 	public ModFileHTTP(AsieLauncher _launcher, JSONObject data, String prefix) {
 		super(_launcher, data, prefix);
-
-		try { url = new URL(Utils.fixURLString(launcher.URL + prefix + filename)); }
+		try { url = new URL(Utils.fixURLString(launcher.URL + prefix + this.getFilename())); }
 		catch(Exception e) { e.printStackTrace(); url = null; }
 	}
 	@Override
@@ -19,13 +18,14 @@ public class ModFileHTTP extends ModFile {
 	}
 	
 	public boolean install(IProgressUpdater updater, boolean forceOverwrite) {
+		int filesize = this.getFilesize();
 		super.createDirsIfMissing();
 		if(!shouldTouch() && !forceOverwrite) {
 			updater.update(filesize, filesize);
 			return true;
 		}
 		// Download
-		updater.setStatus(Strings.DOWNLOADING+" "+filename+"...");
+		updater.setStatus(Strings.DOWNLOADING+" "+this.getFilename()+"...");
 		boolean downloaded = true;
     	BufferedInputStream in = null;
     	FileOutputStream out = null;
@@ -61,7 +61,7 @@ public class ModFileHTTP extends ModFile {
 	
 	@Override
 	public boolean remove() {
-		if(file.exists()) return file.delete();
+		if(this.getFile().exists()) return this.getFile().delete();
 		else return true;
 	}
 }

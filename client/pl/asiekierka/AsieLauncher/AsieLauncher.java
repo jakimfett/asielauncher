@@ -222,7 +222,7 @@ public class AsieLauncher implements IProgressUpdater {
 	public int calculateTotalSize(ArrayList<ModFile> files) {
 		int totalSize = 0;
 		for(ModFile mf: files) {
-			totalSize += mf.filesize;
+			totalSize += mf.getFilesize();
 		}
 		return totalSize;
 	}
@@ -247,11 +247,11 @@ public class AsieLauncher implements IProgressUpdater {
 			for(ModFile mf: oldInstallFiles) {
 				if(!installFiles.contains(mf)) {
 					if(dry && !(mf instanceof ModFileZip)) { // Dry run
-						installLog.add("[-] " + mf.filename);
-						dryTotal -= mf.filesize;
+						installLog.add("[-] " + mf.getFilename());
+						dryTotal -= mf.getFilesize();
 						continue;
 					}
-					this.setStatus(Strings.REMOVING+" "+mf.filename+"...");
+					this.setStatus(Strings.REMOVING+" "+mf.getFilename()+"...");
 					if(!mf.remove()) {
 						this.setStatus(Strings.REMOVING+" "+Strings.FAILED);
 						return false;
@@ -263,16 +263,16 @@ public class AsieLauncher implements IProgressUpdater {
 		fullTotal = calculateTotalSize(installFiles);
 		for(ModFile mf: installFiles) {
 			if(dry && mf.shouldTouch()) {
-				dryTotal += mf.filesize;
+				dryTotal += mf.getFilesize();
 				if(mf instanceof ModFileZip) {
 					ModFileZip mfz = (ModFileZip) mf;
-					installLog.add("[+] " + mfz.filename + " => ./" + mfz.installDirectory);
+					installLog.add("[+] " + mfz.getFilename() + " => ./" + mfz.installDirectory);
 				} else {
-					installLog.add("[+] " + mf.filename);
+					installLog.add("[+] " + mf.getFilename());
 				}
 				continue;
 			} else if(dry) continue;
-			this.setStatus(Strings.INSTALLING+" "+mf.filename+"...");
+			this.setStatus(Strings.INSTALLING+" "+mf.getFilename()+"...");
 			if(!mf.install(this)) {
 				this.setStatus(Strings.INSTALLING+" "+Strings.FAILED);
 				return false;

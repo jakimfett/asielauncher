@@ -5,13 +5,13 @@ import java.io.*;
 import org.json.simple.*;
 
 public abstract class ModFile {
-	public String filename;
-	protected String absoluteFilename, md5;
+	private String filename, md5;
+	protected String absoluteFilename;
 	protected File file;
 	protected AsieLauncher launcher;
 	protected JSONObject information;
-	public int filesize;
-	public boolean overwrite;
+	private int filesize;
+	private boolean overwrite;
 	
 	public ModFile(AsieLauncher _launcher, JSONObject data, String prefix) {
 		launcher = _launcher;
@@ -27,6 +27,30 @@ public abstract class ModFile {
 					: true;
 	}
 	
+	public String getMD5() {
+		return md5;
+	}
+
+	public File getFile() {
+		return file;
+	}
+
+	public String getFilename() {
+		return filename;
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
+
+	public int getFilesize() {
+		return filesize;
+	}
+
+	public boolean isOverwrite() {
+		return overwrite;
+	}
+
 	public abstract boolean install(IProgressUpdater updater);
 	public abstract boolean remove();
 	
