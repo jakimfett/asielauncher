@@ -44,6 +44,10 @@ public class AsieLauncher implements IProgressUpdater {
 
 	public boolean isOnlineMode() { return onlineMode; }
 	
+	public void setOnlineMode(boolean onlineMode) {
+		this.onlineMode = onlineMode;
+	}
+
 	public int getFileRevision(JSONObject source) {
 		Long revNew = (Long)(source.get("client_revision"));
 		if(revNew == null) return 1;
@@ -51,6 +55,7 @@ public class AsieLauncher implements IProgressUpdater {
 	}
 	
 	public boolean sameClientRevision() {
+		if(file == null) return true; // Assumptions!
 		Long revNew = (Long)(file.get("client_revision"));
 		if(revNew == null && VERSION != 1) return false;
 		if(revNew == null && VERSION == 1) return true;
@@ -144,10 +149,12 @@ public class AsieLauncher implements IProgressUpdater {
 	
 	public HashMap<String, JSONObject> getOptionMap() {
 		HashMap<String, JSONObject> optionMap = new HashMap<String, JSONObject>();
-		JSONObject options = (JSONObject)file.get("options");
-		for(Object o: options.values()) {
-			JSONObject option = (JSONObject)o;
-			optionMap.put((String)option.get("id"), option);
+		if(file != null) {
+			JSONObject options = (JSONObject)file.get("options");
+			for(Object o: options.values()) {
+				JSONObject option = (JSONObject)o;
+				optionMap.put((String)option.get("id"), option);
+			}
 		}
 		return optionMap;
 	}
@@ -344,18 +351,20 @@ public class AsieLauncher implements IProgressUpdater {
 		}
 		if(sessionID.length() == 0) sessionID = "null";
 		// Update serverlist.
-		if(updater != null) updater.setStatus(Strings.UPDATE_SERVERLIST);
-		HashMap<String, String> servers = new HashMap<String, String>();
-		JSONObject serversJson = (JSONObject)file.get("servers");
-		for(Object o: serversJson.entrySet()) {
-			if(!(o instanceof Entry)) continue;
-			@SuppressWarnings("unchecked")
-			Entry<? extends Object, ? extends Object> e = (Entry<? extends Object, ? extends Object>)o;
-			if(!(e.getKey() instanceof String)) continue;
-			if(!(e.getValue() instanceof String)) continue;
-			servers.put((String)e.getKey(), (String)e.getValue());
+		if(file != null) {
+			if(updater != null) updater.setStatus(Strings.UPDATE_SERVERLIST);
+			HashMap<String, String> servers = new HashMap<String, String>();
+			JSONObject serversJson = (JSONObject)file.get("servers");
+			for(Object o: serversJson.entrySet()) {
+				if(!(o instanceof Entry)) continue;
+				@SuppressWarnings("unchecked")
+				Entry<? extends Object, ? extends Object> e = (Entry<? extends Object, ? extends Object>)o;
+				if(!(e.getKey() instanceof String)) continue;
+				if(!(e.getValue() instanceof String)) continue;
+				servers.put((String)e.getKey(), (String)e.getValue());
+			}
+			serverlist.updateServerList(servers);
 		}
-		serverlist.updateServerList(servers);
 		// Launch Minecraft.
 		String separator = System.getProperty("file.separator");
 	    String classpath = System.getProperty("java.class.path");

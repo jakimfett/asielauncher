@@ -3,6 +3,8 @@
 [CLIENT]
 + Modify and/or generate servers.dat based on data sent from the server to the client.
 * Show proper changelog filesize.
+* Fix launching while internet is down.
+/ Code refactoring, somewhat.
 [SERVER]
 + Send a serverlist to the client.
 * Fixed the whole code after accidentally moving files to AsieLauncher/ wrong.

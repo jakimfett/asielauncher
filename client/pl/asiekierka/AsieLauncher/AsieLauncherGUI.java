@@ -127,7 +127,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	    				   panel.remove(passwordField);
 	    			   }
 	    			   AsieLauncher.saveString(launcher.directory + "nickname.txt", loginField.getText());
-	    			   options.saveSelectedOptions(options.filename);
+	    			   if(hasInternet) options.saveSelectedOptions(options.filename);
 	    			   panel.add(progressBar);
 	    			   statusLabel.setText(Strings.START_UPDATE);
 	    			   repaint();
@@ -182,6 +182,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 		options = new AsieLauncherOptionsGUI(this, launcher.getOptionMap(), launcher.directory + "also-options.txt");
 		if(!linit) hasInternet = false;
 		setVisible(true);
+		if(!hasInternet) launcher.setOnlineMode(false);
 		initGUILogin();
 		if(!launcher.sameClientRevision()) {
 			JOptionPane.showMessageDialog(this, Strings.WRONG_CLIENT_REVISION);
