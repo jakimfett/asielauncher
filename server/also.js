@@ -101,15 +101,16 @@ _.each(config.loggedDirs, function(dir) {
 });
 
 _.each(config.zippedDirs, function(dir) {
-	if(!fs.existsSync(dir)) {
+	if(!fs.existsSync(dir) && !fs.existsSync(dir+"-client") && !fs.existsSync("./AsieLauncher/"+dir)) {
 		console.log("WARNING: Directory "+dir+" not found!");
 		return;
 	}
   console.log("Adding zipped directory "+dir);
   var list = getDirectoriesList(dir, true)
     , zip = new Zip();
-  zip.addLocalFolder(dir);
+  if(fs.existsSync(dir)) zip.addLocalFolder(dir);
   if(fs.existsSync(dir+"-client")) zip.addLocalFolder(dir+"-client");
+  if(fs.existsSync("AsieLauncher/"+dir)) zip.addLocalFolder("AsieLauncher/"+dir);
   zip.writeZip("./AsieLauncher/zips/"+dir+".zip");
   var zipData = {"filename": dir+".zip", "directory": dir == "root" ? "" : dir, "size": getSize("./AsieLauncher/zips/"+dir+".zip"), "md5": md5("./AsieLauncher/zips/"+dir+".zip"),
                  "overwrite": !(_.contains(config.noOverwrite, dir)) };
