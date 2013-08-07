@@ -1,6 +1,7 @@
 package pl.asiekierka.AsieLauncher;
 
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -36,28 +37,30 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		panel = new JPanel();
 		getContentPane().add(panel);
-		panel.setLayout(new GridLayout(optionMap.size()+3, 1));
+		GridBagLayout gbl = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		panel.setLayout(gbl);
 		panel.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
 		optionBoxes = new HashMap<String, JCheckBox>(optionMap.size());
 		optionBoxIDs = new HashMap<JCheckBox, String>(optionMap.size());
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.PAGE_START;
+		c.gridx = 0;
+		c.gridy = 0;
 		for(String optionID : optionMap.keySet()) {
 			JSONObject option = optionMap.get(optionID);
 			JCheckBox box = new JCheckBox((String)option.get("name"), (Boolean)option.get("default"));
 			box.setToolTipText((String)option.get("description"));
-			panel.add(box);
+			panel.add(box, c);
 			optionBoxes.put(optionID, box);
 			optionBoxIDs.put(box, optionID);
+			c.gridy++;
 		}
 		
 		ramAmount = new JTextField("1024", 5);
 		otherArgs = new JTextField(20);
-		JPanel innerPanel = new JPanel();
-		panel.add(innerPanel);
-		innerPanel.setLayout(new GridLayout(2,2));
-		innerPanel.add(new JLabel(Strings.RAM_AMOUNT_MB));
-		innerPanel.add(ramAmount);
-		innerPanel.add(new JLabel(Strings.OTHER_JVM_ARGS));
-		innerPanel.add(otherArgs);
+		//JPanel innerPanel = new JPanel();
+		//panel.add(innerPanel);
 		logButton = new JButton(Strings.SHOW_INSTALL_LOG);
 		logButton.addActionListener(new ActionListener() {
 			@Override
@@ -74,8 +77,24 @@ public class AsieLauncherOptionsGUI extends JFrame {
 	        	setVisible(false);
 	        }
 	    });
-	    panel.add(logButton);
-		panel.add(quitButton);
+	    // Warning: The part below is uuuuugly.
+	    // Don't tell me I didn't warn you.
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.gridy++;
+		panel.add(new JLabel(Strings.RAM_AMOUNT_MB), c);
+		c.gridy++;
+		panel.add(new JLabel(Strings.OTHER_JVM_ARGS), c);
+		c.gridy++;
+	    panel.add(logButton, c);
+	    c.anchor = GridBagConstraints.LINE_END;
+	    c.gridx++;
+	    c.gridy-=2;
+		panel.add(ramAmount, c);
+		c.gridy++;
+		panel.add(otherArgs, c);
+		c.gridy++;
+		panel.add(quitButton, c);
 		loadSelectedOptions(filename);
 		oldOptions = getOptions();
 		options = getOptions();
