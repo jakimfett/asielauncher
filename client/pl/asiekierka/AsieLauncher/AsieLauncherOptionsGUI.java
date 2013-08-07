@@ -65,6 +65,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		logButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				setOptions();
 				AsieLauncherLogGUI logGUI = new AsieLauncherLogGUI();
 				logGUI.showLog(lgui.generateLogs());
 			}
