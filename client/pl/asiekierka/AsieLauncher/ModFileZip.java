@@ -4,13 +4,14 @@ import java.io.*;
 import org.json.simple.*;
 
 public class ModFileZip extends ModFileHTTP {
-	public String directory;
+	public String directory, installDirectory;
 	
 	public ModFileZip(AsieLauncher _launcher, JSONObject data, String prefix) {
 		super(_launcher, data, prefix);
 		absoluteFilename = launcher.directory + prefix + (String)information.get("filename");
 		file = new File(absoluteFilename);
-		directory = launcher.directory + (String)data.get("directory");
+		installDirectory = (String)data.get("directory");
+		directory = launcher.directory + installDirectory;
 	}
 	@Override
 	public boolean install(IProgressUpdater updater) {

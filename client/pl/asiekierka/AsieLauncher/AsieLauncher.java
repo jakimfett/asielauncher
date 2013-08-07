@@ -4,8 +4,11 @@ import java.awt.Dimension;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
 import javax.swing.ImageIcon;
+
 import net.minecraft.Launcher;
+
 import org.json.simple.*;
 import org.json.simple.parser.*;
 import org.smbarbour.mcu.*;
@@ -13,7 +16,7 @@ import org.smbarbour.mcu.*;
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 3;
-	public static final String VERSION_STRING = "0.2.4";
+	public static final String VERSION_STRING = "0.2.5-dev";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "/.asielauncher/default/";
@@ -209,18 +212,27 @@ public class AsieLauncher implements IProgressUpdater {
 		return totalSize;
 	}
 	
-	public boolean install() {
+	private ArrayList<String> installLog;
+	
+	public String[] getInstallLog() { return installLog.toArray(new String[installLog.size()]); }
+	
+	public boolean install(boolean dry) {
 		ArrayList<String> options = new ArrayList<String>();
 		ArrayList<String> oldOptions = new ArrayList<String>();
-		return install(options, oldOptions);
+		return install(options, oldOptions, dry);
 	}
-	public boolean install(ArrayList<String> options, ArrayList<String> oldOptions) {
+	public boolean install(ArrayList<String> options, ArrayList<String> oldOptions, boolean dry) {
 		ArrayList<ModFile> installFiles = getFileList(file, options);
 		ArrayList<ModFile> oldInstallFiles = null;
+		installLog = new ArrayList<String>();
 		if(oldFile != null) {
 			oldInstallFiles = getFileList(oldFile, oldOptions);
 			// Delete old files
 			for(ModFile mf: oldInstallFiles) {
+				if(dry && !(mf instanceof ModFileZip)) { // Dry run
+					installLog.add("[-] " + mf.filename);
+					continue;
+				}
 				if(!installFiles.contains(mf)) {
 					this.setStatus(Strings.REMOVING+" "+mf.filename+"...");
 					if(!mf.remove()) {
@@ -233,14 +245,27 @@ public class AsieLauncher implements IProgressUpdater {
 		else oldInstallFiles = new ArrayList<ModFile>();
 		fullTotal = calculateTotalSize(installFiles);
 		for(ModFile mf: installFiles) {
+			if(dry) {
+				if(mf instanceof ModFileZip) {
+					ModFileZip mfz = (ModFileZip) mf;
+					installLog.add("[+] " + mfz.filename + " => ./" + mfz.installDirectory);
+				} else {
+					installLog.add("[+] " + mf.filename);
+				}
+				continue;
+			}
 			this.setStatus(Strings.INSTALLING+" "+mf.filename+"...");
 			if(!mf.install(this)) {
 				this.setStatus(Strings.INSTALLING+" "+Strings.FAILED);
 				return false;
 			}
 		}
-		this.setStatus(Strings.SAVING);
-		this.save();
+		if(!dry) {
+			this.setStatus(Strings.SAVING);
+			this.save();
+		} else {
+			installLog.add("Total installation size: " + Math.round(fullTotal/1024) + "KB");
+		}
 		return true;
 	}
 	

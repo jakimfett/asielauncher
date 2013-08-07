@@ -172,10 +172,14 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	       panel.add(loginField);
 		   repaint();
 	}
+	public String[] generateLogs() {
+		launcher.install(options.options, options.oldOptions, true);
+		return launcher.getInstallLog();
+	}
 	public boolean init() {
 		boolean linit = launcher.init();
 		setTitle("AsieLauncher - " + launcher.WINDOW_NAME);
-		options = new AsieLauncherOptionsGUI(launcher.getOptionMap(), launcher.directory + "also-options.txt");
+		options = new AsieLauncherOptionsGUI(this, launcher.getOptionMap(), launcher.directory + "also-options.txt");
 		if(!linit) hasInternet = false;
 		setVisible(true);
 		initGUILogin();

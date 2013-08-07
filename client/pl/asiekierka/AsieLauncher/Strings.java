@@ -20,6 +20,8 @@ public class Strings {
 	public static final String INVALID_LOGIN = "Invalid login!";
 	public static final String START_UPDATE = "Starting update...";
 	public static final String OK = "OK";
+	public static final String INSTALL_LOG = "Changelog";
+	public static final String SHOW_INSTALL_LOG = "Show changes";
 	public static final String AUTH_STATUS = "Authenticating...";
 	public static final String OPTIONS = "Options";
 	public static final String TITLE = "AsieLauncher";

@@ -20,13 +20,15 @@ public class AsieLauncherOptionsGUI extends JFrame {
 	private JPanel panel;
 	private HashMap<String, JCheckBox> optionBoxes;
 	private HashMap<JCheckBox, String> optionBoxIDs;
-	private JButton quitButton;
+	private JButton quitButton, logButton;
 	public String filename;
 	public ArrayList<String> oldOptions;
 	public ArrayList<String> options;
 	private JTextField ramAmount, otherArgs;
+	private AsieLauncherGUI lgui;
 	
-	public AsieLauncherOptionsGUI(Map<String, JSONObject> optionMap, String fn) {
+	public AsieLauncherOptionsGUI(AsieLauncherGUI parent, Map<String, JSONObject> optionMap, String fn) {
+		lgui = parent;
 		filename=fn;
 		setTitle(Strings.OPTIONS);
 		setResizable(false);
@@ -34,7 +36,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		panel = new JPanel();
 		getContentPane().add(panel);
-		panel.setLayout(new GridLayout(optionMap.size()+2, 1));
+		panel.setLayout(new GridLayout(optionMap.size()+3, 1));
 		panel.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
 		optionBoxes = new HashMap<String, JCheckBox>(optionMap.size());
 		optionBoxIDs = new HashMap<JCheckBox, String>(optionMap.size());
@@ -56,6 +58,14 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		innerPanel.add(ramAmount);
 		innerPanel.add(new JLabel(Strings.OTHER_JVM_ARGS));
 		innerPanel.add(otherArgs);
+		logButton = new JButton(Strings.SHOW_INSTALL_LOG);
+		logButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				AsieLauncherLogGUI logGUI = new AsieLauncherLogGUI();
+				logGUI.showLog(lgui.generateLogs());
+			}
+		});
 		quitButton = new JButton(Strings.OK);
 	    quitButton.addActionListener(new ActionListener() {
 	    	@Override
@@ -64,6 +74,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 	        	setVisible(false);
 	        }
 	    });
+	    panel.add(logButton);
 		panel.add(quitButton);
 		loadSelectedOptions(filename);
 		oldOptions = getOptions();
