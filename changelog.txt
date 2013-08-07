@@ -1,4 +1,4 @@
-0.2.5-dev:
+0.2.5:
 [CLIENT]
 + Add changelog.
 + Add "Launch Only" option while holding Control.
