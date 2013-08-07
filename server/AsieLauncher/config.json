@@ -2,9 +2,12 @@
 { "loggedDirs": ["mods", "coremods", "texturepacks", "bin", "lib"],
   "zippedDirs": ["config", "root"],
   "noOverwrite": ["root"],
-  "client_revision": 3,
+  "client_revision": 4,
   "blacklist": ["mods/Dynmap", "mods/ForgeIRC", "lib/jython"],
   "port": 8080,
+  "servers": {
+    "Fluttercraft": "asiekierka.humee.pl"
+  },
   "options": [
     {
       "id": "example1",
@@ -13,8 +16,8 @@
       "default": false,
       "zip": false,
       "overwrite": true
-		},
-		{
+    },
+    {
       "id": "example2",
       "name": "Example2",
       "description": "Example option",

@@ -1,6 +1,9 @@
 0.2.6-dev:
+* Bump config revision to 4.
 [CLIENT]
 * Show proper changelog filesize.
+[SERVER]
++ Send a serverlist to the client.
 
 0.2.5:
 [CLIENT]
