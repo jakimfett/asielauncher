@@ -30,4 +30,7 @@ public class Strings {
 	public static final String WRONG_CLIENT_REVISION = "You are using the wrong client version! Get the latest one at your server's homepage.";
 	public static final String RAM_AMOUNT_MB = "RAM amount (MB):";
 	public static final String OTHER_JVM_ARGS = "JVM arguments:";
+	public static final String REPACK_JAR = "Repacking minecraft.jar...";
+	public static final String DOWNLOAD_MC = "Downloading Minecraft...";
+	public static final String WRONG_MINECRAFT_VERSION = "This version of Minecraft is not supported by the launcher!";
 }

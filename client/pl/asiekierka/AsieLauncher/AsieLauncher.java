@@ -16,14 +16,14 @@ import org.smbarbour.mcu.*;
 
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
-	public static final int VERSION = 4;
+	public static final int VERSION = 5;
 	private ServerListHandler serverlist;
-	public static final String VERSION_STRING = "0.3.0";
+	public static final String VERSION_STRING = "0.3.1-dev";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "/.asielauncher/default/";
 	private ArrayList<ModFile> baseFiles;
-	protected String directory;
+	protected String directory, baseDir;
 	private String OS;
 	private JSONObject file, oldFile, configFile;
 	private int fullProgress, fullTotal;
@@ -31,7 +31,8 @@ public class AsieLauncher implements IProgressUpdater {
 	private boolean launchedMinecraft = false;
 	private String loadDir;
 	private boolean onlineMode = true;
-	private IMinecraftLauncher mc;
+	private MinecraftHandler mc;
+	private static final String mcVersion = "1.5.2"; // TODO: SEND FROM SERVER
 	
 	public String getLoadDir() {
 		return loadDir;
@@ -163,13 +164,14 @@ public class AsieLauncher implements IProgressUpdater {
 	}
 	public void configureConfig() {
 		configFile = readJSONUrlFile(getClass().getResource("/resources/config.json"));
-		PREFIX = "/.asielauncher/"+(String)configFile.get("directoryName")+"/";
+		PREFIX = (String)configFile.get("directoryName");
 		URL = (String)configFile.get("serverUrl");
 		WINDOW_NAME = (String)configFile.get("windowName");
 	}
 	public AsieLauncher() {
 		configureConfig();
-		directory = System.getProperty("user.home") + PREFIX;
+		baseDir = System.getProperty("user.home") + "/.asielauncher/";
+		directory = baseDir + PREFIX + "/";
 		serverlist = new ServerListHandler(directory + "servers.dat", false);
 		if(!(new File(directory).exists())) {
 			new File(directory).mkdirs();
@@ -182,11 +184,15 @@ public class AsieLauncher implements IProgressUpdater {
 		System.out.println("OS: " + OS);
 	}
 	
+	public boolean isSupported() {
+		return Utils.versionToString(this.mcVersion) <= Utils.versionToString("1.5.2");
+	}
 	public boolean init() {
 		file = readJSONUrlFile(URL + "also.json");
 		if(file instanceof JSONObject) { // Set variables;.
 			Object o = file.get("onlineMode");
 			if(o instanceof Boolean) onlineMode = ((Boolean)o);
+			mc = new MinecraftHandler152(); // TODO: SET FROM SERVER
 			return true;
 		}
 		return false;
@@ -225,6 +231,10 @@ public class AsieLauncher implements IProgressUpdater {
 			boolean doZip = (Boolean)data.get("zip");
 			files.addAll(loadModFiles(data, doZip?"zip":"http", "options/"+id+"/"));
 		}
+		if(getFileRevision(source) >= 5) {
+			JSONArray data = (JSONArray)source.get("jarPatches");
+			files.addAll(loadModFiles(data, "http"));
+		}
 		System.out.println("getFileList: got " + files.size() + " files");
 		return files;
 	}
@@ -239,6 +249,16 @@ public class AsieLauncher implements IProgressUpdater {
 	
 	private ArrayList<String> installLog;
 	
+	public List<String> getRepackedFiles() {
+		ArrayList<String> rf = new ArrayList<String>();
+		JSONArray data = (JSONArray)file.get("jarPatches");
+		for(Object o: data) {
+			if(!(o instanceof JSONObject)) continue;
+			JSONObject jo = (JSONObject)o;
+			rf.add(directory + (String)jo.get("filename"));
+		}
+		return rf;
+	}
 	public String[] getInstallLog() { return installLog.toArray(new String[installLog.size()]); }
 	
 	public boolean install(boolean dry) {
@@ -288,6 +308,17 @@ public class AsieLauncher implements IProgressUpdater {
 				return false;
 			}
 		}
+		this.setStatus(Strings.DOWNLOAD_MC);
+		Repacker repacker = new Repacker(directory + "temp/minecraft", directory + "bin/minecraft.jar");
+		ArrayList<String> repackFiles = new ArrayList<String>();
+		mc.download(this, this.mcVersion);
+		this.setStatus(Strings.REPACK_JAR);
+		repackFiles.add(mc.getJarLocation(this, this.mcVersion));
+		repackFiles.addAll(getRepackedFiles());
+		File folder = new File(directory + "temp/minecraft");
+		File[] listOfFiles = folder.listFiles();
+		if(!repacker.unpackZips(repackFiles.toArray(new String[repackFiles.size()]))) return false;
+		if(!repacker.repackJar()) return false;
 		if(!dry) {
 			this.setStatus(Strings.SAVING);
 			this.save();
@@ -317,7 +348,6 @@ public class AsieLauncher implements IProgressUpdater {
 			}
 			serverlist.updateServerList(servers);
 		}
-		mc = new MinecraftLauncher152();
 		launchedMinecraft = mc.launch(directory, username, password, onlineMode, jvmArgs, this);
 	}
 }

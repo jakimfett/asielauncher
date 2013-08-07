@@ -1,6 +1,5 @@
 package pl.asiekierka.AsieLauncher;
 
-import java.io.*;
 import java.net.*;
 import org.json.simple.*;
 
@@ -9,9 +8,11 @@ public class ModFileHTTP extends ModFile {
 
 	public ModFileHTTP(AsieLauncher _launcher, JSONObject data, String prefix) {
 		super(_launcher, data, prefix);
-		try { url = new URL(Utils.fixURLString(launcher.URL + prefix + this.getFilename())); }
+		String targetURL = launcher.URL + prefix + this.getFilename();
+		try { url = new URL(Utils.fixURLString(targetURL)); }
 		catch(Exception e) { e.printStackTrace(); url = null; }
 	}
+	
 	@Override
 	public boolean install(IProgressUpdater updater) {
 		return install(updater, false);
@@ -26,28 +27,7 @@ public class ModFileHTTP extends ModFile {
 		}
 		// Download
 		updater.setStatus(Strings.DOWNLOADING+" "+this.getFilename()+"...");
-		boolean downloaded = true;
-    	BufferedInputStream in = null;
-    	FileOutputStream out = null;
-    	try {
-    		int count;
-    		int totalCount = 0;
-    		byte data[] = new byte[1024];
-    		in = new BufferedInputStream(url.openStream());
-    		out = new FileOutputStream(absoluteFilename);
-    		while ((count = in.read(data, 0, 1024)) != -1) {
-    			out.write(data, 0, count);
-    			totalCount += count;
-    			updater.update(totalCount, filesize);
-    		}
-    	}
-    	catch(Exception e) { e.printStackTrace(); System.out.println("Download error!"); downloaded = false; }
-    	finally {
-    		try {
-    			if (in != null) in.close();
-    			if (out != null) out.close();
-    		} catch(Exception e) { e.printStackTrace(); }
-    	}
+		boolean downloaded = Utils.download(url, absoluteFilename, filesize, updater);
     	/*
     	if(downloaded) {
 			try {

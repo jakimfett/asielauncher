@@ -3,6 +3,7 @@ package pl.asiekierka.AsieLauncher;
 import java.awt.Toolkit;
 import java.io.*;
 import java.math.*;
+import java.net.URL;
 import java.security.*;
 import java.util.*;
 import java.util.zip.*;
@@ -19,6 +20,17 @@ public class Utils {
 		// Default choice.
 		// Most likely as the C64 was the best selling home computer in history.
 		// ToDon't: Check the SID version for the zealots.
+	}
+	
+	public static int versionToString(String ver) {
+		String[] stringParts = ver.split("\\.");
+		int version = 0;
+		for(int i = 0; i < 4; i++) {
+			version *= 128;
+			if(i >= stringParts.length) continue;
+			version += new Integer(stringParts[i]);
+		}
+		return version;
 	}
 	
 	// StackOverflow
@@ -62,32 +74,70 @@ public class Utils {
 	
 	public static String md5(File file)
 			throws NoSuchAlgorithmException,
-			FileNotFoundException, IOException {
+			FileNotFoundException, IOException
+	{
+		MessageDigest md = MessageDigest.getInstance("MD5");
 		 
-			MessageDigest md = MessageDigest.getInstance("MD5");
+		InputStream is= new FileInputStream(file);
 		 
-			InputStream is= new FileInputStream(file);
+		byte[] buffer=new byte[8192];
+		int read=0;
 		 
-			byte[] buffer=new byte[8192];
-		    int read=0;
-		 
-		        while( (read = is.read(buffer)) > 0)
-		                md.update(buffer, 0, read);
+		while( (read = is.read(buffer)) > 0)
+			md.update(buffer, 0, read);
 
-		        byte[] md5 = md.digest();
-		        BigInteger bi=new BigInteger(1, md5);
+		byte[] md5 = md.digest();
+		BigInteger bi=new BigInteger(1, md5);
 		 
-		        is.close();
-		        String hex = bi.toString(16);
-		        while(hex.length() < 32) { hex = "0" + hex; } // Padding
-		        return hex;
-		}
+		is.close();
+		String hex = bi.toString(16);
+		while(hex.length() < 32) { hex = "0" + hex; } // Padding
+		return hex;
+	}
 	
+	public static boolean download(URL url, String file) {
+		return download(url,file,0,null);
+	}
+	public static boolean download(URL url, String file, int filesize, IProgressUpdater updater) {
+		boolean downloaded = true;
+    	BufferedInputStream in = null;
+    	FileOutputStream out = null;
+    	try {
+    		int count;
+    		int totalCount = 0;
+    		byte data[] = new byte[1024];
+    		in = new BufferedInputStream(url.openStream());
+    		out = new FileOutputStream(file);
+    		while ((count = in.read(data, 0, 1024)) != -1) {
+    			out.write(data, 0, count);
+    			totalCount += count;
+    			if(updater != null) updater.update(totalCount, filesize);
+    		}
+    	}
+    	catch(Exception e) { e.printStackTrace(); System.out.println("Download error!"); downloaded = false; }
+    	finally {
+    		try {
+    			if (in != null) in.close();
+    			if (out != null) out.close();
+    		} catch(Exception e) { e.printStackTrace(); }
+    	}
+    	return downloaded;
+	}
 	// From StackOverflow
+	public static void deleteFolderContents(File folder) {
+	    File[] files = folder.listFiles();
+	    if(files!=null) { //some JVMs return null for empty dirs
+	        for(File f: files) {
+	            if(f.isDirectory()) {
+	                deleteFolderContents(f);
+	            }
+	            f.delete();
+	        }
+	    }
+	}
 	public static void extract(String zipFile, String newPath, boolean overwrite) throws ZipException, IOException 
 	{
-	    System.out.println(zipFile);
-	    int BUFFER = 2048;
+	    int BUFFER = 4096;
 	    File file = new File(zipFile);
 
 	    ZipFile zip = new ZipFile(file);
