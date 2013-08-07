@@ -286,6 +286,7 @@ public class AsieLauncher implements IProgressUpdater {
 	public void launch(String _username, String password, String jvmArgs) {
 		String username = _username;
 		String sessionID = "null";
+		if(updater != null) updater.update(100,100);
 		if(onlineMode) {
 			if(updater != null) updater.setStatus(Strings.AUTH_STATUS);
 			auth = new AuthenticationMojangLegacy();
@@ -308,7 +309,6 @@ public class AsieLauncher implements IProgressUpdater {
 	    System.out.println(classpath);
 	    String path = System.getProperty("java.home")
 	            + separator + "bin" + separator + Utils.getJavaBinaryName();
-		if(updater != null) updater.update(100,100);
 		this.setStatus(Strings.LAUNCHING);
 	    if((new File(path)).exists()) {
 	    	System.out.println("Launching via process spawner");

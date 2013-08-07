@@ -96,7 +96,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	           }
 	       });
 
-	       panel.addKeyListener(new KeyListener() {
+	       this.addKeyListener(new KeyListener() {
 	    	   @Override
 	    	   public void keyTyped(KeyEvent event) { }
 	    	   @Override
