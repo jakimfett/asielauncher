@@ -21,6 +21,26 @@ public class Utils {
 		// ToDon't: Check the SID version for the zealots.
 	}
 	
+	// StackOverflow
+	public static void pipeOutput(Process process) {
+	    pipe(process.getErrorStream(), System.err);
+	    pipe(process.getInputStream(), System.out);
+	}
+
+	public static void pipe(final InputStream src, final PrintStream dest) {
+	    new Thread(new Runnable() {
+	        public void run() {
+	            try {
+	                byte[] buffer = new byte[1024];
+	                for (int n = 0; n != -1; n = src.read(buffer)) {
+	                    dest.write(buffer, 0, n);
+	                }
+	            } catch (IOException e) { // just exit
+	            }
+	        }
+	    }).start();
+	}
+	
 	public static String getJavaBinaryName() {
 		if(getSystemName().equals("windows")) return "java.exe";
 		else if(getSystemName().equals("commodore64")) return "JAVA.PRG";

@@ -27,12 +27,15 @@ public class AsieLauncher implements IProgressUpdater {
 	private String OS;
 	private JSONObject file, oldFile, configFile;
 	private int fullProgress, fullTotal;
-	private IProgressUpdater updater;
+	protected IProgressUpdater updater;
 	private boolean launchedMinecraft = false;
-	private MinecraftFrame frame;
 	private String loadDir;
 	private boolean onlineMode = true;
-	private Authentication auth;
+	private IMinecraftLauncher mc;
+	
+	public String getLoadDir() {
+		return loadDir;
+	}
 
 	public IProgressUpdater getUpdater() {
 		return updater;
@@ -295,61 +298,10 @@ public class AsieLauncher implements IProgressUpdater {
 	}
 	
 	public boolean isActive() {
-		return !launchedMinecraft || (frame != null && frame.isAppletActive());
+		return !launchedMinecraft || (mc != null && mc.isActive());
 	}
 	
-	// StackOverflow
-	private static void pipeOutput(Process process) {
-	    pipe(process.getErrorStream(), System.err);
-	    pipe(process.getInputStream(), System.out);
-	}
-
-	private static void pipe(final InputStream src, final PrintStream dest) {
-	    new Thread(new Runnable() {
-	        public void run() {
-	            try {
-	                byte[] buffer = new byte[1024];
-	                for (int n = 0; n != -1; n = src.read(buffer)) {
-	                    dest.write(buffer, 0, n);
-	                }
-	            } catch (IOException e) { // just exit
-	            }
-	        }
-	    }).start();
-	}
-	
-	public ArrayList<String> getMCArguments(String path, String classpath, String username, String sessionID, String jvmArgs) {
-		ArrayList<String> args = new ArrayList<String>();
-		args.add(path);
-		args.addAll(Arrays.asList(jvmArgs.split(" ")));
-		args.add("-cp"); args.add(classpath);
-		args.add("org.smbarbour.mcu.MinecraftFrame");
-		args.add(username); args.add(sessionID); args.add(WINDOW_NAME);
-		args.add(new File(directory).getAbsolutePath());
-		args.add(new File(directory, "bin").getAbsolutePath());
-		args.add("854"); args.add("480");
-		args.add("null"); args.add("false");
-		System.out.println("Launching with arguments: " + args.toString());
-		return args;
-	}
-	
-	public void launch(String _username, String password, String jvmArgs) {
-		// Authenticate, if necessary.
-		String username = _username;
-		String sessionID = "null";
-		if(updater != null) updater.update(100,100);
-		if(onlineMode) {
-			if(updater != null) updater.setStatus(Strings.AUTH_STATUS);
-			auth = new AuthenticationMojangLegacy();
-			if(!auth.authenticate(username, password)) {
-				if(updater != null) updater.setStatus(Strings.LOGIN_ERROR+": " + auth.getErrorMessage());
-				return;
-			} else {
-				username = auth.getUsername();
-				sessionID = auth.getSessionID();
-			}
-		}
-		if(sessionID.length() == 0) sessionID = "null";
+	public void launch(String username, String password, String jvmArgs) {
 		// Update serverlist.
 		if(file != null) {
 			if(updater != null) updater.setStatus(Strings.UPDATE_SERVERLIST);
@@ -365,40 +317,7 @@ public class AsieLauncher implements IProgressUpdater {
 			}
 			serverlist.updateServerList(servers);
 		}
-		// Launch Minecraft.
-		String separator = System.getProperty("file.separator");
-	    String classpath = System.getProperty("java.class.path");
-	    System.out.println(loadDir);
-	    System.out.println(classpath);
-	    if(classpath.indexOf(separator) == -1 || (loadDir.indexOf("/") == 0 && classpath.indexOf("/") != 0)) {
-	    	classpath = (new File(loadDir, classpath)).getAbsolutePath();
-	    }
-	    System.out.println(classpath);
-	    String path = System.getProperty("java.home")
-	            + separator + "bin" + separator + Utils.getJavaBinaryName();
-		this.setStatus(Strings.LAUNCHING);
-	    if((new File(path)).exists()) {
-	    	System.out.println("Launching via process spawner");
-	    	ProcessBuilder processBuilder = new ProcessBuilder(getMCArguments(path,classpath,username,sessionID,jvmArgs));
-	    	try {
-	    		processBuilder.directory(new File(directory));
-	    		Process process = processBuilder.start();
-		    	pipeOutput(process);
-	    		try { Thread.sleep(500); } catch(Exception e){}
-	    		launchedMinecraft = true;
-	    	}
-	    	catch(Exception e) { }
-	    }
-	    if(!launchedMinecraft) {
-	    	System.out.println("Launching via internal Java process");
-	    	System.setProperty("user.dir", (new File(directory).getAbsolutePath()));
-	    	frame = new MinecraftFrame(WINDOW_NAME, new ImageIcon(this.getClass().getResource("/resources/icon.png")));
-			frame.launch(new File(directory),
-					new File(directory, "bin"),
-					username, sessionID,
-					"", new Dimension(854, 480), false);
-			try { Thread.sleep(500); } catch(Exception e){}
-			launchedMinecraft = true;
-	    }
+		mc = new MinecraftLauncher152();
+		launchedMinecraft = mc.launch(directory, username, password, onlineMode, jvmArgs, this);
 	}
 }

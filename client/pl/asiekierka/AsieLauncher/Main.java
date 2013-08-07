@@ -13,7 +13,7 @@ public class Main {
 			int sleepLength = 1000;
 			if(!al.getLaunchedMinecraft()){
 				al.repaint();
-				sleepLength = 75;
+				sleepLength = 100;
 			} else { // Launched Minecraft
 				al.setVisible(false);
 				if(!al.isActive()) {
