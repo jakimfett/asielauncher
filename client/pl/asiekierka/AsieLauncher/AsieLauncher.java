@@ -32,7 +32,7 @@ public class AsieLauncher implements IProgressUpdater {
 	private String loadDir;
 	private boolean onlineMode = true;
 	private MinecraftHandler mc;
-	private static final String mcVersion = "1.5.2"; // TODO: SEND FROM SERVER
+	private String mcVersion;
 	
 	public String getLoadDir() {
 		return loadDir;
@@ -192,7 +192,10 @@ public class AsieLauncher implements IProgressUpdater {
 		if(file instanceof JSONObject) { // Set variables;.
 			Object o = file.get("onlineMode");
 			if(o instanceof Boolean) onlineMode = ((Boolean)o);
-			mc = new MinecraftHandler152(); // TODO: SET FROM SERVER
+			if(getFileRevision(file) >= 5) {
+				mcVersion = (String)file.get("mcVersion");
+			}
+			mc = new MinecraftHandler152();
 			return true;
 		}
 		return false;

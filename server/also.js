@@ -84,6 +84,7 @@ infoData.size = 0;
 infoData.client_revision = config.client_revision;
 infoData.servers = config.servers || {};
 infoData.onlineMode = config.onlineMode || false;
+infoData.mcVersion = config.mcVersion || "1.5.2"; // default is 1.5.2
 
 _.each(config.loggedDirs, function(dir) {
 	if(!fs.existsSync(dir) && !fs.existsSync(dir+"-client") && !fs.existsSync("./AsieLauncher/"+dir)) {

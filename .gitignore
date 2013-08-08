@@ -1,4 +1,4 @@
 update.sh
 server/node_modules
-server/zips/*
+server/AsieLauncher/zips/*
 .DS_Store
