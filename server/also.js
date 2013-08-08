@@ -9,9 +9,27 @@ var express = require('express')
 
 var app = express()
   , config = require("./AsieLauncher/config.json")
-  , infoData = {};
+  , infoData = {}
+  , DEBUG = true;
 
 config.client_revision = 5;
+
+var textColors = {
+  "debug": "grey",
+  "info": "brightWhite",
+  "warning": "brightYellow",
+  "error": "brightRed"
+};
+
+var ansi = require('ansi')
+  , cursor = ansi(process.stdout);
+
+function say(type, message) {
+  if(type == "debug" && !DEBUG) return;
+  cursor[textColors[type]]() // Set color
+        .bold().write("["+type.toUpperCase()+"]")
+        .reset().write(" "+message+'\n');
+}
 
 function getDirectoryList(name, destName, addLocation, prefix) {
   if(!_.isString(prefix)) prefix = "";
@@ -23,7 +41,7 @@ function getDirectoryList(name, destName, addLocation, prefix) {
             _.each(config.blacklist, function(test) {
               if(location.indexOf(test) >= 0) {
                 blacklisted = true;
-                console.log("Blacklisted "+file);
+                say("info", "Blacklisted "+file);
               }
             });
             if(blacklisted) return false;
@@ -83,7 +101,7 @@ function sortFilesBySubstring(order, fileList) {
   });
 }
 
-console.log("ALSO");
+console.log("Welcome to ALSO");
 
 // init folders
 fs.mkdir("AsieLauncher/zips", function(){ });
@@ -109,10 +127,10 @@ infoData.mcVersion = config.mcVersion || "1.5.2"; // default is 1.5.2
 
 _.each(config.loggedDirs, function(dir) {
 	if(!fs.existsSync(dir) && !fs.existsSync(dir+"-client") && !fs.existsSync("./AsieLauncher/"+dir)) {
-		console.log("WARNING: Directory "+dir+" not found!");
+		say("warning", "Directory "+dir+" not found!");
 		return;
 	}
-  console.log("Adding logged directory "+dir);
+  say("info", "Adding logged directory "+dir);
   var list = getDirectoriesList(dir, false);
   infoData.files = _.union(infoData.files, _.map(list, function(file) {
     file.filename = dir+"/"+file.filename;
@@ -127,10 +145,10 @@ _.each(config.loggedDirs, function(dir) {
 
 _.each(config.zippedDirs, function(dir) {
 	if(!fs.existsSync(dir) && !fs.existsSync(dir+"-client") && !fs.existsSync("./AsieLauncher/"+dir)) {
-		console.log("WARNING: Directory "+dir+" not found!");
+		say("warning", "Directory "+dir+" not found!");
 		return;
 	}
-  console.log("Adding zipped directory "+dir);
+  say("info", "Adding zipped directory "+dir);
   var list = getDirectoriesList(dir, true)
     , zip = new Zip();
   if(fs.existsSync(dir)) zip.addLocalFolder(dir);
@@ -144,7 +162,7 @@ _.each(config.zippedDirs, function(dir) {
 });
 
 _.each(fs.readdirSync("./AsieLauncher/platform"), function(platform) {
-  console.log("Adding platform "+platform);
+  say("info", "Adding platform "+platform);
   var list = getDirectoryList("./AsieLauncher/platform/"+platform, "", false);
   var size = getDirectoriesSize(list);
   infoData.platforms[platform] = {"files": list, "size": size};
@@ -153,7 +171,7 @@ _.each(fs.readdirSync("./AsieLauncher/platform"), function(platform) {
 _.each(config.options, function(option) {
   var dir = "./AsieLauncher/options/"+option.id;
   if(!fs.existsSync(dir)) return;
-  console.log("Adding option "+option.id+" ["+option.name+"]");
+  say("info", "Adding option "+option.id+" ["+option.name+"]");
   if(!option.zip) { // Directory
     var list = getDirectoryList(dir, "", false);
     var size = getDirectoriesSize(list);
@@ -175,4 +193,4 @@ app.use("/", express.static("./AsieLauncher/htdocs"));
 
 app.listen(config.port);
 
-console.log("Ready - listening on port "+config.port+"!");
+say("info", "Ready - listening on port "+config.port+"!");

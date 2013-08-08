@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "ansi": ">=0.2.0",
     "express": "3.x",
     "underscore": ">=1.4.0",
     "wrench": "1.5.x",
