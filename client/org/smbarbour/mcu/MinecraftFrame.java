@@ -1,3 +1,6 @@
+/* Copied from MCUpdater under the terms of the Apache License, version 2.0.
+ * The source code has been modified by asiekierka.
+ */
 package org.smbarbour.mcu;
 
 import java.awt.Dimension;
