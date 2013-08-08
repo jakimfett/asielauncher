@@ -70,6 +70,19 @@ function toUnix(date) {
   return Math.floor(new Date(date).getTime()/1000);
 }
 
+function sortFilesBySubstring(order, fileList) {
+  return _.sortBy(fileList, function(file) {
+    var i = -1;
+    _.each(order, function(e, index) {
+      if(i>=0) return;
+      if(file.filename.toLowerCase().indexOf(e.toLowerCase()) >= 0) {
+        i = index;
+      }
+    });
+    return i >= 0 ? i : order.length;
+  });
+}
+
 console.log("ALSO");
 
 // init folders
@@ -79,7 +92,9 @@ app.use("/platform", express.static("./AsieLauncher/platform"));
 app.use("/options", express.static("./AsieLauncher/options"));
 app.use("/jarPatches", express.static("./AsieLauncher/jars"));
 
-infoData.jarPatches = getDirectoryList("./AsieLauncher/jars", "jarPatches/", false, "jarPatches/");
+infoData.jarPatches = sortFilesBySubstring(config.jarPatchOrder,
+                        getDirectoryList("./AsieLauncher/jars", "jarPatches/", false, "jarPatches/")
+                      );
 
 infoData.files = [];
 infoData.zips = [];
