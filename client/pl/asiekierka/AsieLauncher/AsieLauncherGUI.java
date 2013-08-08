@@ -147,7 +147,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	       loginField = new JTextField();
 	       loginField.setText(AsieLauncher.loadString(launcher.directory + "nickname.txt"));
 	       
-	       if(launcher.isOnlineMode()) {
+	       if(launcher.askForPassword()) {
 	    	   passwordLabel = new JLabel(Strings.PASSWORD+":");
 	    	   passwordField = new JPasswordField();
 		       passwordLabel.setBounds(10, 160, 70, 15);
@@ -182,7 +182,6 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 		options = new AsieLauncherOptionsGUI(this, launcher.getOptionMap(), launcher.directory + "also-options.txt");
 		if(!linit) hasInternet = false;
 		setVisible(true);
-		if(!hasInternet) launcher.setOnlineMode(false);
 		if(!launcher.isSupported()) {
 			JOptionPane.showMessageDialog(this, Strings.WRONG_MINECRAFT_VERSION);
 		}

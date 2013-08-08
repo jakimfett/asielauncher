@@ -58,16 +58,14 @@ public class MinecraftHandler152 implements MinecraftHandler {
 	}
 	
 	@Override
-	public boolean launch(String path, String _username, String password, boolean onlineMode,
+	public boolean launch(String path, String _username, String password, Authentication auth,
 			String jvmArgs, AsieLauncher l) {
 		// Authenticate, if necessary.
-		Authentication auth = new AuthenticationMojangLegacy();
 		String username = _username;
 		String sessionID = "null";
 		if(l.updater != null) l.updater.update(100,100);
-		if(onlineMode) {
+		if(auth != null) {
 			setStatus(l,Strings.AUTH_STATUS);
-			auth = new AuthenticationMojangLegacy();
 			if(!auth.authenticate(username, password)) {
 				setStatus(l, Strings.LOGIN_ERROR+": " + auth.getErrorMessage());
 				return false;

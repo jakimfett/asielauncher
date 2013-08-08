@@ -30,8 +30,8 @@ public class AsieLauncher implements IProgressUpdater {
 	protected IProgressUpdater updater;
 	private boolean launchedMinecraft = false;
 	private String loadDir;
-	private boolean onlineMode = true;
 	private MinecraftHandler mc;
+	private Authentication auth;
 	private String mcVersion;
 	
 	public String getLoadDir() {
@@ -46,12 +46,8 @@ public class AsieLauncher implements IProgressUpdater {
 		this.updater = updater;
 	}
 
-	public boolean isOnlineMode() { return onlineMode; }
+	public boolean isOnlineMode() { return (auth != null); }
 	
-	public void setOnlineMode(boolean onlineMode) {
-		this.onlineMode = onlineMode;
-	}
-
 	public int getFileRevision(JSONObject source) {
 		Long revNew = (Long)(source.get("client_revision"));
 		if(revNew == null) return 1;
@@ -185,20 +181,27 @@ public class AsieLauncher implements IProgressUpdater {
 	}
 	
 	public boolean isSupported() {
+		if(this.mcVersion == null) return true; // Default hack
 		return Utils.versionToString(this.mcVersion) <= Utils.versionToString("1.5.2");
 	}
 	public boolean init() {
 		file = readJSONUrlFile(URL + "also.json");
 		if(file instanceof JSONObject) { // Set variables;.
 			Object o = file.get("onlineMode");
+			boolean onlineMode = false;
 			if(o instanceof Boolean) onlineMode = ((Boolean)o);
 			if(getFileRevision(file) >= 5) {
 				mcVersion = (String)file.get("mcVersion");
 			} else mcVersion = "1.5.2";
 			mc = new MinecraftHandler152();
+			if(onlineMode) auth = new AuthenticationMojangLegacy();
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean askForPassword() {
+		return (auth != null && auth.requiresPassword());
 	}
 	
 	public boolean save() {
@@ -351,6 +354,6 @@ public class AsieLauncher implements IProgressUpdater {
 			}
 			serverlist.updateServerList(servers);
 		}
-		launchedMinecraft = mc.launch(directory, username, password, onlineMode, jvmArgs, this);
+		launchedMinecraft = mc.launch(directory, username, password, auth, jvmArgs, this);
 	}
 }
