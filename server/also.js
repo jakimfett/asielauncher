@@ -11,7 +11,10 @@ var app = express()
   , config = require("./AsieLauncher/config.json")
   , infoData = {};
 
-function getDirectoryList(name, destName, addLocation) {
+config.client_revision = 5;
+
+function getDirectoryList(name, destName, addLocation, prefix) {
+  if(!_.isString(prefix)) prefix = "";
   if(!fs.existsSync(name)) return [];
   return _.chain(wrench.readdirSyncRecursive(name))
           .filter(function(file) {
@@ -27,7 +30,7 @@ function getDirectoryList(name, destName, addLocation) {
             else return !(fs.lstatSync(name+"/"+file).isDirectory());
           })
           .map(function(file) {
-            var fileNew = {"filename": file, "size": getSize(name+"/"+file), "md5": md5(name+"/"+file)};
+            var fileNew = {"filename": prefix+file, "size": getSize(name+"/"+file), "md5": md5(name+"/"+file)};
 						var destination = destName+file;
             if(addLocation) fileNew.location = name+"/"+file;
 				    fileNew.overwrite = !(_.contains(config.noOverwrite, file));
@@ -74,6 +77,9 @@ fs.mkdir("AsieLauncher/zips", function(){ });
 app.use("/zips", express.static("./AsieLauncher/zips"));
 app.use("/platform", express.static("./AsieLauncher/platform"));
 app.use("/options", express.static("./AsieLauncher/options"));
+app.use("/jarPatches", express.static("./AsieLauncher/jars"));
+
+infoData.jarPatches = getDirectoryList("./AsieLauncher/jars", "jarPatches/", false, "jarPatches/");
 
 infoData.files = [];
 infoData.zips = [];
