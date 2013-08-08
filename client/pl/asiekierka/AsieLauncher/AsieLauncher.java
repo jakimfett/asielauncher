@@ -194,7 +194,7 @@ public class AsieLauncher implements IProgressUpdater {
 			if(o instanceof Boolean) onlineMode = ((Boolean)o);
 			if(getFileRevision(file) >= 5) {
 				mcVersion = (String)file.get("mcVersion");
-			}
+			} else mcVersion = "1.5.2";
 			mc = new MinecraftHandler152();
 			return true;
 		}

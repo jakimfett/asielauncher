@@ -8,6 +8,7 @@
 [SERVER]
 + Now sends list of ZIPs to add to minecraft.jar.
 + Sends MC version of the modpack to client.
++ Orders JAR patches in the user-specified order; see jarPatchOrder in server config.
 * Moved client_revision to also.js.
 
 0.3.0:
