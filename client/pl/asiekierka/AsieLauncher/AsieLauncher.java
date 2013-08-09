@@ -311,7 +311,7 @@ public class AsieLauncher implements IProgressUpdater {
 		return !launchedMinecraft || (mc != null && mc.isActive());
 	}
 	
-	public void launch(String username, String password, String jvmArgs) {
+	public void launch(String _username, String password, String jvmArgs) {
 		// Update serverlist.
 		if(file != null) {
 			if(updater != null) updater.setStatus(Strings.UPDATE_SERVERLIST);
@@ -327,6 +327,20 @@ public class AsieLauncher implements IProgressUpdater {
 			}
 			serverlist.updateServerList(servers);
 		}
-		launchedMinecraft = mc.launch(directory, username, password, auth, jvmArgs, this);
+		// Authenticate, if necessary.
+		String username = _username;
+		String sessionID = "null";
+		if(updater != null) updater.update(100,100);
+		if(auth != null) {
+			setStatus(Strings.AUTH_STATUS);
+			if(!auth.authenticate(username, password)) {
+				setStatus(Strings.LOGIN_ERROR+": " + auth.getErrorMessage());
+				return;
+			} else {
+				username = auth.getUsername();
+				sessionID = auth.getSessionID();
+			}
+		}
+		launchedMinecraft = mc.launch(directory, username, sessionID, jvmArgs, this);
 	}
 }

@@ -58,22 +58,7 @@ public class MinecraftHandler152 implements MinecraftHandler {
 	}
 	
 	@Override
-	public boolean launch(String path, String _username, String password, Authentication auth,
-			String jvmArgs, AsieLauncher l) {
-		// Authenticate, if necessary.
-		String username = _username;
-		String sessionID = "null";
-		if(l.updater != null) l.updater.update(100,100);
-		if(auth != null) {
-			setStatus(l,Strings.AUTH_STATUS);
-			if(!auth.authenticate(username, password)) {
-				setStatus(l, Strings.LOGIN_ERROR+": " + auth.getErrorMessage());
-				return false;
-			} else {
-				username = auth.getUsername();
-				sessionID = auth.getSessionID();
-			}
-		}
+	public boolean launch(String path, String username, String sessionID, String jvmArgs, AsieLauncher l) {
 		if(sessionID.length() == 0) sessionID = "null";
 		// Launch Minecraft.
 		String separator = System.getProperty("file.separator");
