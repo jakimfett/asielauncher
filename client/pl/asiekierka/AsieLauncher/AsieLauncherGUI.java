@@ -126,7 +126,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	    				   panel.remove(passwordLabel);
 	    				   panel.remove(passwordField);
 	    			   }
-	    			   AsieLauncher.saveString(launcher.directory + "nickname.txt", loginField.getText());
+	    			   Utils.saveStringToFile(launcher.directory + "nickname.txt", loginField.getText());
 	    			   if(hasInternet) options.saveSelectedOptions(options.filename);
 	    			   panel.add(progressBar);
 	    			   statusLabel.setText(Strings.START_UPDATE);
@@ -145,7 +145,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	       
 	       loginLabel = new JLabel(Strings.LOGIN+":");
 	       loginField = new JTextField();
-	       loginField.setText(AsieLauncher.loadString(launcher.directory + "nickname.txt"));
+	       loginField.setText(Utils.loadStringFromFile(launcher.directory + "nickname.txt"));
 	       
 	       if(launcher.askForPassword()) {
 	    	   passwordLabel = new JLabel(Strings.PASSWORD+":");

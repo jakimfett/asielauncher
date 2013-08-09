@@ -11,6 +11,11 @@ public class AuthenticationMojangLegacy extends Authentication {
 
 	public AuthenticationMojangLegacy() {
 	}
+	
+	@Override
+	public boolean requiresPassword() {
+		return true;
+	}
 
 	@Override
 	public boolean authenticate(String username, String password) {

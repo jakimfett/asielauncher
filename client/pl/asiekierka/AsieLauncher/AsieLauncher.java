@@ -18,7 +18,7 @@ import org.smbarbour.mcu.*;
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 5;
 	private ServerListHandler serverlist;
-	public static final String VERSION_STRING = "0.3.1";
+	public static final String VERSION_STRING = "0.4.0-dev";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "/.asielauncher/default/";
@@ -84,33 +84,6 @@ public class AsieLauncher implements IProgressUpdater {
 		try {
 			return readJSONUrlFile(new URL(url));
 		} catch(Exception e) { e.printStackTrace(); return null; }
-	}
-	public static boolean saveString(String filename, String data) {
-		BufferedWriter writer = null;
-		try {
-			writer = new BufferedWriter(new FileWriter(filename));
-			writer.write(data);
-			writer.close();
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			if(writer != null) try{writer.close();}catch(Exception ee){}
-			return false;
-		}
-		return true;
-	}
-	
-	public static String loadString(String filename) {
-		String line = "";
-		File file = new File(filename);
-		if(!file.exists()) return line;
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			line = reader.readLine();
-			reader.close();
-		}
-		catch(Exception e) { e.printStackTrace(); }
-		return line;
 	}
 	
 	public ArrayList<ModFile> loadModFiles(JSONArray jsonList, String mode, String prefix) {
@@ -205,7 +178,7 @@ public class AsieLauncher implements IProgressUpdater {
 	}
 	
 	public boolean save() {
-		return saveString(directory + "also.json", file.toJSONString());
+		return Utils.saveStringToFile(directory + "also.json", file.toJSONString());
 	}
 	
 	public JSONObject getPlatformData(JSONObject source) {

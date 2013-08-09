@@ -33,6 +33,34 @@ public class Utils {
 		return version;
 	}
 	
+	public static boolean saveStringToFile(String filename, String data) {
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(filename));
+			writer.write(data);
+			writer.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			if(writer != null) try{writer.close();}catch(Exception ee){}
+			return false;
+		}
+		return true;
+	}
+	
+	public static String loadStringFromFile(String filename) {
+		String line = "";
+		File file = new File(filename);
+		if(!file.exists()) return line;
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			line = reader.readLine();
+			reader.close();
+		}
+		catch(Exception e) { e.printStackTrace(); }
+		return line;
+	}
+	
 	// StackOverflow
 	public static void pipeOutput(Process process) {
 	    pipe(process.getErrorStream(), System.err);
