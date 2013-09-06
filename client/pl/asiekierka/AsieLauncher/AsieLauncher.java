@@ -132,7 +132,7 @@ public class AsieLauncher implements IProgressUpdater {
 	
 	public boolean isSupported() {
 		if(this.mcVersion == null) return true; // Default hack
-		return Utils.versionToString(this.mcVersion) <= Utils.versionToString("1.6.2");
+		return Utils.versionToInt(this.mcVersion) <= Utils.versionToInt("1.6.2");
 	}
 	public boolean init() {
 		file = Utils.readJSONUrlFile(URL + "also.json");
@@ -143,8 +143,9 @@ public class AsieLauncher implements IProgressUpdater {
 			if(getFileRevision(file) >= 5) {
 				mcVersion = (String)file.get("mcVersion");
 			} else mcVersion = "1.6.2";
-			//mcVersion = "1.5.2";
-			mc = new MinecraftHandler162();
+			if(Utils.versionToInt(this.mcVersion) <= Utils.versionToInt("1.5.2")) {
+				mc = new MinecraftHandler152();
+			} else mc = new MinecraftHandler162();
 			if(onlineMode) auth = new AuthenticationMojangLegacy();
 			return true;
 		}
@@ -181,7 +182,10 @@ public class AsieLauncher implements IProgressUpdater {
 	public ArrayList<ModFile> getFileList(JSONObject source, ArrayList<String> options) {
 		ArrayList<ModFile> files = loadModFiles(source, "http");
 		files.addAll(loadModFiles(source, "zip"));
-		files.addAll(loadModFiles(getPlatformData(source), "http", "platform/"+OS+"/"));
+		if(mc instanceof MinecraftHandler152) {
+			// 1.5.2 still downloads platform data.
+			files.addAll(loadModFiles(getPlatformData(source), "http", "platform/"+OS+"/"));
+		}
 		if(getFileRevision(source) >= 2) for(String id: options) {
 			JSONObject data = getOptionData(source, id);
 			if(data == null) continue;

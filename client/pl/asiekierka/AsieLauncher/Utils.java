@@ -25,7 +25,7 @@ public class Utils {
 		// ToDon't: Check the SID version for the zealots.
 	}
 	
-	public static int versionToString(String ver) {
+	public static int versionToInt(String ver) {
 		String[] stringParts = ver.split("\\.");
 		int version = 0;
 		for(int i = 0; i < 4; i++) {
