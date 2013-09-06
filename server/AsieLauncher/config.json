@@ -2,7 +2,7 @@
 { "loggedDirs": ["mods", "coremods", "texturepacks", "bin", "lib"],
   "zippedDirs": ["config", "root"],
   "noOverwrite": ["root"],
-  "mcVersion": "1.5.2",
+  "mcVersion": "1.6.2",
   "onlineMode": true,
   "blacklist": ["mods/Dynmap", "mods/ForgeIRC", "lib/jython"],
   "jarPatchOrder": ["forge", "OptiFine"],

@@ -33,4 +33,6 @@ public class Strings {
 	public static final String REPACK_JAR = "Repacking minecraft.jar...";
 	public static final String DOWNLOAD_MC = "Downloading Minecraft (wait a minute, please)...";
 	public static final String WRONG_MINECRAFT_VERSION = "This version of Minecraft is not supported by the launcher!";
+	public static final String ASSET_CHECKING = "Checking for assets...";
+	public static final String JSON_CHECKING = "Verifying Minecraft files...";
 }

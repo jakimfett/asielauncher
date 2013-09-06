@@ -57,6 +57,10 @@ public class MinecraftHandler152 implements MinecraftHandler {
 		return args;
 	}
 	
+	// Dummy
+	@Override
+	public void setUpdater(IProgressUpdater updater) { }
+	
 	@Override
 	public boolean launch(String path, String username, String sessionID, String jvmArgs, AsieLauncher l) {
 		if(sessionID.length() == 0) sessionID = "null";

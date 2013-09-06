@@ -32,7 +32,7 @@ public class AsieLauncher implements IProgressUpdater {
 	private String loadDir;
 	private MinecraftHandler mc;
 	private Authentication auth;
-	private String mcVersion;
+	public String mcVersion;
 	
 	public String getLoadDir() {
 		return loadDir;
@@ -57,33 +57,9 @@ public class AsieLauncher implements IProgressUpdater {
 	public boolean sameClientRevision() {
 		if(file == null) return true; // Assumptions!
 		Long revNew = (Long)(file.get("client_revision"));
-		if(revNew == null && VERSION != 1) return false;
-		if(revNew == null && VERSION == 1) return true;
-		return revNew.intValue() == VERSION;
-	}
-	
-	public static JSONObject readJSONFile(String filename) {
-		try {
-			JSONParser tmp = new JSONParser();
-			Object o = tmp.parse(new InputStreamReader(new FileInputStream(filename)));
-			if(!(o instanceof JSONObject)) return null;
-			else return (JSONObject)o;
-		} catch(Exception e) { e.printStackTrace(); return null; }
-	}
-	
-	public static JSONObject readJSONUrlFile(URL url) {
-		try {
-			JSONParser tmp = new JSONParser();
-			Object o = tmp.parse(new InputStreamReader(url.openStream()));
-			if(!(o instanceof JSONObject)) return null;
-			else return (JSONObject)o;
-		} catch(Exception e) { e.printStackTrace(); return null; }
-	}
-	
-	public static JSONObject readJSONUrlFile(String url) {
-		try {
-			return readJSONUrlFile(new URL(url));
-		} catch(Exception e) { e.printStackTrace(); return null; }
+		if(revNew == null) {
+			return (VERSION == 1);
+		} else return revNew.intValue() == VERSION;
 	}
 	
 	public ArrayList<ModFile> loadModFiles(JSONArray jsonList, String mode, String prefix) {
@@ -107,13 +83,14 @@ public class AsieLauncher implements IProgressUpdater {
 	}
 	
 	public ArrayList<ModFile> loadModFiles(JSONObject object, String mode, String prefix) {
-		if(mode.equals("http")) {
+		if(object == null) return new ArrayList<ModFile>();
+		if(mode.equals("http") && object.containsKey("files")) {
 			JSONArray array = (JSONArray)object.get("files");
 			return loadModFiles(array, mode, prefix);
-		} else if(mode.equals("zip")) {
+		} else if(mode.equals("zip") && object.containsKey("zips")) {
 			JSONArray array = (JSONArray)object.get("zips");
 			return loadModFiles(array, mode, prefix);
-		} else return null;
+		} else return new ArrayList<ModFile>();
 	}
 	
 	public ArrayList<ModFile> loadModFiles(JSONObject object, String mode) {
@@ -132,7 +109,7 @@ public class AsieLauncher implements IProgressUpdater {
 		return optionMap;
 	}
 	public void configureConfig() {
-		configFile = readJSONUrlFile(getClass().getResource("/resources/config.json"));
+		configFile = Utils.readJSONUrlFile(getClass().getResource("/resources/config.json"));
 		PREFIX = (String)configFile.get("directoryName");
 		URL = (String)configFile.get("serverUrl");
 		WINDOW_NAME = (String)configFile.get("windowName");
@@ -145,7 +122,7 @@ public class AsieLauncher implements IProgressUpdater {
 		if(!(new File(directory).exists())) {
 			new File(directory).mkdirs();
 		} else {
-			oldFile = readJSONFile(directory + "also.json");
+			oldFile = Utils.readJSONFile(directory + "also.json");
 		}
 		loadDir = (new File(".").getAbsolutePath());
 		loadDir = loadDir.substring(0,loadDir.length()-1);
@@ -155,18 +132,19 @@ public class AsieLauncher implements IProgressUpdater {
 	
 	public boolean isSupported() {
 		if(this.mcVersion == null) return true; // Default hack
-		return Utils.versionToString(this.mcVersion) <= Utils.versionToString("1.5.2");
+		return Utils.versionToString(this.mcVersion) <= Utils.versionToString("1.6.2");
 	}
 	public boolean init() {
-		file = readJSONUrlFile(URL + "also.json");
+		file = Utils.readJSONUrlFile(URL + "also.json");
 		if(file instanceof JSONObject) { // Set variables;.
 			Object o = file.get("onlineMode");
 			boolean onlineMode = false;
 			if(o instanceof Boolean) onlineMode = ((Boolean)o);
 			if(getFileRevision(file) >= 5) {
 				mcVersion = (String)file.get("mcVersion");
-			} else mcVersion = "1.5.2";
-			mc = new MinecraftHandler152();
+			} else mcVersion = "1.6.2";
+			//mcVersion = "1.5.2";
+			mc = new MinecraftHandler162();
 			if(onlineMode) auth = new AuthenticationMojangLegacy();
 			return true;
 		}
@@ -288,16 +266,17 @@ public class AsieLauncher implements IProgressUpdater {
 			}
 		}
 		this.setStatus(Strings.DOWNLOAD_MC);
-		Repacker repacker = new Repacker(directory + "temp/minecraft", directory + "bin/minecraft.jar");
-		ArrayList<String> repackFiles = new ArrayList<String>();
+		//Repacker repacker = new Repacker(directory + "temp/minecraft", directory + "bin/minecraft.jar");
+		//ArrayList<String> repackFiles = new ArrayList<String>();
+		mc.setUpdater(updater);
 		mc.download(this, this.mcVersion);
-		this.setStatus(Strings.REPACK_JAR);
-		repackFiles.add(mc.getJarLocation(this, this.mcVersion));
-		repackFiles.addAll(getRepackedFiles());
-		File folder = new File(directory + "temp/minecraft");
-		File[] listOfFiles = folder.listFiles();
-		if(!repacker.unpackZips(repackFiles.toArray(new String[repackFiles.size()]))) return false;
-		if(!repacker.repackJar()) return false;
+		//this.setStatus(Strings.REPACK_JAR);
+		//repackFiles.add(mc.getJarLocation(this, this.mcVersion));
+		//repackFiles.addAll(getRepackedFiles());
+		//File folder = new File(directory + "temp/minecraft");
+		//File[] listOfFiles = folder.listFiles();
+		//if(!repacker.unpackZips(repackFiles.toArray(new String[repackFiles.size()]))) return false;
+		//if(!repacker.repackJar()) return false;
 		if(!dry) {
 			this.setStatus(Strings.SAVING);
 			this.save();

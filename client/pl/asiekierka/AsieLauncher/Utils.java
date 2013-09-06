@@ -8,13 +8,16 @@ import java.security.*;
 import java.util.*;
 import java.util.zip.*;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 public class Utils {
 
 	public static String getSystemName() {
 		String name = System.getProperty("os.name");
-		if(name.indexOf("Solaris") >= 0) return "solaris";
+		//if(name.indexOf("Solaris") >= 0) return "solaris"; -- Deprecated in 1.6.2+
 		if(name.indexOf("Linux") >= 0) return "linux";
-		if(name.indexOf("Mac") >= 0) return "macosx";
+		if(name.indexOf("Mac") >= 0) return "osx";
 		if(name.indexOf("Windows") >= 0) return "windows";
 		return "commodore64";
 		// Default choice.
@@ -123,23 +126,53 @@ public class Utils {
 		return hex;
 	}
 	
+	public static JSONObject readJSONFile(String filename) {
+		try {
+			JSONParser tmp = new JSONParser();
+			Object o = tmp.parse(new InputStreamReader(new FileInputStream(filename)));
+			if(!(o instanceof JSONObject)) return null;
+			else return (JSONObject)o;
+		} catch(Exception e) { e.printStackTrace(); return null; }
+	}
+	
+	public static JSONObject readJSONUrlFile(URL url) {
+		try {
+			JSONParser tmp = new JSONParser();
+			Object o = tmp.parse(new InputStreamReader(url.openStream()));
+			if(!(o instanceof JSONObject)) return null;
+			else return (JSONObject)o;
+		} catch(Exception e) { e.printStackTrace(); return null; }
+	}
+	
+	public static JSONObject readJSONUrlFile(String url) {
+		try {
+			return readJSONUrlFile(new URL(url));
+		} catch(Exception e) { e.printStackTrace(); return null; }
+	}
+	
 	public static boolean download(URL url, String file) {
-		return download(url,file,0,null);
+		return download(url,file,0,0,null);
 	}
 	public static boolean download(URL url, String file, int filesize, IProgressUpdater updater) {
-		boolean downloaded = true;
+		return download(url,file, 0, filesize, updater);
+	}
+	public static boolean download(URL url, String file, int prefix, int totalFilesize, IProgressUpdater updater) {
+		final int BUFFER = 16384;
+		File fFile = new File(new File(file).getParentFile().getPath());
+		if(!fFile.exists()) fFile.mkdirs();
+ 		boolean downloaded = true;
     	BufferedInputStream in = null;
     	FileOutputStream out = null;
     	try {
     		int count;
     		int totalCount = 0;
-    		byte data[] = new byte[1024];
+    		byte data[] = new byte[BUFFER];
     		in = new BufferedInputStream(url.openStream());
     		out = new FileOutputStream(file);
-    		while ((count = in.read(data, 0, 1024)) != -1) {
+    		while ((count = in.read(data, 0, BUFFER)) != -1) {
     			out.write(data, 0, count);
     			totalCount += count;
-    			if(updater != null) updater.update(totalCount, filesize);
+    			if(updater != null) updater.update(prefix+totalCount, totalFilesize);
     		}
     	}
     	catch(Exception e) { e.printStackTrace(); System.out.println("Download error!"); downloaded = false; }
