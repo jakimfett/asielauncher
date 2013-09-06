@@ -221,11 +221,11 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		args.add("-Djava.library.path=" + new File(nativesDir).getAbsolutePath());
 		args.add(mainClass);
 		// Parse gameArguments
-		gameArguments = gameArguments.replaceAll("$\\{auth_player_name\\}", username)
-				                     .replaceAll("$\\{auth_session\\}", sessionID)
-				                     .replaceAll("$\\{version_name\\}", gameVersion)
-				                     .replaceAll("$\\{game_directory\\}", new File(path).getAbsolutePath())
-				                     .replaceAll("$\\{assets_directory\\}", assetsDir);
+		gameArguments = gameArguments.replaceAll("\\$\\{auth_player_name\\}", username)
+				                     .replaceAll("\\$\\{auth_session\\}", sessionID)
+				                     .replaceAll("\\$\\{version_name\\}", gameVersion)
+				                     .replaceAll("\\$\\{game_directory\\}", new File(path).getAbsolutePath())
+				                     .replaceAll("\\$\\{assets_directory\\}", assetsDir);
 		args.addAll(Arrays.asList(gameArguments.split(" ")));
 		System.out.println("Launching with arguments: " + args.toString());
 		return args;
