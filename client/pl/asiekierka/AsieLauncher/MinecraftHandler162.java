@@ -104,6 +104,14 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	
 	public boolean downloadLibraries(String patchDir, String libraryDir) {
 		ArrayList<String> addedLibraries = new ArrayList<String>();
+		// Go through library files
+		File jarPatchesDirectory = new File(patchDir, "jarPatches");
+		File[] jarPatchFiles = jarPatchesDirectory.listFiles();
+		if(jarPatchFiles != null) {
+			for(File f: jarPatchFiles) {
+				libraries.add(f.getAbsolutePath());
+			}
+		}
 		// Go through libraries in JSON file
 		JSONArray jsonLibraries = (JSONArray)launchInfo.get("libraries");
 		int imax = jsonLibraries.size();
@@ -114,6 +122,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 			String[] data = ((String)jsonLibrary.get("name")).split(":");
 			String uid = data[0] + ":" + data[1];
 			String filename = data[1] + "-" + data[2] + ".jar";
+			String addon = "";
 			if(updater != null) {
 				updater.update(i, imax);
 			}
@@ -121,19 +130,17 @@ public class MinecraftHandler162 implements MinecraftHandler {
 			if(jsonLibrary.containsKey("natives")) {
 				// This is a /native/ file!
 				JSONObject nativeList = (JSONObject)jsonLibrary.get("natives");
-				String addon = (String)nativeList.get(Utils.getSystemName());
+				addon = (String)nativeList.get(Utils.getSystemName());
 				filename = data[1] + "-" + data[2] + "-" + addon + ".jar";
 			}
+			String filePath = libraryDir + filename; // Don't move that above natives code.
 			String urlPrefix = "http://s3.amazonaws.com/Minecraft.Download/libraries/";
 			if(jsonLibrary.containsKey("url"))
 				urlPrefix = (String)jsonLibrary.get("url");
-			String filePath = libraryDir + filename;
 			if(!(new File(filePath).exists())) {
 				boolean found = false;
 				if(filename.startsWith("minecraftforge")) {
 					// Forge workaround
-					File jarPatchesDirectory = new File(patchDir, "jarPatches");
-					File[] jarPatchFiles = jarPatchesDirectory.listFiles();
 					if(jarPatchFiles != null) {
 						for(File f: jarPatchFiles) {
 							if(f.getName().startsWith("minecraftforge")) {
@@ -146,7 +153,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 						}
 					}
 				}
-				if(!found) downloadLibrary(urlPrefix, data[0], data[1], data[2], libraryDir, false);
+				if(!found) downloadLibrary(urlPrefix, data[0], data[1], data[2], addon, libraryDir, false);
 			}
 			if(jsonLibrary.containsKey("natives")) {
 				// This is a /native/ file, so extract it
@@ -154,7 +161,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 					Utils.extract(filePath, nativesDir, true);
 				} catch(Exception e) { e.printStackTrace(); return false; }
 			}
-			libraries.add(filePath);
+			if(!filename.startsWith("minecraftforge")) libraries.add(filePath);
 			addedLibraries.add(uid);
 		}
 		// Go through "custom" libraries
@@ -178,7 +185,13 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	}
 	
 	public boolean downloadLibrary(String urlPrefix, String className, String name, String version, String libraryDir, boolean force) {
+		return this.downloadLibrary(urlPrefix, className, name, version, "", libraryDir, force);
+	}
+	
+	public boolean downloadLibrary(String urlPrefix, String className, String name, String version, String addon, String libraryDir, boolean force) {
 		String filename = name + "-" + version + ".jar";
+		if(addon.length() > 0)
+			filename = name + "-" + version + "-" + addon + ".jar";
 		String filePath = libraryDir + filename;
 		if(libraries.contains(filePath)) return true; // Already downloaded
  		String urlPath = urlPrefix + (urlPrefix.endsWith("/")?"":"/") + className.replace('.', '/') + "/"
