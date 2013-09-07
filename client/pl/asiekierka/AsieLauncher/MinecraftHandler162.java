@@ -17,6 +17,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	private static final String ASSETS_URL = "https://s3.amazonaws.com/Minecraft.Resources/";
 	private IProgressUpdater updater;
 	private String assetsDir;
+	private boolean hasForge = false;
 	
 	public MinecraftHandler162() {
 		// TODO Auto-generated constructor stub
@@ -103,7 +104,6 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	
 	public boolean downloadLibraries(String patchDir, String libraryDir) {
 		ArrayList<String> addedLibraries = new ArrayList<String>();
-		libraries = new ArrayList<String>();
 		// Go through libraries in JSON file
 		JSONArray jsonLibraries = (JSONArray)launchInfo.get("libraries");
 		int imax = jsonLibraries.size();
@@ -116,7 +116,6 @@ public class MinecraftHandler162 implements MinecraftHandler {
 			String filename = data[1] + "-" + data[2] + ".jar";
 			if(updater != null) {
 				updater.update(i, imax);
-				updater.setStatus(Strings.DOWNLOADING+" libraries/"+filename+" ...");
 			}
 			if(addedLibraries.contains(uid)) continue; // We already have this lib
 			if(jsonLibrary.containsKey("natives")) {
@@ -126,11 +125,8 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				filename = data[1] + "-" + data[2] + "-" + addon + ".jar";
 			}
 			String urlPrefix = "http://s3.amazonaws.com/Minecraft.Download/libraries/";
-			if(jsonLibrary.containsKey("url")) {
+			if(jsonLibrary.containsKey("url"))
 				urlPrefix = (String)jsonLibrary.get("url");
-				if(!urlPrefix.endsWith("/")) urlPrefix += "/";
-			}
- 			String urlPath = urlPrefix + data[0].replace('.', '/') + "/" + data[1] + "/" + data[2] + "/" + filename;
 			String filePath = libraryDir + filename;
 			if(!(new File(filePath).exists())) {
 				boolean found = false;
@@ -150,10 +146,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 						}
 					}
 				}
-				if(!found) try {
-					boolean downloaded = Utils.download(new URL(urlPath), filePath);
-					if(!downloaded) return false;
-				} catch(Exception e) { e.printStackTrace(); return false; }
+				if(!found) downloadLibrary(urlPrefix, data[0], data[1], data[2], libraryDir, false);
 			}
 			if(jsonLibrary.containsKey("natives")) {
 				// This is a /native/ file, so extract it
@@ -172,6 +165,49 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		}
 		// All done.
 		return true;
+	}
+	
+	public void addTweak(String s) {
+		if(gameArguments.indexOf("tweakClass") >= 0 || hasForge) {
+			gameArguments += " --cascadedTweaks "+s;
+		} else {
+			gameArguments += " --tweakClass "+s;
+			// Install the tweaker
+			System.out.println("TODO: INSTALL TWEAKER WITHOUT FORGE; MIGHT GET A BIT MESSY");
+		}
+	}
+	
+	public boolean downloadLibrary(String urlPrefix, String className, String name, String version, String libraryDir, boolean force) {
+		String filename = name + "-" + version + ".jar";
+		String filePath = libraryDir + filename;
+		if(libraries.contains(filePath)) return true; // Already downloaded
+ 		String urlPath = urlPrefix + (urlPrefix.endsWith("/")?"":"/") + className.replace('.', '/') + "/"
+							+ name + "/" + version + "/" + filename;
+		if(force || !(new File(filename)).exists()) {
+			if(updater != null) {
+				updater.setStatus(Strings.DOWNLOADING + " " + name + " " + version + "...");
+			}
+			try {
+				boolean downloaded = Utils.download(new URL(urlPath), filePath);
+				return downloaded;
+			} catch(Exception e) { e.printStackTrace(); return false; }
+		} else return true;
+	}
+	
+	public void scanLiteLoader(String modDir, String libraryDir, String version) {
+		try {
+			File[] loaderFiles = new File(modDir).listFiles();
+			for(File f: loaderFiles) {
+				if(f.getName().endsWith(".litemod")) {
+					System.out.println("LiteLoader mod found; downloading LiteLoader...");
+					addTweak("com.mumfrey.liteloader.launch.LiteLoaderTweaker");
+					downloadLibrary("http://dl.liteloader.com/versions/", "com.mumfrey",
+							"liteloader", version, libraryDir, false);
+					libraries.add(libraryDir+"liteloader-"+version+".jar");
+					return;
+				}
+			}
+		} catch(Exception e) { e.printStackTrace(); }
 	}
 	
 	public boolean loadJSON(String patchDir, String gameDir, String jsonDir, String version) {
@@ -197,6 +233,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 					for(String s: Utils.getZipList(patchFile.getAbsolutePath())) {
 						if(s.equals("version.json")) {
 							found = true; // Got one!
+							hasForge = true;
 							// Now to unpack it
 						    ZipFile zip = new ZipFile(patchFile);
 						    Enumeration<? extends ZipEntry> zipFileEntries = zip.entries();
@@ -230,6 +267,12 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		// Parse
 		gameArguments = (String)launchInfo.get("minecraftArguments"); // Arguments are parsed in getMCArguments();
 		mainClass = (String)launchInfo.get("mainClass");
+		if(gameArguments.indexOf("cpw.mods.fml") >= 0) {
+			hasForge = true; // Found Forge in arguments
+		}
+		// Libraries
+		libraries = new ArrayList<String>();
+		scanLiteLoader(patchDir + "mods/", gameDir + "libraries/", version);
 		if(!downloadLibraries(patchDir, gameDir + "libraries/")) return false; // Get necessary libraries
 		return true;
 	}
@@ -261,7 +304,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		String classpathSeparator = ":";
 		if(Utils.getSystemName().equals("windows")) classpathSeparator = ";";
 		StringBuilder sb = new StringBuilder();
-		sb.append(l.directory + "minecraft.jar"); // Minecraft.jar
+		sb.append(getJarLocation(l, l.mcVersion)); // Minecraft.jar
 		for(String s : libraries) { // Libraries
 			sb.append(classpathSeparator);
 			sb.append(s);
@@ -292,7 +335,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				                     .replaceAll("\\$\\{auth_session\\}", sessionID)
 				                     .replaceAll("\\$\\{version_name\\}", gameVersion)
 				                     .replaceAll("\\$\\{game_directory\\}", new File(path).getAbsolutePath())
-				                     .replaceAll("\\$\\{assets_directory\\}", assetsDir);
+				                     .replaceAll("\\$\\{game_assets\\}", assetsDir);
 		args.addAll(Arrays.asList(gameArguments.split(" ")));
 		System.out.println("Launching with arguments: " + args.toString());
 		return args;

@@ -145,8 +145,11 @@ public class AsieLauncher implements IProgressUpdater {
 			} else mcVersion = "1.6.2";
 			if(Utils.versionToInt(this.mcVersion) <= Utils.versionToInt("1.5.2")) {
 				mc = new MinecraftHandler152();
-			} else mc = new MinecraftHandler162();
-			if(onlineMode) auth = new AuthenticationMojangLegacy();
+				if(onlineMode) auth = new AuthenticationMojangLegacy();
+			} else {
+				mc = new MinecraftHandler162();
+				if(onlineMode) auth = new AuthenticationYggdrasil(directory, false);
+			}
 			return true;
 		}
 		return false;
@@ -270,12 +273,14 @@ public class AsieLauncher implements IProgressUpdater {
 			}
 		}
 		this.setStatus(Strings.DOWNLOAD_MC);
-		Repacker repacker = new Repacker(directory + ((mc instanceof MinecraftHandler152) ? "bin/" : "") + "minecraft.jar");
-		List<String> repackFiles = getRepackedFiles();
 		mc.setUpdater(updater);
 		mc.download(this, this.mcVersion);
-		this.setStatus(Strings.REPACK_JAR);
-		if(!repacker.repackJar(mc.getJarLocation(this, this.mcVersion), repackFiles.toArray(new String[repackFiles.size()]))) return false;
+		if(mc instanceof MinecraftHandler152) {
+			Repacker repacker = new Repacker(directory + "bin/minecraft.jar");
+			List<String> repackFiles = getRepackedFiles();
+			this.setStatus(Strings.REPACK_JAR);
+			if(!repacker.repackJar(mc.getJarLocation(this, this.mcVersion), repackFiles.toArray(new String[repackFiles.size()]))) return false;
+		}
 		if(!dry) {
 			this.setStatus(Strings.SAVING);
 			this.save();

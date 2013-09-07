@@ -3,4 +3,5 @@ update-server.sh
 server/node_modules
 server/AsieLauncher/zips/*
 server/AsieLauncher/jars/*
+server/mods/*
 .DS_Store

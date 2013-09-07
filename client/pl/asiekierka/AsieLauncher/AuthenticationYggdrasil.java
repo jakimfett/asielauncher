@@ -73,7 +73,7 @@ public class AuthenticationYggdrasil extends Authentication {
 		}
 		// Session ID is stored, attempt renewing.
 		JSONObject payload = new JSONObject();
-		payload.put("accessToken", sessionID);
+		payload.put("accessToken", getMojangSessionID());
 		payload.put("clientToken", clientToken);
 		JSONObject answer = sendJSONPayload("/refresh", payload);
 		if(ifErrorThenSet(answer)) return false;
@@ -88,6 +88,10 @@ public class AuthenticationYggdrasil extends Authentication {
 	
 	@Override
 	public String getSessionID() {
+		return sessionID;
+	}
+	
+	public String getMojangSessionID() {
 		return "token:"+sessionID+":"+profileID;
 	}
 	
