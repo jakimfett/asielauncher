@@ -8,6 +8,7 @@
     "express": "3.x",
     "underscore": ">=1.4.0",
     "wrench": "1.5.x",
-    "adm-zip": ">=0.4.3"
+    "adm-zip": ">=0.4.3",
+    "optimist": ">=0.6.0"
   }
 }

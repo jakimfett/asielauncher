@@ -5,14 +5,16 @@ var express = require('express')
   , wrench = require('wrench')
   , util = require('util')
   , Zip = require('adm-zip')
-  , crypto = require('crypto');
+  , crypto = require('crypto')
+  , argv = require('optimist').argv
+  , ansi = require('ansi')
+  , cursor = ansi(process.stdout);
 
 var app = express()
   , config = require("./AsieLauncher/config.json")
   , infoData = {}
-  , DEBUG = true;
-
-config.client_revision = 5;
+  , DEBUG = false
+  , DO_LOCAL = false;
 
 var textColors = {
   "debug": "grey",
@@ -21,8 +23,29 @@ var textColors = {
   "error": "brightRed"
 };
 
-var ansi = require('ansi')
-  , cursor = ansi(process.stdout);
+// Handle parameters
+DEBUG = argv.d || argv.debug || false;
+DO_LOCAL = argv.l || argv.local || false;
+
+if(DO_LOCAL) {
+  if(fs.existsSync("./ALWebFiles")) {
+    wrench.rmdirSyncRecursive('./ALWebFiles', true);
+  }
+}
+
+function addDirectory(dirName, realDir) {
+  say("debug", "addDirectory: " + dirName + " <- " + realDir);
+  if(DO_LOCAL) {
+    wrench.copyDirSyncRecursive(realDir+"/", './ALWebFiles/'+dirName+"/", {
+      excludeHiddenUnix: false
+    });
+  } else {
+    app.use("/" + dirName, express.static(realDir));
+  }
+}
+addDirectory("", "./AsieLauncher/htdocs");
+
+config.client_revision = 5;
 
 function say(type, message) {
   if(type == "debug" && !DEBUG) return;
@@ -105,10 +128,9 @@ console.log("Welcome to ALSO");
 
 // init folders
 fs.mkdir("AsieLauncher/zips", function(){ });
-app.use("/zips", express.static("./AsieLauncher/zips"));
-app.use("/platform", express.static("./AsieLauncher/platform"));
-app.use("/options", express.static("./AsieLauncher/options"));
-app.use("/jarPatches", express.static("./AsieLauncher/jars"));
+addDirectory("platform", "./AsieLauncher/platform");
+addDirectory("options", "./AsieLauncher/platform");
+addDirectory("jarPatches", "./AsieLauncher/platform");
 
 infoData.jarPatches = sortFilesBySubstring(config.jarPatchOrder,
                         getDirectoryList("./AsieLauncher/jars", "jarPatches/", false, "jarPatches/")
@@ -138,9 +160,9 @@ _.each(config.loggedDirs, function(dir) {
     return file;
   }));
   // Express
-  if(fs.existsSync(dir)) app.use("/"+dir, express.static("./"+dir));
-  if(fs.existsSync(dir+"-client")) app.use("/"+dir, express.static("./"+dir+"-client"));
-  if(fs.existsSync("./AsieLauncher/"+dir)) app.use("/"+dir, express.static("./AsieLauncher/"+dir));
+  if(fs.existsSync(dir)) addDirectory(dir, "./"+dir);
+  if(fs.existsSync(dir+"-client")) addDirectory(dir, "./"+dir+"-client");
+  if(fs.existsSync("./AsieLauncher/"+dir)) addDirectory(dir, "./AsieLauncher/"+dir);
 });
 
 _.each(config.zippedDirs, function(dir) {
@@ -162,7 +184,7 @@ _.each(config.zippedDirs, function(dir) {
 });
 
 _.each(fs.readdirSync("./AsieLauncher/platform"), function(platform) {
-  say("info", "Adding platform "+platform);
+  say("debug", "Adding platform "+platform);
   var list = getDirectoryList("./AsieLauncher/platform/"+platform, "", false);
   var size = getDirectoriesSize(list);
   infoData.platforms[platform] = {"files": list, "size": size};
@@ -185,12 +207,17 @@ _.each(config.options, function(option) {
   }
 });
 
-app.use("/also.json", function(req, res) {
-  res.json(infoData);
-});
+if(DO_LOCAL) {
+  fs.writeFileSync("./ALWebFiles/also.json", JSON.stringify(infoData), {encoding: "utf-8"});
+} else {
+  app.use("/also.json", function(req, res) {
+    res.json(infoData);
+  });
+}
 
-app.use("/", express.static("./AsieLauncher/htdocs"));
+addDirectory("zips", "./AsieLauncher/zips");
 
-app.listen(config.port);
-
-say("info", "Ready - listening on port "+config.port+"!");
+if(!DO_LOCAL) {
+  app.listen(config.port);
+  say("info", "Ready - listening on port "+config.port+"!");
+} else say("info", "Files exported to ./ALWebFiles/");
