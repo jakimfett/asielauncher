@@ -199,7 +199,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 			File[] loaderFiles = new File(modDir).listFiles();
 			for(File f: loaderFiles) {
 				if(f.getName().endsWith(".litemod")) {
-					System.out.println("LiteLoader mod found; downloading LiteLoader...");
+					System.out.println("LiteLoader mod '" + f.getName() + "' found, downloading LiteLoader...");
 					addTweak("com.mumfrey.liteloader.launch.LiteLoaderTweaker");
 					downloadLibrary("http://dl.liteloader.com/versions/", "com.mumfrey",
 							"liteloader", version, libraryDir, false);
@@ -336,6 +336,13 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				                     .replaceAll("\\$\\{version_name\\}", gameVersion)
 				                     .replaceAll("\\$\\{game_directory\\}", new File(path).getAbsolutePath())
 				                     .replaceAll("\\$\\{game_assets\\}", assetsDir);
+		// Fix cascadedTweaks because Forge bugs
+		if(gameArguments.indexOf("--cascadedTweaks") >= 0
+				&& gameArguments.indexOf("--tweakClass cpw.mods.fml.common.launcher.FMLTweaker") >= 0) {
+			gameArguments = gameArguments.replaceAll("--tweakClass cpw.mods.fml.common.launcher.FMLTweaker", "")
+										 .replaceFirst("--cascadedTweaks", "--tweakClass")
+										 + " --cascadedTweaks cpw.mods.fml.common.launcher.FMLTweaker";
+		}
 		args.addAll(Arrays.asList(gameArguments.split(" ")));
 		System.out.println("Launching with arguments: " + args.toString());
 		return args;
