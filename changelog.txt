@@ -1,6 +1,14 @@
-0.4.0-dev:
+0.4.0-beta:
+- SOLARIS HAS BEEN DEPRECATED!
 [CLIENT]
 + Implement Yggdrasil authentication.
++ Add 1.6 Minecraft launcher code.
++ Rewrite JAR repacking to actually work.
++ Automatically download LiteLoader for .litemods.
+  (BETA: Requires Forge to work for now)
+[SERVER]
++ Lets you dump web server files to a directory: node also -l
++ Show debug messages with -d.
 
 0.3.1:
 * Bump config revision to 5.
