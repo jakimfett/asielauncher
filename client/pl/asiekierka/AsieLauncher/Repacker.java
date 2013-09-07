@@ -1,16 +1,10 @@
 package pl.asiekierka.AsieLauncher;
 
-import com.prupe.mcpatcher.ForgeAdapter;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -19,8 +13,6 @@ import java.util.zip.ZipOutputStream;
 public class Repacker {
 	private String jarFilename;
 	private HashMap<String, String> fileMap;
-	private HashMap<String, ForgeAdapter.Binpatch> binpatches;
-	
 	public Repacker(String _jarFilename) {
 		jarFilename=_jarFilename;
 	}
@@ -32,16 +24,7 @@ public class Repacker {
 			if(!name.startsWith("META-INF")) {
 				if(fileMap.get(name).equals(patchName)) {
 					out.putNextEntry(entry);
-					if(binpatches.containsKey(name)) {
-						ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
-						Utils.copyStream(in, dataStream);
-						byte[] data = dataStream.toByteArray();
-						ForgeAdapter.Binpatch binpatch = binpatches.get(name);
-						byte[] outData = binpatch.apply(data);
-						Utils.copyStream(new ByteArrayInputStream(outData), out);
-					} else {
-						Utils.copyStream(in, out);
-					}
+					Utils.copyStream(in, out);
 					out.closeEntry();
 				}
 			}
@@ -51,37 +34,20 @@ public class Repacker {
 	
 	public void merge(String jarFile, String[] patches, String outFile) throws ZipException, IOException {
 		fileMap = new HashMap<String, String>();
-		binpatches = new HashMap<String, ForgeAdapter.Binpatch>();
-		
 		// Generate filemap.
-		ArrayList<String> binaryPatchFiles = new ArrayList<String>();
 		for(String s: Utils.getZipList(jarFile)) {
 			fileMap.put(s, jarFile);
 		}
 		for(String p: patches) {
 			for(String s: Utils.getZipList(p)) {
-				if(s.equalsIgnoreCase("binpatches.pack.lzma")) { // Forge is Magic
-					binaryPatchFiles.add(p);
-				}
 				if(fileMap.containsKey(s)) {
 					fileMap.remove(s);
 				}
 				fileMap.put(s, p);
 			}
 		}
-		File fJarFile = new File(jarFile);
-		// Generate binary patches
-		for(String bpFile: binaryPatchFiles) {
-			try {
-				ForgeAdapter adapter = new ForgeAdapter(new File(bpFile), new JarFile(fJarFile));
-				for(ForgeAdapter.Binpatch bp: adapter.getPatches().values()) {
-					//binpatches.put(bp.getObfClass().replace('.', '/') + ".class", bp);
-					//binpatches.put(bp.getDeobfClass().replace('.', '/') + ".class", bp);
-					System.out.println("[Repacker] Added class " + bp.getObfClass());
-				}
-			} catch(Exception e) { e.printStackTrace(); }
-		}
 		// Then finally do the merge.
+		File fJarFile = new File(jarFile);
 		File fOutFile = new File(outFile);
 		ZipOutputStream outStream = new ZipOutputStream(new FileOutputStream(fOutFile));
 		ZipInputStream jarInStream = new ZipInputStream(new FileInputStream(fJarFile));
