@@ -30,8 +30,15 @@ public class AuthenticationYggdrasil extends Authentication {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private JSONObject sendJSONPayload(String path, JSONObject payload) {
 		try {
+			if(!payload.containsKey("agent")) {
+				JSONObject agent = new JSONObject();
+				agent.put("name", "Minecraft");
+				agent.put("version", 1);
+				payload.put("agent", agent);
+			}
 			URL url = new URL(SERVER + path);
 			HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
 			con.setRequestMethod("POST");
@@ -114,6 +121,8 @@ public class AuthenticationYggdrasil extends Authentication {
 		payload.put("clientToken", clientToken);
 		JSONObject answer = sendJSONPayload("/authenticate", payload);
 		if(ifErrorThenSet(answer)) return false;
+		JSONObject profile = (JSONObject)answer.get("selectedProfile");
+		realUsername = (String)profile.get("name");
 		sessionID = (String)answer.get("accessToken");
 		if(keepLoggedIn) saveSessionID();
 		return true;
