@@ -1,8 +1,14 @@
 package pl.asiekierka.AsieLauncher;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.xml.parsers.*;
 
@@ -97,7 +103,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	private ArrayList<String> libraries;
 	private String mainClass;
 	
-	public boolean downloadLibraries(String libraryDir) {
+	public boolean downloadLibraries(String patchDir, String libraryDir) {
 		ArrayList<String> addedLibraries = new ArrayList<String>();
 		libraries = new ArrayList<String>();
 		// Go through libraries in JSON file
@@ -121,11 +127,32 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				String addon = (String)nativeList.get(Utils.getSystemName());
 				filename = data[1] + "-" + data[2] + "-" + addon + ".jar";
 			}
- 			String urlPath = "http://s3.amazonaws.com/Minecraft.Download/libraries/"
-					         + data[0].replace('.', '/') + "/" + data[1] + "/" + data[2] + "/" + filename;
+			String urlPrefix = "http://s3.amazonaws.com/Minecraft.Download/libraries/";
+			if(jsonLibrary.containsKey("url")) {
+				urlPrefix = (String)jsonLibrary.get("url");
+				if(!urlPrefix.endsWith("/")) urlPrefix += "/";
+			}
+ 			String urlPath = urlPrefix + data[0].replace('.', '/') + "/" + data[1] + "/" + data[2] + "/" + filename;
 			String filePath = libraryDir + filename;
 			if(!(new File(filePath).exists())) {
-				try {
+				boolean found = false;
+				if(filename.startsWith("minecraftforge")) {
+					// Forge workaround
+					File jarPatchesDirectory = new File(patchDir, "jarPatches");
+					File[] jarPatchFiles = jarPatchesDirectory.listFiles();
+					if(jarPatchFiles != null) {
+						for(File f: jarPatchFiles) {
+							if(f.getName().startsWith("minecraftforge")) {
+								// Found it!
+								System.out.println("Found an instance of Forge: " + f.getAbsolutePath());
+								filePath = f.getAbsolutePath();
+								found = true;
+							}
+							if(found) break;
+						}
+					}
+				}
+				if(!found) try {
 					boolean downloaded = Utils.download(new URL(urlPath), filePath);
 					if(!downloaded) return false;
 				} catch(Exception e) { e.printStackTrace(); return false; }
@@ -149,23 +176,63 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		return true;
 	}
 	
-	public boolean loadJSON(String gameDir, String jsonDir, String version) {
+	public boolean loadJSON(String patchDir, String gameDir, String jsonDir, String version) {
 		if(updater != null) {
 			updater.update(1, 2);
 			updater.setStatus(Strings.JSON_CHECKING);
 		}
-		// Download
-		try {
-			boolean downloaded = Utils.download(new URL("http://s3.amazonaws.com/Minecraft.Download/versions/"+version+"/"+version+".json"), jsonDir);
-			if(!downloaded) return false;
-		} catch(Exception e) { e.printStackTrace(); return false; }
+		// Try to find one in jarPatches
+		boolean found = false;
+		File customFolder = new File(patchDir, "jarPatches");
+		File[] customPatches = customFolder.listFiles();
+		if(new File(patchDir, "version.json").exists()) {
+			found = true;
+			try {
+				Utils.copyStream(new FileInputStream(new File(patchDir, "version.json")),
+								new FileOutputStream(new File(jsonDir)));
+			} catch(Exception e) { e.printStackTrace(); found = false; }
+		}
+		if(!found && customPatches != null) {
+			for(File patchFile: customPatches) {
+				if(found) break;
+				try {
+					for(String s: Utils.getZipList(patchFile.getAbsolutePath())) {
+						if(s.equals("version.json")) {
+							found = true; // Got one!
+							// Now to unpack it
+						    ZipFile zip = new ZipFile(patchFile);
+						    Enumeration<? extends ZipEntry> zipFileEntries = zip.entries();
+						    while (zipFileEntries.hasMoreElements())
+						    {
+						        // grab a zip file entry
+						        ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
+						        String currentEntry = entry.getName();
+						        if(!currentEntry.equals("version.json")) continue;
+						        File destFile = new File(jsonDir);
+						        Utils.copyStream(zip.getInputStream(entry), new FileOutputStream(destFile));
+						        break;
+						    }
+						    zip.close();
+						    break;
+						} else continue;
+					}
+				} catch(Exception e) { e.printStackTrace(); }
+			}
+		}
+		if(!found) {
+			// Download
+			try {
+				boolean downloaded = Utils.download(new URL("http://s3.amazonaws.com/Minecraft.Download/versions/"+version+"/"+version+".json"), jsonDir);
+				if(!downloaded) return false;
+			} catch(Exception e) { e.printStackTrace(); return false; }
+		}
 		// Load
 		launchInfo = Utils.readJSONFile(jsonDir);
 		if(launchInfo == null) return false;
 		// Parse
 		gameArguments = (String)launchInfo.get("minecraftArguments"); // Arguments are parsed in getMCArguments();
 		mainClass = (String)launchInfo.get("mainClass");
-		if(!downloadLibraries(gameDir + "libraries/")) return false; // Get necessary libraries
+		if(!downloadLibraries(patchDir, gameDir + "libraries/")) return false; // Get necessary libraries
 		return true;
 	}
 	
@@ -187,7 +254,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		File dir = new File(l.baseDir + "libraries/custom/");
 		if(!dir.exists()) dir.mkdirs();
 		if(!downloadAssets(l.baseDir+"assets/")) return false;
-		if(!loadJSON(l.baseDir, l.baseDir+"launchinfo.json", version)) return false;
+		if(!loadJSON(l.directory, l.baseDir, l.baseDir+"launchinfo.json", version)) return false;
 		if(!downloadMinecraft(getJarLocation(l, version), version)) return false;
 		return true;
 	}
@@ -196,7 +263,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		String classpathSeparator = ":";
 		if(Utils.getSystemName().equals("windows")) classpathSeparator = ";";
 		StringBuilder sb = new StringBuilder();
-		sb.append(getJarLocation(l, l.mcVersion)); // Minecraft.jar
+		sb.append(l.directory + "minecraft.jar"); // Minecraft.jar
 		for(String s : libraries) { // Libraries
 			sb.append(classpathSeparator);
 			sb.append(s);
@@ -219,6 +286,8 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		args.addAll(Arrays.asList(jvmArgs.split(" ")));
 		args.add("-cp"); args.add(generateClasspath(l));
 		args.add("-Djava.library.path=" + new File(nativesDir).getAbsolutePath());
+        args.add("-Dfml.ignorePatchDiscrepancies=true");
+        args.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
 		args.add(mainClass);
 		// Parse gameArguments
 		gameArguments = gameArguments.replaceAll("\\$\\{auth_player_name\\}", username)

@@ -270,17 +270,12 @@ public class AsieLauncher implements IProgressUpdater {
 			}
 		}
 		this.setStatus(Strings.DOWNLOAD_MC);
-		//Repacker repacker = new Repacker(directory + "temp/minecraft", directory + "bin/minecraft.jar");
-		//ArrayList<String> repackFiles = new ArrayList<String>();
+		Repacker repacker = new Repacker(directory + ((mc instanceof MinecraftHandler152) ? "bin/" : "") + "minecraft.jar");
+		List<String> repackFiles = getRepackedFiles();
 		mc.setUpdater(updater);
 		mc.download(this, this.mcVersion);
-		//this.setStatus(Strings.REPACK_JAR);
-		//repackFiles.add(mc.getJarLocation(this, this.mcVersion));
-		//repackFiles.addAll(getRepackedFiles());
-		//File folder = new File(directory + "temp/minecraft");
-		//File[] listOfFiles = folder.listFiles();
-		//if(!repacker.unpackZips(repackFiles.toArray(new String[repackFiles.size()]))) return false;
-		//if(!repacker.repackJar()) return false;
+		this.setStatus(Strings.REPACK_JAR);
+		if(!repacker.repackJar(mc.getJarLocation(this, this.mcVersion), repackFiles.toArray(new String[repackFiles.size()]))) return false;
 		if(!dry) {
 			this.setStatus(Strings.SAVING);
 			this.save();

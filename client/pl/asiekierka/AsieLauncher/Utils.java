@@ -12,7 +12,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 public class Utils {
-
+	private static final int BUFFER = 65536;
+	
 	public static String getSystemName() {
 		String name = System.getProperty("os.name");
 		//if(name.indexOf("Solaris") >= 0) return "solaris"; -- Deprecated in 1.6.2+
@@ -103,6 +104,23 @@ public class Utils {
 		return old.replaceAll(" ", "%20");
 	}
 	
+	public static String[] getZipList(String zipFile) throws ZipException, IOException {
+	    File file = new File(zipFile);
+	    ZipFile zip = new ZipFile(file);
+	    Enumeration<? extends ZipEntry> zipFileEntries = zip.entries();
+	    ArrayList<String> files = new ArrayList<String>();
+	    
+	    // Process each entry
+	    while (zipFileEntries.hasMoreElements())
+	    {
+	        // grab a zip file entry
+	        ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
+	        String currentEntry = entry.getName();
+	        files.add(currentEntry);
+	    }
+	    return files.toArray(new String[files.size()]);
+	}
+	
 	public static String md5(File file)
 			throws NoSuchAlgorithmException,
 			FileNotFoundException, IOException
@@ -157,7 +175,6 @@ public class Utils {
 		return download(url,file, 0, filesize, updater);
 	}
 	public static boolean download(URL url, String file, int prefix, int totalFilesize, IProgressUpdater updater) {
-		final int BUFFER = 16384;
 		File fFile = new File(new File(file).getParentFile().getPath());
 		if(!fFile.exists()) fFile.mkdirs();
  		boolean downloaded = true;
@@ -178,8 +195,8 @@ public class Utils {
     	catch(Exception e) { e.printStackTrace(); System.out.println("Download error!"); downloaded = false; }
     	finally {
     		try {
-    			if (in != null) in.close();
-    			if (out != null) out.close();
+    			close(in);
+    			close(out);
     		} catch(Exception e) { e.printStackTrace(); }
     	}
     	return downloaded;
@@ -196,9 +213,29 @@ public class Utils {
 	        }
 	    }
 	}
-	public static void extract(String zipFile, String newPath, boolean overwrite) throws ZipException, IOException 
-	{
-	    int BUFFER = 4096;
+	
+	public static void close(Object o) {
+		try {
+			if(o == null) return;
+			if(o instanceof InputStream) {
+				((InputStream)o).close();
+			}
+			else if(o instanceof OutputStream) {
+				((OutputStream)o).flush();
+				((OutputStream)o).close();
+			}
+		} catch(Exception e) { e.printStackTrace(); }
+	}
+	
+	public static void copyStream(InputStream in, OutputStream out) throws IOException {
+		byte[] data = new byte[BUFFER];
+		int currentByte;
+		while ((currentByte = in.read(data, 0, BUFFER)) != -1) {
+			out.write(data, 0, currentByte);
+		}
+	}
+	
+	public static void extract(String zipFile, String newPath, boolean overwrite) throws ZipException, IOException {
 	    File file = new File(zipFile);
 
 	    ZipFile zip = new ZipFile(file);
@@ -237,9 +274,8 @@ public class Utils {
 	            while ((currentByte = is.read(data, 0, BUFFER)) != -1) {
 	                dest.write(data, 0, currentByte);
 	            }
-	            dest.flush();
-	            dest.close();
-	            is.close();
+	            close(dest);
+	            close(is);
 	        }
 	    }
 	}
