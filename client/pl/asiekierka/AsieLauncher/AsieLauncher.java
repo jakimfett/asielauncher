@@ -34,6 +34,16 @@ public class AsieLauncher implements IProgressUpdater {
 	private Authentication auth;
 	public String mcVersion;
 	
+	public boolean canKeepPassword() {
+		return (auth instanceof AuthenticationYggdrasil);
+	}
+	public void setKeepPassword(boolean l) {
+		if(auth instanceof AuthenticationYggdrasil) {
+			AuthenticationYggdrasil authy = (AuthenticationYggdrasil) auth;
+			authy.setKeepPassword(l);
+		}
+	}
+	
 	public String getLoadDir() {
 		return loadDir;
 	}
@@ -136,6 +146,9 @@ public class AsieLauncher implements IProgressUpdater {
 	}
 	public boolean init() {
 		file = Utils.readJSONUrlFile(URL + "also.json");
+		if(!(file instanceof JSONObject)) {
+			file = oldFile;
+		}
 		if(file instanceof JSONObject) { // Set variables;.
 			Object o = file.get("onlineMode");
 			boolean onlineMode = false;
@@ -150,7 +163,7 @@ public class AsieLauncher implements IProgressUpdater {
 				mc = new MinecraftHandler162();
 				if(onlineMode) auth = new AuthenticationYggdrasil(directory, false);
 			}
-			return true;
+			return (file != oldFile);
 		}
 		return false;
 	}

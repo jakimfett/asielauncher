@@ -30,6 +30,10 @@ public class AuthenticationYggdrasil extends Authentication {
 		}
 	}
 	
+	public void setKeepPassword(boolean l) {
+		keepLoggedIn = l;
+	}
+	
 	@SuppressWarnings("unchecked")
 	private JSONObject sendJSONPayload(String path, JSONObject payload) {
 		try {
@@ -65,6 +69,10 @@ public class AuthenticationYggdrasil extends Authentication {
 	}
 	
 	private boolean ifErrorThenSet(JSONObject errorJSON) {
+		if(errorJSON == null) {
+			error = "Server error!";
+			return true; // Error, yeah!
+		}
 		if(!errorJSON.containsKey("error")) return false;
 		if(errorJSON.containsKey("errorMessage")) error = (String)errorJSON.get("errorMessage");
 		else error = (String)errorJSON.get("error");
@@ -83,7 +91,10 @@ public class AuthenticationYggdrasil extends Authentication {
 		payload.put("accessToken", getMojangSessionID());
 		payload.put("clientToken", clientToken);
 		JSONObject answer = sendJSONPayload("/refresh", payload);
-		if(ifErrorThenSet(answer)) return false;
+		if(ifErrorThenSet(answer)) {
+			sessionID = null;
+			return false;
+		}
 		sessionID = (String)answer.get("accessToken");
 		if(keepLoggedIn) saveSessionID();
 		return true;
@@ -105,13 +116,13 @@ public class AuthenticationYggdrasil extends Authentication {
 	@Override
 	public boolean requiresPassword() {
 		if(!triedRenewSessionID) return !renewSessionID();
-		return true;
+		else return true;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean authenticate(String username, String password) {
-		if(triedRenewSessionID & sessionID != null && sessionID.length() > 0) {
+		if(triedRenewSessionID && sessionID != null && sessionID.length() > 0) {
 			return true; // Already authenticated, don't bother.
 		}
 		realUsername = username; // For now.

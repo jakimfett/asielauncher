@@ -16,12 +16,13 @@ import javax.swing.*;
 import org.json.simple.*;
 
 public class AsieLauncherOptionsGUI extends JFrame {
-	public static final int OPTIONS_VERSION = 1;
+	public static final int OPTIONS_VERSION = 2;
 	private static final long serialVersionUID = 1079662238420276795L;
 	private JPanel panel;
 	private HashMap<String, JCheckBox> optionBoxes;
 	private HashMap<JCheckBox, String> optionBoxIDs;
 	private JButton quitButton, logButton;
+	protected JCheckBox loginCheckbox;
 	public String filename;
 	public ArrayList<String> oldOptions;
 	public ArrayList<String> options;
@@ -78,6 +79,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 	        	setVisible(false);
 	        }
 	    });
+	    loginCheckbox = new JCheckBox("Keep logged in");
 	    // Warning: The part below is uuuuugly.
 	    // Don't tell me I didn't warn you.
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -87,14 +89,24 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		c.gridy++;
 		panel.add(new JLabel(Strings.OTHER_JVM_ARGS), c);
 		c.gridy++;
+		if(lgui.canKeepPassword()) {
+			c.gridy++;
+		}
 	    panel.add(logButton, c);
 	    c.anchor = GridBagConstraints.LINE_END;
 	    c.gridx++;
 	    c.gridy-=2;
+	    if(lgui.canKeepPassword()) {
+	    	c.gridy--;
+	    }
 		panel.add(ramAmount, c);
 		c.gridy++;
 		panel.add(otherArgs, c);
 		c.gridy++;
+		if(lgui.canKeepPassword()) {
+			panel.add(loginCheckbox, c);
+			c.gridy++;
+		}
 		panel.add(quitButton, c);
 		loadSelectedOptions(filename);
 		oldOptions = getOptions();
@@ -143,6 +155,9 @@ public class AsieLauncherOptionsGUI extends JFrame {
 				ramAmount.setText(reader.readLine());
 				otherArgs.setText(reader.readLine());
 			}
+			if(currentVersion > 1) {
+				loginCheckbox.setEnabled(new Boolean(reader.readLine()));
+			}
 			line = reader.readLine();
 			while(line != null) {
 				JCheckBox box = optionBoxes.get(line);
@@ -162,6 +177,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 			writer.write(("" + OPTIONS_VERSION) + '\n');
 			writer.write(ramAmount.getText() + '\n');
 			writer.write(otherArgs.getText() + '\n');
+			writer.write((loginCheckbox.isSelected() ? "true" : "false") + '\n');
 			for(JCheckBox box: optionBoxes.values()) {
 				if(box != null && box.isSelected()) writer.write(optionBoxIDs.get(box) + '\n');
 			}

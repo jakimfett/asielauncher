@@ -21,6 +21,10 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	private double scaleFactor;
 	private boolean controlDown = false;
 	
+	public boolean canKeepPassword() {
+		return launcher.canKeepPassword();
+	}
+	
 	private void setControl(boolean c) {
 		controlDown = c;
 	    if(!controlDown && hasInternet) launchButton.setText(Strings.LAUNCH_UPDATE);
@@ -126,6 +130,8 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	    				   panel.remove(passwordLabel);
 	    				   panel.remove(passwordField);
 	    			   }
+	    			   if(options.loginCheckbox.isSelected())
+	    				   launcher.setKeepPassword(true);
 	    			   Utils.saveStringToFile(launcher.directory + "nickname.txt", loginField.getText());
 	    			   if(hasInternet) options.saveSelectedOptions(options.filename);
 	    			   panel.add(progressBar);
