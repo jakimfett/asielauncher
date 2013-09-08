@@ -129,8 +129,8 @@ console.log("Welcome to ALSO");
 // init folders
 fs.mkdir("AsieLauncher/zips", function(){ });
 addDirectory("platform", "./AsieLauncher/platform");
-addDirectory("options", "./AsieLauncher/platform");
-addDirectory("jarPatches", "./AsieLauncher/platform");
+addDirectory("options", "./AsieLauncher/options");
+addDirectory("jarPatches", "./AsieLauncher/jars");
 
 infoData.jarPatches = sortFilesBySubstring(config.jarPatchOrder,
                         getDirectoryList("./AsieLauncher/jars", "jarPatches/", false, "jarPatches/")
