@@ -1,5 +1,6 @@
 0.4.0-beta3:
 [CLIENT]
++ Fix loading Minecraft 1.6 when server is down
 + Fix path creation on some Windows configurations.
 [SERVER]
 + Add custom default JVM arguments in AsieLauncher/config.json
