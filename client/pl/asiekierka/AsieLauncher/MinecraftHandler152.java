@@ -19,7 +19,7 @@ public class MinecraftHandler152 implements MinecraftHandler {
 	public String getJarLocation(AsieLauncher l, String version) {
 		File dir = new File(l.baseDir + "versions/" + version + "/");
 		if(!dir.exists()) dir.mkdirs();
-		return l.baseDir + "versions/" + version + "/minecraft.jar";
+		return Utils.getPath(l.baseDir + "versions/" + version + "/minecraft.jar");
 	}
 	@Override
 	public boolean download(AsieLauncher l, String version) {

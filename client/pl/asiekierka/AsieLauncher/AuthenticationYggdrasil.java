@@ -88,7 +88,7 @@ public class AuthenticationYggdrasil extends Authentication {
 		}
 		// Session ID is stored, attempt renewing.
 		JSONObject payload = new JSONObject();
-		payload.put("accessToken", getMojangSessionID());
+		payload.put("accessToken", getSessionID());
 		payload.put("clientToken", clientToken);
 		JSONObject answer = sendJSONPayload("/refresh", payload);
 		if(ifErrorThenSet(answer)) {

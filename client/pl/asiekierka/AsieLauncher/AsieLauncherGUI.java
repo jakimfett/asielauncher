@@ -186,6 +186,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 		boolean linit = launcher.init();
 		setTitle("AsieLauncher - " + launcher.WINDOW_NAME);
 		options = new AsieLauncherOptionsGUI(this, launcher.getOptionMap(), launcher.directory + "also-options.txt");
+		options.setDefaultArgs(launcher.defaultJvmArgs);
 		if(!linit) hasInternet = false;
 		setVisible(true);
 		if(!launcher.isSupported()) {

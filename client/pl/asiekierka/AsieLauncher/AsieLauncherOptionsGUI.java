@@ -126,6 +126,10 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		}
 	}
 	
+	public void setDefaultArgs(String args) {
+		if(otherArgs.getText().length() <= 1) otherArgs.setText(args);
+	}
+	
 	public ArrayList<String> getOptions() {
 		ArrayList<String> options = new ArrayList<String>();
 		for(JCheckBox box: optionBoxes.values()) {

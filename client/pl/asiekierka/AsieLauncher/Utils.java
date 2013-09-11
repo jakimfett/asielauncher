@@ -14,6 +14,11 @@ import org.json.simple.parser.JSONParser;
 public class Utils {
 	private static final int BUFFER = 65536;
 	
+	public static String getPath(String path) {
+		if(path == null) return null;
+		return path.replaceAll("\\\\|/", "\\"+System.getProperty("file.separator"));
+	}
+	
 	public static String getSystemName() {
 		String name = System.getProperty("os.name");
 		//if(name.indexOf("Solaris") >= 0) return "solaris"; -- Deprecated in 1.6.2+

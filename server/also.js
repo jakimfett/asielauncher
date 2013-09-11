@@ -130,10 +130,10 @@ console.log("Welcome to ALSO");
 fs.mkdir("AsieLauncher/zips", function(){ });
 addDirectory("platform", "./AsieLauncher/platform");
 addDirectory("options", "./AsieLauncher/options");
-addDirectory("jarPatches", "./AsieLauncher/jars");
+addDirectory("jarPatches", "./AsieLauncher/jarPatches");
 
 infoData.jarPatches = sortFilesBySubstring(config.jarPatchOrder,
-                        getDirectoryList("./AsieLauncher/jars", "jarPatches/", false, "jarPatches/")
+                        getDirectoryList("./AsieLauncher/jarPatches", "jarPatches/", false, "jarPatches/")
                       );
 
 infoData.files = [];
@@ -142,6 +142,7 @@ infoData.options = {};
 infoData.platforms = {};
 
 infoData.size = 0;
+infoData.jvmArguments = config.jvmArguments || "";
 infoData.client_revision = config.client_revision;
 infoData.servers = config.servers || {};
 infoData.onlineMode = config.onlineMode || false;

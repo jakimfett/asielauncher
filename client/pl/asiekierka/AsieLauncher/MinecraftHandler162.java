@@ -18,6 +18,10 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	private IProgressUpdater updater;
 	private String assetsDir;
 	private boolean hasForge = false;
+	private JSONObject launchInfo;
+	private String gameArguments, gameVersion;
+	private ArrayList<String> libraries;
+	private String mainClass, nativesDir;
 	
 	public MinecraftHandler162() {
 		// TODO Auto-generated constructor stub
@@ -26,13 +30,13 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	public String getJarLocation(AsieLauncher l, String version) {
 		File dir = new File(l.baseDir + "versions/" + version + "/");
 		if(!dir.exists()) dir.mkdirs();
-		return l.baseDir + "versions/" + version + "/minecraft.jar";
+		return Utils.getPath(l.baseDir + "versions/" + version + "/minecraft.jar");
 	}
 	
 	public String getNativesLocation(AsieLauncher l, String version) {
 		File dir = new File(l.baseDir + "versions/" + version + "/natives/");
 		if(!dir.exists()) dir.mkdirs();
-		return l.baseDir + "versions/" + version + "/natives/";
+		return Utils.getPath(l.baseDir + "versions/" + version + "/natives/");
 	}
 	
 	public boolean downloadAssets(String directory) {
@@ -40,7 +44,6 @@ public class MinecraftHandler162 implements MinecraftHandler {
 			updater.update(0, 2);
 			updater.setStatus(Strings.ASSET_CHECKING);
 		}
-		assetsDir = directory; // remember for later on
 		// HACK: Compare by filesize only.
 		// I know it's the dumbest way to do it, but it's sufficient for assets and
 		// I can't bother reading through the ETag docs or parsing dates. Heh.
@@ -95,17 +98,10 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		return true;
 	}
 	
-	private JSONObject launchInfo;
-	private String gameArguments;
-	private String gameVersion;
-	private String nativesDir;
-	private ArrayList<String> libraries;
-	private String mainClass;
-	
 	public boolean downloadLibraries(String patchDir, String libraryDir) {
 		ArrayList<String> addedLibraries = new ArrayList<String>();
 		// Go through library files
-		File jarPatchesDirectory = new File(patchDir, "jarPatches");
+		File jarPatchesDirectory = new File(patchDir, "lib");
 		File[] jarPatchFiles = jarPatchesDirectory.listFiles();
 		if(jarPatchFiles != null) {
 			for(File f: jarPatchFiles) {
@@ -128,7 +124,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 			}
 			if(addedLibraries.contains(uid)) continue; // We already have this lib
 			if(jsonLibrary.containsKey("natives")) {
-				// This is a /native/ file!
+				// This is a /native/ file, so change filename
 				JSONObject nativeList = (JSONObject)jsonLibrary.get("natives");
 				addon = (String)nativeList.get(Utils.getSystemName());
 				filename = data[1] + "-" + data[2] + "-" + addon + ".jar";
@@ -139,6 +135,11 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				urlPrefix = (String)jsonLibrary.get("url");
 			if(!(new File(filePath).exists())) {
 				boolean found = false;
+				if(new File(jarPatchesDirectory, filename).exists()) { // We have one in custom
+					found = true;
+					filePath = new File(jarPatchesDirectory, filename).getAbsolutePath();
+					System.out.println("Replacing library " + filename + " with local copy");
+				}
 				if(filename.startsWith("minecraftforge")) {
 					// Forge workaround
 					if(jarPatchFiles != null) {
@@ -224,13 +225,14 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	}
 	
 	public boolean loadJSON(String patchDir, String gameDir, String jsonDir, String version) {
+		if(launchInfo != null) return true; // Already been here
 		if(updater != null) {
 			updater.update(1, 2);
 			updater.setStatus(Strings.JSON_CHECKING);
 		}
-		// Try to find one in jarPatches
+		// Try to find one in per-server libraries
 		boolean found = false;
-		File customFolder = new File(patchDir, "jarPatches");
+		File customFolder = new File(patchDir, "lib");
 		File[] customPatches = customFolder.listFiles();
 		if(new File(patchDir, "version.json").exists()) {
 			found = true;
@@ -301,15 +303,22 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		return true;
 	}
 	
-	@Override
-	public boolean download(AsieLauncher l, String version) {
+	public boolean checkMinecraft(AsieLauncher l, String version) {
+		assetsDir = l.baseDir+"assets/";
 		gameVersion = version;
 		nativesDir = getNativesLocation(l, version);
 		File dir = new File(l.baseDir + "libraries/custom/");
 		if(!dir.exists()) dir.mkdirs();
-		if(!downloadAssets(l.baseDir+"assets/")) return false;
 		if(!loadJSON(l.directory, l.baseDir, l.baseDir+"launchinfo.json", version)) return false;
 		if(!downloadMinecraft(getJarLocation(l, version), version)) return false;
+		return true;
+	}
+	
+	@Override
+	public boolean download(AsieLauncher l, String version) {
+		assetsDir = l.baseDir+"assets/";
+		if(!downloadAssets(l.baseDir+"assets/")) return false;
+		if(!checkMinecraft(l, version)) return false;
 		return true;
 	}
 	
@@ -318,9 +327,11 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		if(Utils.getSystemName().equals("windows")) classpathSeparator = ";";
 		StringBuilder sb = new StringBuilder();
 		sb.append(getJarLocation(l, l.mcVersion)); // Minecraft.jar
-		for(String s : libraries) { // Libraries
-			sb.append(classpathSeparator);
-			sb.append(s);
+		if(libraries != null) {
+			for(String s : libraries) { // Libraries
+				sb.append(classpathSeparator);
+				sb.append(Utils.getPath(s));
+			}
 		}
 		return sb.toString();
 	}
@@ -346,23 +357,30 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		// Parse gameArguments
 		gameArguments = gameArguments.replaceAll("\\$\\{auth_player_name\\}", username)
 				                     .replaceAll("\\$\\{auth_session\\}", sessionID)
-				                     .replaceAll("\\$\\{version_name\\}", gameVersion)
-				                     .replaceAll("\\$\\{game_directory\\}", new File(path).getAbsolutePath())
-				                     .replaceAll("\\$\\{game_assets\\}", assetsDir);
+				                     .replaceAll("\\$\\{version_name\\}", gameVersion);
 		// Fix cascadedTweaks because Forge bugs
-		if(gameArguments.indexOf("--cascadedTweaks") >= 0
+		if(gameArguments.indexOf("--cascadedTweaks") >= 0 // If we have more tweaks
 				&& gameArguments.indexOf("--tweakClass cpw.mods.fml.common.launcher.FMLTweaker") >= 0) {
 			gameArguments = gameArguments.replaceAll("--tweakClass cpw.mods.fml.common.launcher.FMLTweaker", "")
 										 .replaceFirst("--cascadedTweaks", "--tweakClass")
 										 + " --cascadedTweaks cpw.mods.fml.common.launcher.FMLTweaker";
 		}
-		args.addAll(Arrays.asList(gameArguments.split(" ")));
+		// Workaround for broken Windows path handling
+		String[] gameArgArray = gameArguments.split(" ");
+		for(int i = 0; i < gameArgArray.length; i++) {
+			if(gameArgArray[i].equals("${game_directory}"))
+				gameArgArray[i] = Utils.getPath(new File(path).getAbsolutePath());
+			else if(gameArgArray[i].equals("${game_assets}"))
+				gameArgArray[i] = Utils.getPath(assetsDir);
+		}
+		args.addAll(Arrays.asList(gameArgArray));
 		System.out.println("Launching with arguments: " + args.toString());
 		return args;
 	}
 	
 	@Override
 	public boolean launch(String path, String username, String sessionID, String jvmArgs, AsieLauncher l) {
+		if(!checkMinecraft(l, l.mcVersion)) return false;
 		if(sessionID.length() == 0) sessionID = "null";
 		// Launch Minecraft.
 		String separator = System.getProperty("file.separator");

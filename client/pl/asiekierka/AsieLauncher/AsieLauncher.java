@@ -18,7 +18,7 @@ import org.smbarbour.mcu.*;
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 5;
 	private ServerListHandler serverlist;
-	public static final String VERSION_STRING = "0.4.0-beta";
+	public static final String VERSION_STRING = "0.4.0-beta3";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "/.asielauncher/default/";
@@ -33,9 +33,11 @@ public class AsieLauncher implements IProgressUpdater {
 	private MinecraftHandler mc;
 	private Authentication auth;
 	public String mcVersion;
+	public String defaultJvmArgs;
 	
 	public boolean canKeepPassword() {
-		return (auth instanceof AuthenticationYggdrasil);
+		//return (auth instanceof AuthenticationYggdrasil);
+		return false; // This will require a small rewrite.
 	}
 	public void setKeepPassword(boolean l) {
 		if(auth instanceof AuthenticationYggdrasil) {
@@ -162,6 +164,9 @@ public class AsieLauncher implements IProgressUpdater {
 			} else {
 				mc = new MinecraftHandler162();
 				if(onlineMode) auth = new AuthenticationYggdrasil(directory, false);
+			}
+			if(file.containsKey("jvmArguments")) {
+				defaultJvmArgs = (String)file.get("jvmArguments");
 			}
 			return (file != oldFile);
 		}

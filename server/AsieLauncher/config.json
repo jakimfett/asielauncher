@@ -6,6 +6,7 @@
   "onlineMode": true,
   "blacklist": ["mods/Dynmap", "mods/ForgeIRC", "lib/jython"],
   "jarPatchOrder": ["forge", "OptiFine"],
+  "jvmArguments": "",
   "port": 8080,
   "servers": {
     "Fluttercraft": "asiekierka.humee.pl"
