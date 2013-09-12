@@ -15,21 +15,33 @@ public class AuthenticationYggdrasil extends Authentication {
 	// Special thanks to the MinecraftCoalition.
 	
 	private static final String SERVER = "https://authserver.mojang.com";
+	private String filename, directory;
 	private boolean triedRenewSessionID, keepLoggedIn;
-	private String directory, clientToken, profileID;
-
+	private JSONObject info;
+	
+	@SuppressWarnings("unchecked")
 	public AuthenticationYggdrasil(String _directory, boolean _keepLoggedIn) {
 		directory = _directory;
 		triedRenewSessionID = false;
 		keepLoggedIn = _keepLoggedIn;
-		clientToken = Utils.loadStringFromFile(directory + "clienttoken.txt");
-		if(clientToken == null || clientToken.length() == 0) {
+		filename = directory + "yggdrasil.json";
+		info = Utils.readJSONFile(filename);
+		if(info == null) {
+			info = new JSONObject();
+		}
+		if(get("clientToken") == null) {
 			// Generate client token
-			clientToken = UUID.randomUUID().toString();
-			Utils.saveStringToFile(directory + "clienttoken.txt", clientToken);
+			info.put("clientToken", UUID.randomUUID().toString());
+			save();
 		}
 	}
 	
+	private void save() {
+		Utils.saveStringToFile(filename, info.toJSONString());
+	}
+	
+	private String get(String name) { return info.containsKey(name) ? (String)info.get(name) : null; }
+
 	public void setKeepPassword(boolean l) {
 		keepLoggedIn = l;
 	}
@@ -68,10 +80,10 @@ public class AuthenticationYggdrasil extends Authentication {
 		}
 	}
 	
-	private boolean ifErrorThenSet(JSONObject errorJSON) {
+	private boolean handlingError(JSONObject errorJSON) {
 		if(errorJSON == null) {
 			error = "Server error!";
-			return true; // Error, yeah!
+			return true;
 		}
 		if(!errorJSON.containsKey("error")) return false;
 		if(errorJSON.containsKey("errorMessage")) error = (String)errorJSON.get("errorMessage");
@@ -82,26 +94,29 @@ public class AuthenticationYggdrasil extends Authentication {
 	@SuppressWarnings("unchecked")
 	private boolean renewSessionID() {
 		triedRenewSessionID = true;
-		sessionID = Utils.loadStringFromFile(directory + "sessionid.txt");
-		if(sessionID == null || sessionID.length() == 0) { // No Session ID stored!
+		sessionID = get("sessionID");
+		if(sessionID == null || !info.containsKey("selectedProfile")) {
+			// No Session ID or profile found!
 			return false;
 		}
 		// Session ID is stored, attempt renewing.
 		JSONObject payload = new JSONObject();
-		payload.put("accessToken", getSessionID());
-		payload.put("clientToken", clientToken);
+		payload.put("accessToken", sessionID);
+		payload.put("clientToken", get("clientToken"));
+		payload.put("selectedProfile", null);
 		JSONObject answer = sendJSONPayload("/refresh", payload);
-		if(ifErrorThenSet(answer)) {
+		if(handlingError(answer)) {
 			sessionID = null;
 			return false;
 		}
+		JSONObject profile = (JSONObject)answer.get("selectedProfile");
+		realUsername = (String)profile.get("name");
 		sessionID = (String)answer.get("accessToken");
-		if(keepLoggedIn) saveSessionID();
+		if(keepLoggedIn) {
+			info.put("sessionID", sessionID);
+			save();
+		}
 		return true;
-	}
-	
-	private void saveSessionID() {
-		Utils.saveStringToFile(directory + "sessionid.txt", sessionID);
 	}
 	
 	@Override
@@ -110,7 +125,9 @@ public class AuthenticationYggdrasil extends Authentication {
 	}
 	
 	public String getMojangSessionID() {
-		return "token:"+sessionID+":"+profileID;
+		if(!info.containsKey("selectedProfile")) return null;
+		JSONObject profile = (JSONObject)info.get("selectedProfile");
+		return "token:"+sessionID+":"+(String)profile.get("id");
 	}
 	
 	@Override
@@ -129,13 +146,17 @@ public class AuthenticationYggdrasil extends Authentication {
 		JSONObject payload = new JSONObject();
 		payload.put("username", username);
 		payload.put("password", password);
-		payload.put("clientToken", clientToken);
+		payload.put("clientToken", get("clientToken"));
 		JSONObject answer = sendJSONPayload("/authenticate", payload);
-		if(ifErrorThenSet(answer)) return false;
+		if(handlingError(answer)) return false;
 		JSONObject profile = (JSONObject)answer.get("selectedProfile");
 		realUsername = (String)profile.get("name");
 		sessionID = (String)answer.get("accessToken");
-		if(keepLoggedIn) saveSessionID();
+		if(keepLoggedIn) {
+			info.put("sessionID", sessionID);
+			info.put("selectedProfile", profile);
+			save();
+		}
 		return true;
 	}
 

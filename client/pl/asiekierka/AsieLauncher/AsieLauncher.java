@@ -36,13 +36,13 @@ public class AsieLauncher implements IProgressUpdater {
 	public String defaultJvmArgs;
 	
 	public boolean canKeepPassword() {
-		//return (auth instanceof AuthenticationYggdrasil);
-		return false; // This will require a small rewrite.
+		return (auth instanceof AuthenticationYggdrasil);
 	}
+	
 	public void setKeepPassword(boolean l) {
 		if(auth instanceof AuthenticationYggdrasil) {
-			AuthenticationYggdrasil authy = (AuthenticationYggdrasil) auth;
-			authy.setKeepPassword(l);
+			AuthenticationYggdrasil auth = (AuthenticationYggdrasil)this.auth;
+			auth.setKeepPassword(l);
 		}
 	}
 	

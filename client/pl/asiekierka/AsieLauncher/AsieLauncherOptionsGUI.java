@@ -160,7 +160,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 				otherArgs.setText(reader.readLine());
 			}
 			if(currentVersion > 1) {
-				loginCheckbox.setEnabled(new Boolean(reader.readLine()));
+				loginCheckbox.setSelected(new Boolean(reader.readLine()));
 			}
 			line = reader.readLine();
 			while(line != null) {
