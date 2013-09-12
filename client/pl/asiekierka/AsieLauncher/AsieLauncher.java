@@ -18,7 +18,7 @@ import org.smbarbour.mcu.*;
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 5;
 	private ServerListHandler serverlist;
-	public static final String VERSION_STRING = "0.4.0-beta3";
+	public static final String VERSION_STRING = "0.4.0-beta4";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "/.asielauncher/default/";

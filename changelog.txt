@@ -2,6 +2,8 @@
 [CLIENT]
 + Add support for saving session information to remove the need to re-type your password.
 + Add support for no backgrounds and .jpg backgrounds.
+[SERVER]
++ You can now also use AsieLauncher/mods-client as a directory.
 
 0.4.0-beta3:
 [CLIENT]

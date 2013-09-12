@@ -196,11 +196,10 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 		return launcher.getInstallLog();
 	}
 	public boolean init() {
-		boolean linit = launcher.init();
+		if(!launcher.init()) hasInternet = false;
 		setTitle("AsieLauncher - " + launcher.WINDOW_NAME);
 		options = new AsieLauncherOptionsGUI(this, launcher.getOptionMap(), launcher.directory + "also-options.txt");
 		options.setDefaultArgs(launcher.defaultJvmArgs);
-		if(!linit) hasInternet = false;
 		setVisible(true);
 		if(!launcher.isSupported()) {
 			JOptionPane.showMessageDialog(this, Strings.WRONG_MINECRAFT_VERSION);

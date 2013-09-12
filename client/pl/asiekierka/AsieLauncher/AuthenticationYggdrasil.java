@@ -121,7 +121,7 @@ public class AuthenticationYggdrasil extends Authentication {
 	
 	@Override
 	public String getSessionID() {
-		return sessionID;
+		return getMojangSessionID();
 	}
 	
 	public String getMojangSessionID() {
