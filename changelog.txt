@@ -1,3 +1,8 @@
+0.4.0-beta4:
+[CLIENT]
++ Add support for saving session information to remove the need to re-type your password.
++ Add support for no backgrounds and .jpg backgrounds.
+
 0.4.0-beta3:
 [CLIENT]
 + Fix loading Minecraft 1.6 when server is down
