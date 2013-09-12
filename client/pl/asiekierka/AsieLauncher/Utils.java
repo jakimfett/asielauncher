@@ -185,14 +185,16 @@ public class Utils {
  		boolean downloaded = true;
     	BufferedInputStream in = null;
     	FileOutputStream out = null;
+    	BufferedOutputStream bout = null;
     	try {
     		int count;
     		int totalCount = 0;
     		byte data[] = new byte[BUFFER];
     		in = new BufferedInputStream(url.openStream());
     		out = new FileOutputStream(file);
+    		bout = new BufferedOutputStream(out);
     		while ((count = in.read(data, 0, BUFFER)) != -1) {
-    			out.write(data, 0, count);
+    			bout.write(data, 0, count);
     			totalCount += count;
     			if(updater != null) updater.update(prefix+totalCount, totalFilesize);
     		}
@@ -201,6 +203,7 @@ public class Utils {
     	finally {
     		try {
     			close(in);
+    			close(bout);
     			close(out);
     		} catch(Exception e) { e.printStackTrace(); }
     	}
