@@ -9,7 +9,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	private static final long serialVersionUID = 550781190397000747L;
 	public boolean isRunning;
 	private AsieLauncher launcher;
-	private BackgroundPanel panel;
+	private JPanel panel;
 	private JButton quitButton, launchButton, optionsButton;
 	private JLabel statusLabel, loginLabel, passwordLabel;
 	private JTextField loginField;
@@ -23,6 +23,10 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	
 	public boolean canKeepPassword() {
 		return launcher.canKeepPassword();
+	}
+	
+	private boolean hasFile(String fn) {
+		return getClass().getResource(fn) != null;
 	}
 	
 	private void setControl(boolean c) {
@@ -44,11 +48,20 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 				isRunning = false;
 			}
 		});
-		boolean has2x = getClass().getResource("/resources/background@2x.png") != null;
-		if(!has2x || scaleFactor <= 1.0) background = getToolkit().getImage(getClass().getResource("/resources/background.png"));
-		else background = getToolkit().getImage(getClass().getResource("/resources/background@2x.png"));
-		panel = new BackgroundPanel(background);
-		panel.setTransparentAdd(false);
+		boolean has2x = hasFile("/resources/background@2x.png") || hasFile("/resources/background@2x.jpg");
+		boolean useJPG = hasFile("/resources/background@2x.jpg") || hasFile("/resources/background.jpg");
+		boolean usePNG = hasFile("/resources/background@2x.png") || hasFile("/resources/background.png");
+		if(useJPG || usePNG) {
+			if(!has2x || scaleFactor <= 1.0) {
+				background = getToolkit().getImage(getClass().getResource("/resources/background."
+						+ (useJPG ? "jpg" : "png")));
+			} else {
+				background = getToolkit().getImage(getClass().getResource("/resources/background@2x."
+						+ (useJPG ? "jpg" : "png")));
+			}
+			panel = new BackgroundPanel(background);
+			((BackgroundPanel)panel).setTransparentAdd(false);
+		} else panel = new JPanel();
 		getContentPane().setSize(320,240);
 		getContentPane().setPreferredSize(new Dimension(320,240));
 		getContentPane().setMaximumSize(new Dimension(320,240));
