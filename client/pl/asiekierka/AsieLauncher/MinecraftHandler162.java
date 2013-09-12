@@ -211,6 +211,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	public void scanLiteLoader(String modDir, String libraryDir, String version) {
 		try {
 			File[] loaderFiles = new File(modDir).listFiles();
+			if(loaderFiles == null) return;
 			for(File f: loaderFiles) {
 				if(f.getName().endsWith(".litemod")) {
 					System.out.println("LiteLoader mod '" + f.getName() + "' found, downloading LiteLoader...");
