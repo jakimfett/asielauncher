@@ -5,6 +5,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import javax.swing.ImageIcon;
 
@@ -53,7 +54,7 @@ public class MinecraftHandler152 implements MinecraftHandler {
 		args.add(new File(path, "bin").getAbsolutePath());
 		args.add("854"); args.add("480");
 		args.add("null"); args.add("false");
-		System.out.println("Launching with arguments: " + args.toString());
+		AsieLauncher.logger.log(Level.FINE, "Launching with arguments: " + args.toString());
 		return args;
 	}
 	
@@ -67,17 +68,14 @@ public class MinecraftHandler152 implements MinecraftHandler {
 		// Launch Minecraft.
 		String separator = System.getProperty("file.separator");
 	    String classpath = System.getProperty("java.class.path");
-	    System.out.println(l.getLoadDir());
-	    System.out.println(classpath);
 	    if(classpath.indexOf(separator) == -1 || (l.getLoadDir().indexOf("/") == 0 && classpath.indexOf("/") != 0)) {
-	    	classpath = (new File(l.getLoadDir(), classpath)).getAbsolutePath();
+	    	classpath = (new File(Utils.getPath(l.getLoadDir()), classpath)).getAbsolutePath();
 	    }
-	    System.out.println(classpath);
 	    String jarPath = System.getProperty("java.home")
 	            + separator + "bin" + separator + Utils.getJavaBinaryName();
 		setStatus(l, Strings.LAUNCHING);
 	    if((new File(jarPath)).exists()) {
-	    	System.out.println("Launching via process spawner");
+	    	AsieLauncher.logger.log(Level.INFO, "Launching via process spawner");
 	    	ProcessBuilder processBuilder = new ProcessBuilder(getMCArguments(l,path,jarPath,classpath,username,sessionID,jvmArgs));
 	    	try {
 	    		processBuilder.directory(new File(path));
@@ -89,7 +87,7 @@ public class MinecraftHandler152 implements MinecraftHandler {
 	    	catch(Exception e) { }
 	    }
 	    // Failsafe
-	    System.out.println("Launching via internal Java process");
+	    AsieLauncher.logger.log(Level.INFO, "Launching via internal Java process");
 	    System.setProperty("user.dir", (new File(path).getAbsolutePath()));
 	    frame = new MinecraftFrame(l.WINDOW_NAME, new ImageIcon(this.getClass().getResource("/resources/icon.png")));
 		frame.launch(new File(path),

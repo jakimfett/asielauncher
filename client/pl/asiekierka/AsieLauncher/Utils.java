@@ -6,6 +6,7 @@ import java.math.*;
 import java.net.URL;
 import java.security.*;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.zip.*;
 
 import org.json.simple.JSONObject;
@@ -199,7 +200,7 @@ public class Utils {
     			if(updater != null) updater.update(prefix+totalCount, totalFilesize);
     		}
     	}
-    	catch(Exception e) { e.printStackTrace(); System.out.println("Download error!"); downloaded = false; }
+    	catch(Exception e) { e.printStackTrace(); AsieLauncher.logger.log(Level.SEVERE, "Download error!"); downloaded = false; }
     	finally {
     		try {
     			close(in);

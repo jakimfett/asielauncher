@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -58,7 +59,6 @@ public class MinecraftHandler162 implements MinecraftHandler {
 			HashMap<String, Integer> fileMap = new HashMap<String, Integer>(files.getLength());
 			for(int i=0; i<files.getLength(); i++) {
 				Node file = files.item(i);
-				System.out.println("Current element: " + file.getNodeName());
 				NodeList fileNodes = file.getChildNodes();
 				String filename = null;
 				int filesize = -1;
@@ -138,7 +138,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				if(new File(jarPatchesDirectory, filename).exists()) { // We have one in custom
 					found = true;
 					filePath = new File(jarPatchesDirectory, filename).getAbsolutePath();
-					System.out.println("Replacing library " + filename + " with local copy");
+					AsieLauncher.logger.log(Level.FINER, "Replacing library " + filename + " with local copy");
 				}
 				if(filename.startsWith("minecraftforge")) {
 					// Forge workaround
@@ -146,7 +146,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 						for(File f: jarPatchFiles) {
 							if(f.getName().startsWith("minecraftforge")) {
 								// Found it!
-								System.out.println("Found an instance of Forge: " + f.getAbsolutePath());
+								AsieLauncher.logger.log(Level.FINE, "Found an instance of Forge: " + f.getAbsolutePath());
 								filePath = f.getAbsolutePath();
 								found = true;
 							}
@@ -181,7 +181,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		} else {
 			gameArguments += " --tweakClass "+s;
 			// Install the tweaker
-			System.out.println("TODO: INSTALL TWEAKER WITHOUT FORGE; MIGHT GET A BIT MESSY");
+			AsieLauncher.logger.log(Level.WARNING, "TODO: INSTALL TWEAKER WITHOUT FORGE; MIGHT GET A BIT MESSY");
 		}
 	}
 	
@@ -214,7 +214,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 			if(loaderFiles == null) return;
 			for(File f: loaderFiles) {
 				if(f.getName().endsWith(".litemod")) {
-					System.out.println("LiteLoader mod '" + f.getName() + "' found, downloading LiteLoader...");
+					AsieLauncher.logger.log(Level.INFO, "LiteLoader mod '" + f.getName() + "' found, downloading LiteLoader...");
 					addTweak("com.mumfrey.liteloader.launch.LiteLoaderTweaker");
 					downloadLibrary("http://dl.liteloader.com/versions/", "com.mumfrey",
 							"liteloader", version, libraryDir, false);
@@ -375,7 +375,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				gameArgArray[i] = Utils.getPath(assetsDir);
 		}
 		args.addAll(Arrays.asList(gameArgArray));
-		System.out.println("Launching with arguments: " + args.toString());
+		AsieLauncher.logger.log(Level.INFO, "Launching with arguments: " + args.toString());
 		return args;
 	}
 	
@@ -386,17 +386,13 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		// Launch Minecraft.
 		String separator = System.getProperty("file.separator");
 	    String classpath = System.getProperty("java.class.path");
-	    System.out.println(l.getLoadDir());
-	    System.out.println(classpath);
 	    if(classpath.indexOf(separator) == -1 || (l.getLoadDir().indexOf("/") == 0 && classpath.indexOf("/") != 0)) {
 	    	classpath = (new File(l.getLoadDir(), classpath)).getAbsolutePath();
 	    }
-	    System.out.println(classpath);
 	    String jarPath = System.getProperty("java.home")
 	            + separator + "bin" + separator + Utils.getJavaBinaryName();
 		setStatus(l, Strings.LAUNCHING);
 	    if((new File(jarPath)).exists()) {
-	    	System.out.println("Launching via process spawner");
 	    	ProcessBuilder processBuilder = new ProcessBuilder(getMCArguments(l,path,jarPath,classpath,username,sessionID,jvmArgs));
 	    	try {
 	    		processBuilder.directory(new File(path));

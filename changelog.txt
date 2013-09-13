@@ -1,3 +1,10 @@
+0.4.0-beta5:
+[CLIENT]
++ Add logging to file.
+/ Change logging format to use Java's Logger
+[SERVER]
+/ Refactor a lot of the code.
+
 0.4.0-beta4:
 [CLIENT]
 + Add support for saving session information to remove the need to re-type your password.

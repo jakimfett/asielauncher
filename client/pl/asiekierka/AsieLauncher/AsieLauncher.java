@@ -5,6 +5,11 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import javax.swing.ImageIcon;
 
@@ -18,7 +23,7 @@ import org.smbarbour.mcu.*;
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 5;
 	private ServerListHandler serverlist;
-	public static final String VERSION_STRING = "0.4.0-beta4";
+	public static final String VERSION_STRING = "0.4.0-beta5";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "/.asielauncher/default/";
@@ -34,6 +39,11 @@ public class AsieLauncher implements IProgressUpdater {
 	private Authentication auth;
 	public String mcVersion;
 	public String defaultJvmArgs;
+	public static Logger logger;
+	
+	static {
+		logger = Logger.getLogger(AsieLauncher.class.getName());
+	}
 	
 	public boolean canKeepPassword() {
 		return (auth instanceof AuthenticationYggdrasil);
@@ -130,6 +140,12 @@ public class AsieLauncher implements IProgressUpdater {
 		configureConfig();
 		baseDir = System.getProperty("user.home") + "/.asielauncher/";
 		directory = baseDir + PREFIX + "/";
+		logger.addHandler(new ConsoleHandler());
+		try {
+			FileHandler handler = new FileHandler(Utils.getPath(directory + "AsieLauncher.log"), false);
+			handler.setFormatter(new SimpleFormatter());
+			logger.addHandler(handler);
+		} catch(Exception e) { e.printStackTrace(); }
 		serverlist = new ServerListHandler(directory + "servers.dat", false);
 		if(!(new File(directory).exists())) {
 			new File(directory).mkdirs();
@@ -139,7 +155,7 @@ public class AsieLauncher implements IProgressUpdater {
 		loadDir = (new File(".").getAbsolutePath());
 		loadDir = loadDir.substring(0,loadDir.length()-1);
 		OS = Utils.getSystemName();
-		System.out.println("OS: " + OS);
+		logger.log(Level.INFO, "OS: " + OS);
 	}
 	
 	public boolean isSupported() {
@@ -196,7 +212,7 @@ public class AsieLauncher implements IProgressUpdater {
 		if(progress == total) fullProgress += total;
 	}
 	public void setStatus(String status) {
-		System.out.println("Status: "+status);
+		logger.log(Level.INFO, "Status: "+status);
 		if(updater != null) updater.setStatus(status);
 	}
 	
@@ -217,7 +233,7 @@ public class AsieLauncher implements IProgressUpdater {
 			JSONArray data = (JSONArray)source.get("jarPatches");
 			files.addAll(loadModFiles(data, "http"));
 		}
-		System.out.println("getFileList: got " + files.size() + " files");
+		logger.log(Level.FINER, "getFileList: got " + files.size() + " files");
 		return files;
 	}
 	

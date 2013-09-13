@@ -16,10 +16,7 @@ public class ModFileZip extends ModFileHTTP {
 	@Override
 	public boolean install(IProgressUpdater updater) {
 		boolean downloaded = super.install(updater, true);
-    	if(!downloaded) {
-    		System.out.println("Not downloaded!");
-    		return false;
-    	}
+    	if(!downloaded) return false;
     	File dirFile = new File(directory);
     	dirFile.mkdir();
 		updater.setStatus(Strings.UNPACKING+" "+this.getFilename()+"...");
