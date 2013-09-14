@@ -72,3 +72,8 @@ exports.mkdir = function(dirs) {
 	});
   } else try { fs.mkdirSync(dirs); } catch(e){}
 }
+
+exports.copyFileSync = function(srcFile, destFile, encoding) {
+  var content = fs.readFileSync(srcFile, encoding);
+  fs.writeFileSync(destFile, content, encoding);
+}

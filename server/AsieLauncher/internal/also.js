@@ -1,3 +1,5 @@
+var version = "0.4.0-beta5-hotfix1";
+
 // Initialize libraries (quite a lot of them, too!)
 var express = require('express')
   , _ = require('underscore')
@@ -33,7 +35,7 @@ if(DO_LOCAL) {
 function addFile(fileName, realFile) {
 	util.say("debug", "addFile: " + fileName + " <- " + realFile);
 	if(DO_LOCAL) {
-		fs.copyFileSync(realFile, "./ALWebFiles/"+fileName+"/");
+		util.copyFileSync(realFile, "./ALWebFiles/"+fileName);
 	} else {
 		app.use("/" + fileName, function(req,res) { res.sendfile(realFile); });
 	}
@@ -78,14 +80,16 @@ function createLauncherJAR() {
 	addLocalFolderRoot(zip, "./AsieLauncher/launcherConfig", "resources/");
 	zip.writeZip("./AsieLauncher/temp/launcher.jar");
 
-	addDirectory("", "./AsieLauncher/htdocs");
 	addFile("launcher.jar", "./AsieLauncher/temp/launcher.jar");
 	util.say("info", "[Launcher] Launcher ready!");
 }
 
 exports.run = function(cwd) {
+	util.say("info", "Started ALSO " + version);
+
 	process.chdir(cwd);
-	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/internal/launcher"]);
+	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/internal/launcher", "./AsieLauncher/temp/zips"]);
+	addDirectory("", "./AsieLauncher/htdocs");
 
 	// * DOWNLOADING LAUNCHER *
 	if(fs.readdirSync("./AsieLauncher/internal/launcher").length >= 1) createLauncherJAR();
@@ -134,6 +138,8 @@ exports.run = function(cwd) {
 	addDirectory("platform", "./AsieLauncher/platform");
 	addDirectory("options", "./AsieLauncher/options");
 	addDirectory("jarPatches", "./AsieLauncher/jarPatches");
+
+	infoData.size = files.getTotalSize();
 
 	if(DO_LOCAL) {
 		fs.writeFileSync("./ALWebFiles/also.json", JSON.stringify(infoData));

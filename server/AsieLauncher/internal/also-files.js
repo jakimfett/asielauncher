@@ -96,7 +96,7 @@ exports.zip = function(dir, overwrite) {
 			"md5": util.md5(name), "overwrite": overwrite || true};
 	  totalSize += zipData.size;
 		return zipData;
-	} else return {};
+	} else return null;
 }
 
 function getFiles(dir) {

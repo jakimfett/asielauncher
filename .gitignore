@@ -1,6 +1,7 @@
 release/*
 update.sh
 upload.sh
+server-testing
 server/node_modules
 server/AsieLauncher/zips/*
 server/AsieLauncher/jarPatches/*.jar
