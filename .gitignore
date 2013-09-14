@@ -1,4 +1,5 @@
 release/*
+server/config/*
 update.sh
 upload.sh
 server-testing

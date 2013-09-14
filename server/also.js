@@ -20,14 +20,18 @@ if(!(argv.s || argv.skip)) {
 	util.say("info", "Checking for updates...");
 	var oldInfo = updater.getLocalInfo();
 	updater.getOnlineInfo(function(newInfo) {
-		if(newInfo == null) run();
-		else async.parallel([
+		if(newInfo == null) {
+			util.say("debug", "Online info.json not found!");
+			run();
+		} else async.parallel([
 			function(cb) {
+				util.say("debug", "Checking client...");
 				if(newInfo.client_revision > oldInfo.client_revision)
 					updater.updateClient(cb);
 				else cb();
 			},
 			function(cb) {
+				util.say("debug", "Checking server...");
 				if(newInfo.server_revision > oldInfo.server_revision)
 					updater.updateServer(cb);
 				else cb();

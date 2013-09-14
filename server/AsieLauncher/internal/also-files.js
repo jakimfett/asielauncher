@@ -62,7 +62,6 @@ var totalSize = 0;
 exports.initialize = function(_config) {
 	totalSize = 0;
 	config = _config;
-	fs.mkdir("AsieLauncher/zips", function(){ });
 }
 
 exports.file = function(dir) {
@@ -89,7 +88,7 @@ function createZip(name, dirs) {
 exports.createZip = createZip;
 
 exports.zip = function(dir, overwrite) {
-	var name = "./AsieLauncher/zips/"+dir+".zip";
+	var name = "./AsieLauncher/temp/zips/"+dir+".zip";
 	if(createZip(name, [dir])) {
 		var zipData = {"filename": dir+".zip", "directory": dir == "root" ? "" : dir,
 			"size": util.getSize(name),
