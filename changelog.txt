@@ -3,6 +3,8 @@
 + Add logging to file.
 / Change logging format to use Java's Logger
 [SERVER]
++ The server now generates the launcher.jar!
++ Major rewrite - server now updates itself! Yes, seriously. It also updates the launcher.
 / Refactor a lot of the code.
 
 0.4.0-beta4:
