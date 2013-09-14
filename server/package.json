@@ -8,7 +8,8 @@
     "express": "3.x",
     "underscore": ">=1.4.0",
     "wrench": "1.5.x",
-    "adm-zip": ">=0.4.3",
-    "optimist": ">=0.6.0"
+    "adm-zip": "git+https://github.com/cthackers/adm-zip.git",
+    "optimist": ">=0.6.0",
+    "request": ">=2.27.0"
   }
 }

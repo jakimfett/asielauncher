@@ -3,6 +3,8 @@ update-server.sh
 server/node_modules
 server/AsieLauncher/zips/*
 server/AsieLauncher/jarPatches/*.jar
+server/AsieLauncher/internal/launcher/*
 server/AsieLauncher/libs/*.jar
+server/AsieLauncher/temp/*
 server/mods/*
 .DS_Store
