@@ -2,7 +2,8 @@ var ansi = require('ansi')
   , cursor = ansi(process.stdout)
   , _ = require('underscore')
   , fs = require('fs')
-  , crypto = require('crypto');
+  , crypto = require('crypto')
+  , request = require('request');
 
 var DEBUG = false;
 

@@ -3,7 +3,10 @@ var tag = "[Updater] "
   , url = require("url")
   , util = require("./util.js")
   , Zip = require("adm-zip")
-  , _ = require("underscore");
+  , _ = require("underscore")
+  , request = require("request")
+  , fs = require("fs")
+  , path = require("path");
 
 function downloadAndUnpack(urlS, target, cb) {
 	var filename = url.parse(urlS).pathname.split("/").pop();
@@ -23,5 +26,21 @@ exports.updateClient = function(cb) {
 	downloadAndUnpack(urlPrefix + "AsieLauncher-latest.jar", "./AsieLauncher/internal/launcher", cb);
 }
 exports.updateServer = function(cb) {
-	downloadAndUnpack(urlPrefix + "AsieLauncher-latest-server.jar", "./AsieLauncher/internal", cb);
+	downloadAndUnpack(urlPrefix + "AsieLauncher-latest-server.zip", "./AsieLauncher/internal", cb);
+}
+
+exports.getLocalInfo = function() {
+	return fs.existsSync("./AsieLauncher/internal/info.json")
+		? JSON.parse(fs.readFileSync("./AsieLauncher/internal/info.json"))
+		: {"client_revision": 0, "server_revision": 0};
+}
+
+exports.saveInfo = function(info) {
+	fs.writeFileSync("./AsieLauncher/internal/info.json", JSON.stringify(info));
+}
+
+exports.getOnlineInfo = function(cb) {
+	request({url: "http://asie.pl/launcher/info.json", json: true}, function(e, r, info) {
+			cb(info);
+		});
 }
