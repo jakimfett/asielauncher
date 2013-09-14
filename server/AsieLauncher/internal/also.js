@@ -70,19 +70,9 @@ function addLocalFolderRoot(zip, localPath, zipPath) {
 	zip.addLocalFolder(path.resolve(localPath), zipPath);
 }
 
-function download(url, fn, cb) {
-	var fStream = fs.createWriteStream(fn);
-	fStream.on('close', cb);
-	request(url).pipe(fStream);
-}
-
-function deleteIfFound(fn) {
-	if(fs.existsSync(fn)) fs.unlinkSync(fn);
-}
-
 function createLauncherJAR() {
 	util.say("info", "[Launcher] Generating launcher JAR...");
-	deleteIfFound("./AsieLauncher/temp/launcher.jar");
+	util.deleteFile("./AsieLauncher/temp/launcher.jar");
 	var zip = new Zip();
 	addLocalFolderRoot(zip, "./AsieLauncher/internal/launcher", "");
 	addLocalFolderRoot(zip, "./AsieLauncher/launcherConfig", "resources/");
@@ -95,20 +85,11 @@ function createLauncherJAR() {
 
 exports.run = function(cwd) {
 	process.chdir(cwd);
+	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/internal/launcher"]);
 
 	// * DOWNLOADING LAUNCHER *
-	if(fs.readdirSync("./AsieLauncher/internal/launcher").length < 1) {
-		var lp = "./AsieLauncher/temp/AsieLauncher-latest.jar";
-		util.say("info", "[Launcher] Launcher not found! Downloading...");
-		deleteIfFound(lp);
-		download("http://asie.pl/launcher/AsieLauncher-latest.jar", lp, function() {
-				util.say("info", "[Launcher] Downloaded! Unpacking...");
-				var zip = new Zip(lp);
-				zip.extractAllTo(path.resolve("./AsieLauncher/internal/launcher"), true);
-				createLauncherJAR();
-			}
-		);
-	} else createLauncherJAR();
+	if(fs.readdirSync("./AsieLauncher/internal/launcher").length >= 1) createLauncherJAR();
+	else util.say("warning", "[Launcher] Launcher not found!");
 
 	// * PREPARING DIRECTORIES *
 	util.say("info", "Preparing directories");

@@ -53,3 +53,21 @@ exports.sortFilesBySubstrings = function(order, fileList) {
   });
 }
 
+
+exports.download = function(url, fn, cb) {
+	var fStream = fs.createWriteStream(fn);
+	fStream.on('close', cb);
+	request(url).pipe(fStream);
+}
+
+exports.deleteFile = function(fn) {
+	if(fs.existsSync(fn)) fs.unlinkSync(fn);
+}
+
+exports.mkdir = function(dirs) {
+  if(_.isArray(dirs)) {
+	_.each(dirs, function(dir) {
+		try { fs.mkdirSync(dir); } catch(e){}
+	});
+  } else try { fs.mkdirSync(dirs); } catch(e){}
+}
