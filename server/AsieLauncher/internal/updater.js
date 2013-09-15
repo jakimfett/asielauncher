@@ -1,5 +1,4 @@
 var tag = "[Updater] "
-  , urlPrefix = "http://asie.pl/launcher/"
   , url = require("url")
   , util = require("./util.js")
   , Zip = require("adm-zip")
@@ -7,6 +6,16 @@ var tag = "[Updater] "
   , request = require("request")
   , fs = require("fs")
   , path = require("path");
+
+var urlPrefix = getUrlPrefix();
+
+function getUrlPrefix() {
+	var config = JSON.parse(fs.readFileSync("./also-config.json") || '{"version": 0}');
+	if(!config.version || config.version < 1) return "http://asie.pl/launcher/";
+	var uu = config.updatesURL;
+	if(!(/\/$/.test(uu))) uu = uu + "/";
+	return uu;
+}
 
 function downloadAndUnpack(urlS, target, cb) {
 	var filename = url.parse(urlS).pathname.split("/").pop();

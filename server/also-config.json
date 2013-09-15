@@ -55,5 +55,10 @@
     "minecraftVersion": "1.6.2",
     "onlineMode": true,
     "javaArguments": ""
+  },
+  "updatesURL": "http://asie.pl/launcher",
+  "heartbeat": {
+    "url": "http://asie.pl/launcher/heartbeat.todo",
+    "enabled": true
   }
 }
