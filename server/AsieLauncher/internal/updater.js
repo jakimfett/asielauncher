@@ -46,9 +46,11 @@ exports.updateServer = function(cb) {
 }
 
 exports.getLocalInfo = function() {
-	return fs.existsSync("./AsieLauncher/internal/info.json")
+	var json = fs.existsSync("./AsieLauncher/internal/info.json")
 		? JSON.parse(fs.readFileSync("./AsieLauncher/internal/info.json"))
 		: {"client_revision": 0, "server_revision": 0};
+	if(!fs.existsSync("./AsieLauncher/temp/AsieLauncher-latest.jar")) json.client_revision = 0;
+	return json;
 }
 
 exports.saveInfo = function(info) {
