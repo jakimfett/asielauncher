@@ -1,5 +1,6 @@
 #!/bin/sh
 rm -rf release/*.zip
+rm -rf release/*.jar
 # Client
 cd release
 mkdir al
@@ -14,9 +15,10 @@ cd ..
 # Server
 cd server/AsieLauncher/internal
 zip -9 -r ../../../release/AsieLauncher-latest-server.zip *.js
-# Bootstrap
-rm -rf launcher/*
 cd ../..
+zip -9 -r ../release/AsieLauncher-latest-server.zip package.json
+# Bootstrap
+rm -rf AsieLauncher/internal/launcher/*
 rm -rf AsieLauncher/temp/*
 mv AsieLauncher/internal/info.json temp-info.json
 zip -9 -r ../release/AsieLauncher-latest-bootstrap.zip AsieLauncher also-config.json package.json also.js
