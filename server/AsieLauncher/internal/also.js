@@ -1,4 +1,4 @@
-var version = "0.4.0-beta5-hotfix2";
+var version = "0.4.0-beta5-hotfix3";
 
 // Initialize libraries (quite a lot of them, too!)
 var express = require('express')

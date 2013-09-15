@@ -26,7 +26,21 @@ exports.updateClient = function(cb) {
 	downloadAndUnpack(urlPrefix + "AsieLauncher-latest.jar", "./AsieLauncher/internal/launcher", cb);
 }
 exports.updateServer = function(cb) {
-	downloadAndUnpack(urlPrefix + "AsieLauncher-latest-server.zip", "./AsieLauncher/internal", cb);
+	downloadAndUnpack(urlPrefix + "AsieLauncher-latest-server.zip", "./AsieLauncher/internal", function() {
+		// Check for package.json
+		if(fs.existsSync("./AsieLauncher/internal/package.json")) {
+			// Check md5
+			if(util.md5("./AsieLauncher/internal/package.json") != util.md5("./package.json")) {
+				util.copyFileSync("./AsieLauncher/internal/package.json", "./package.json");
+				fs.unlinkSync("./AsieLauncher/internal/package.json");
+				util.say("warning", "Please run 'npm update' and 'npm install'. The package.json file has changed.");
+				setTimeout(function() { process.exit(0); }, 50);
+			} else {
+				fs.unlinkSync("./AsieLauncher/internal/package.json");
+				cb();
+			}
+		} else cb();
+	});
 }
 
 exports.getLocalInfo = function() {
