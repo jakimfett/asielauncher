@@ -1,6 +1,7 @@
 0.4.0-beta7 (server-only):
 [SERVER]
 + Completely change config file format.
+* Fix launcher exporting in local mode.
 
 0.4.0-beta6 (server-only):
 [SERVER]

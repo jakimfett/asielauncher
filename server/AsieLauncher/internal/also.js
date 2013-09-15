@@ -1,4 +1,4 @@
-var VERSION = "0.4.0-beta6";
+var VERSION = "0.4.0-beta7-indev";
 var JSON_REVISION = 5;
 
 // Initialize libraries (quite a lot of them, too!)
@@ -77,7 +77,8 @@ function createLauncherJAR() {
 	util.deleteFile("./AsieLauncher/temp/launcher.jar");
 	var archive = archiver("zip");
 	var launcher = new Zip("./AsieLauncher/temp/AsieLauncher-latest.jar");
-	archive.pipe(fs.createWriteStream("./AsieLauncher/temp/launcher.jar"));
+	var outputStream = fs.createWriteStream("./AsieLauncher/temp/launcher.jar");
+	archive.pipe(outputStream);
 	_.each(launcher.getEntries(), function(entry) {
 		if(!(/\/$/.test(entry.entryName))) {
 			util.say("debug", "Packing " + entry.entryName);
@@ -89,8 +90,10 @@ function createLauncherJAR() {
 				{name: "resources/"+fn });
 	});
 	archive.finalize(function() {
-		addFile("launcher.jar", "./AsieLauncher/temp/launcher.jar");
-		util.say("info", "[Launcher] Launcher ready!");
+		outputStream.on("close", function() {
+			addFile("launcher.jar", "./AsieLauncher/temp/launcher.jar");
+			util.say("info", "[Launcher] Launcher ready!");
+		});
 	});
 }
 
