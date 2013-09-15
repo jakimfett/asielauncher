@@ -106,7 +106,6 @@ function runHeartbeat() {
 	var launcherConfig = JSON.parse(fs.readFileSync("./AsieLauncher/launcherConfig/config.json"));
 	var heartbeat = {
 		version: 1,
-		time: util.unix(new Date()),
 		uuid: config.heartbeat.uuid,
 		servers: config.serverList,
 		url: launcherConfig.serverUrl,
@@ -115,6 +114,7 @@ function runHeartbeat() {
 	};
 	var hbFunc = function() {
 		util.say("debug", "Sending heartbeat");
+		heartbeat.time = util.unix(new Date());
 		request.post(config.heartbeat.url, {"form": heartbeat}, function(){});
 	}
 	setInterval(hbFunc, 90*1000); // Every 90 seconds should be enough.
@@ -167,16 +167,21 @@ exports.run = function(cwd) {
 	infoData.platforms = files.platforms();
 
 	_.each(config.modpack.optionalComponents, function(option) {
+		if(option.filename) delete option.filename; // beta8 bugs...
+		if(option.directory) delete option.directory; 
+		if(option.size) delete option.size; 
+		if(option.md5) delete option.md5; 
+		if(option.files) delete option.files; 
 		var dir = "./AsieLauncher/options/"+option.id;
 		if(!fs.existsSync(dir)) return;
 		util.say("info", "Adding option "+option.id+" ["+option.name+"]");
 		if(!option.zip) { // Directory
-			infoData.options[option.id] = _.extend(option, files.getFiles(dir));
+			infoData.options[option.id] = _.extend(files.getFiles(dir), option);
 		} else { // ZIP
 			var name = "./AsieLauncher/temp/zips/option-"+option.id+".zip";
 			if(createZip(name, [dir])) {
- 				infoData.options[option.id] = _.extend(option, {"filename": "option-"+option.id+".zip",
-								"directory": "", "size": util.getSize(zipFile), "md5": util.md5(zipFile)});
+ 				infoData.options[option.id] = _.extend({"filename": "option-"+option.id+".zip",
+								"directory": "", "size": util.getSize(zipFile), "md5": util.md5(zipFile)}, option);
 			}
 		}
 	});

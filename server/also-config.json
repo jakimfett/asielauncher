@@ -50,14 +50,6 @@
         "default": false,
         "zip": false,
         "overwrite": true,
-        "files": [
-          {
-            "filename": "FILES_GO_HERE",
-            "size": 0,
-            "md5": "d41d8cd98f00b204e9800998ecf8427e",
-            "overwrite": true
-          }
-        ],
         "size": 0
       },
       {
@@ -67,14 +59,6 @@
         "default": true,
         "zip": false,
         "overwrite": true,
-        "files": [
-          {
-            "filename": "FILES_GO_HERE",
-            "size": 0,
-            "md5": "d41d8cd98f00b204e9800998ecf8427e",
-            "overwrite": true
-          }
-        ],
         "size": 0
       }
     ]

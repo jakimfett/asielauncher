@@ -152,9 +152,9 @@ public class AuthenticationYggdrasil extends Authentication {
 		JSONObject profile = (JSONObject)answer.get("selectedProfile");
 		realUsername = (String)profile.get("name");
 		sessionID = (String)answer.get("accessToken");
+		info.put("selectedProfile", profile);
 		if(keepLoggedIn) {
 			info.put("sessionID", sessionID);
-			info.put("selectedProfile", profile);
 			save();
 		}
 		return true;

@@ -382,7 +382,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	@Override
 	public boolean launch(String path, String username, String sessionID, String jvmArgs, AsieLauncher l) {
 		if(!checkMinecraft(l, l.mcVersion)) return false;
-		if(sessionID.length() == 0) sessionID = "null";
+		if(sessionID == null || sessionID.length() == 0) sessionID = "null";
 		// Launch Minecraft.
 		String separator = System.getProperty("file.separator");
 	    String classpath = System.getProperty("java.class.path");

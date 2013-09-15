@@ -1,4 +1,6 @@
-0.4.0-beta8 (server-only):
+0.4.0-beta8:
+[CLIENT]
+* Fix authentication bugs.
 [SERVER]
 + Add sending server/client version via heartbeat.
 + Resolve ~ home paths for lookupDirectories.
