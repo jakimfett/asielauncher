@@ -64,9 +64,12 @@ function initializeConfig() {
 	infoData.size = 0;
 	infoData.jvmArguments = config.launcher.javaArguments || "";
 	infoData.client_revision = JSON_REVISION;
-	infoData.servers = config.serverlist || {};
 	infoData.onlineMode = config.launcher.onlineMode || false;
 	infoData.mcVersion = config.launcher.minecraftVersion || "1.5.2"; // default is 1.5.2
+	infoData.servers = {};
+	_.each(config.serverList, function(server) {
+		infoData.servers[server.name] = server.ip;
+	});
 }
 
 function addLocalFolderRoot(zip, localPath, zipPath) {
@@ -100,11 +103,14 @@ function createLauncherJAR() {
 }
 
 function runHeartbeat() {
+	var launcherConfig = JSON.parse(fs.readFileSync("./AsieLauncher/launcherConfig/config.json"));
 	var heartbeat = {
 		version: 1,
 		time: util.unix(new Date()),
 		uuid: config.heartbeat.uuid,
-		servers: config.serverlist
+		servers: config.serverList,
+		url: launcherConfig.serverUrl,
+		launcher: config.launcher
 	};
 	var hbFunc = function() {
 		util.say("debug", "Sending heartbeat");

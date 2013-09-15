@@ -2,7 +2,7 @@ var fs = require("fs")
   , _ = require("underscore");
 
 var config = fs.existsSync("./also-config.json") ? require("../../also-config.json") : require("../config.json")
-  , LATEST_CONFIG = 1;
+  , LATEST_CONFIG = 2;
 
 var saveConfig = function() {
   if(fs.existsSync("./AsieLauncher/config.json")) fs.unlinkSync("./AsieLauncher/config.json");
@@ -10,6 +10,17 @@ var saveConfig = function() {
 }
 
 var configUpdaters = {
+	1: function() {
+		var newServerList = [];
+		_.each(config.serverList, function(ip, name) {
+			newServerList.push({
+				"ip": ip, "name": name,
+				"description": ""
+			});
+		});
+		config.serverList = newServerList;
+		config.version = 2;
+	},
 	0: function() {
 		var newConfig = {
 			"version": 1,

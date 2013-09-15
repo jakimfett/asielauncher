@@ -1,8 +1,12 @@
 {
-  "version": 1,
-  "serverList": {
-    "Fluttercraft": "asiekierka.humee.pl"
-  },
+  "version": 2,
+  "serverList": [
+    {
+      "ip": "asiekierka.humee.pl",
+      "name": "Fluttercraft",
+      "description": ""
+    }
+  ],
   "webServer": {
     "port": 8080
   },
@@ -58,7 +62,8 @@
   },
   "updatesURL": "http://asie.pl/launcher",
   "heartbeat": {
-    "url": "http://asie.pl:7253/pfudor",
-    "enabled": true
+    "url": "http://127.0.0.1:7253/pfudor",
+    "enabled": true,
+    "uuid": "0c645216-de7c-4bed-944b-71eec036bfbe"
   }
 }
