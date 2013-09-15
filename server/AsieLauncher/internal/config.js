@@ -29,6 +29,11 @@ var configUpdaters = {
 				"minecraftVersion": config.mcVersion,
 				"onlineMode": config.onlineMode,
 				"javaArguments": config.jvmArguments
+			},
+			"updatesURL": "http://asie.pl/launcher",
+			"heartbeat": { // New in v1
+				"url": "http://asie.pl/launcher/heartbeat.todo",
+				"enabled": true
 			}
 		};
 		config = newConfig;
