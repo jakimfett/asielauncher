@@ -2,6 +2,7 @@ release/*
 server/config/*
 update.sh
 upload.sh
+upload-dev.sh
 server-testing
 server/node_modules
 server/AsieLauncher/zips/*

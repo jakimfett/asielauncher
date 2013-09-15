@@ -33,24 +33,27 @@ function downloadAndUnpack(urlS, target, cb) {
 	});
 }
 
+function checkPackage(cb) {
+	// Check for package.json
+	if(fs.existsSync("./AsieLauncher/internal/package.json")) {
+		// Check md5
+		if(util.md5("./AsieLauncher/internal/package.json") != util.md5("./package.json")) {
+			util.copyFileSync("./AsieLauncher/internal/package.json", "./package.json");
+			fs.unlinkSync("./AsieLauncher/internal/package.json");
+			util.say("warning", "Please run 'npm update' and 'npm install'. The package.json file has changed.");
+			setTimeout(function() { process.exit(0); }, 50);
+		} else {
+			fs.unlinkSync("./AsieLauncher/internal/package.json");
+			cb();
+		}
+	} else cb();
+}
 exports.updateClient = function(cb) {
 	downloadAndUnpack(urlPrefix + "AsieLauncher-latest.jar", null, cb);
 }
 exports.updateServer = function(cb) {
 	downloadAndUnpack(urlPrefix + "AsieLauncher-latest-server.zip", "./AsieLauncher/internal", function() {
-		// Check for package.json
-		if(fs.existsSync("./AsieLauncher/internal/package.json")) {
-			// Check md5
-			if(util.md5("./AsieLauncher/internal/package.json") != util.md5("./package.json")) {
-				util.copyFileSync("./AsieLauncher/internal/package.json", "./package.json");
-				fs.unlinkSync("./AsieLauncher/internal/package.json");
-				util.say("warning", "Please run 'npm update' and 'npm install'. The package.json file has changed.");
-				setTimeout(function() { process.exit(0); }, 50);
-			} else {
-				fs.unlinkSync("./AsieLauncher/internal/package.json");
-				cb();
-			}
-		} else cb();
+		checkPackage(cb);
 	});
 }
 
@@ -67,7 +70,7 @@ exports.saveInfo = function(info) {
 }
 
 exports.getOnlineInfo = function(cb) {
-	request({url: "http://asie.pl/launcher/info.json", json: true}, function(e, r, info) {
-			cb(info);
+	request({url: urlPrefix + "info.json", json: true}, function(e, r, info) {
+			checkPackage(function() { cb(info); }); // Workaround for buggy updating
 		});
 }
