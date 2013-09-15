@@ -58,7 +58,7 @@
   },
   "updatesURL": "http://asie.pl/launcher",
   "heartbeat": {
-    "url": "http://asie.pl/launcher/heartbeat.todo",
+    "url": "http://asie.pl:7253/pfudor",
     "enabled": true
   }
 }

@@ -12,7 +12,9 @@ var express = require('express')
   , path = require('path')
   , request = require('request')
   , files = require('./also-files.js')
-  , archiver = require('archiver');
+  , archiver = require('archiver')
+  , uuid = require('node-uuid')
+  , configHandler = null;
 
 var app = express()
   , config = {}
@@ -97,13 +99,32 @@ function createLauncherJAR() {
 	});
 }
 
+function runHeartbeat() {
+	var heartbeat = {
+		version: 1,
+		time: util.unix(new Date()),
+		uuid: config.heartbeat.uuid,
+		servers: config.serverlist
+	};
+	var hbFunc = function() {
+		util.say("debug", "Sending heartbeat");
+		request.post(config.heartbeat.url, {"form": heartbeat}, function(){});
+	}
+	setInterval(hbFunc, 90*1000); // Every 90 seconds should be enough.
+	hbFunc();
+}
+
 exports.run = function(cwd) {
 	util.say("info", "Started ALSO " + VERSION);
 
 	process.chdir(cwd);
-	var configHandler = require("./config.js");
+	configHandler = require("./config.js");
 	config = configHandler.get();
 
+	// Generate unique heartbeat UUID
+	if(!config.heartbeat.uuid) {
+		config.heartbeat.uuid = uuid.v4();
+	}
 	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/temp/zips"]);
 	addDirectory("", "./AsieLauncher/htdocs");
 	// This directory has been deprecated in hotfix4.
@@ -168,5 +189,8 @@ exports.run = function(cwd) {
 	if(!DO_LOCAL) {
 		app.listen(config.webServer.port);
 		util.say("info", "Ready - listening on port "+config.webServer.port+"!");
+		runHeartbeat();
 	} else util.say("info", "Files exported to ./ALWebFiles/");
+
+	configHandler.set(config);
 }

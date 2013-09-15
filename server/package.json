@@ -12,6 +12,7 @@
     "optimist": ">=0.6.0",
     "request": ">=2.27.0",
     "async": ">=0.2.9",
-    "archiver": ">=0.4.9"
+    "archiver": ">=0.4.9",
+    "node-uuid": ">=1.4.1"
   }
 }
