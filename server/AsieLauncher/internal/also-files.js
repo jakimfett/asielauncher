@@ -2,7 +2,8 @@ var _ = require('underscore')
   , fs = require('fs')
   , wrench = require('wrench')
   , util = require('./util.js')
-  , Zip = require('adm-zip');
+  , Zip = require('adm-zip')
+  , path = require('path');
 	
 var config = {
 	"blacklistedFiles": [],
@@ -41,8 +42,15 @@ function getDirectoryList(name, destName, addLocation, prefix) {
 exports.getDirectoryList = getDirectoryList;
 
 function getPossibleDirectories(name) {
-	var dirs = [name, name+"-client", "./AsieLauncher/"+name, "./AsieLauncher/"+name+"-client"];
+	var dirs = [];
 	if(name.indexOf(".") === 0) dirs = [name];
+	else {
+		_.each(config.lookupDirectories, function(_d) {
+			var d = _d;
+			if(!(/\/$/.test(d))) d = d + "/";
+			dirs.push(path.resolve(d+name)); dirs.push(path.resolve(d+name+"-client"));
+		});
+	}
 	return _.filter(dirs, fs.existsSync);
 }
 exports.getPossibleDirectories = getPossibleDirectories;

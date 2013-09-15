@@ -1,3 +1,9 @@
+0.4.0-beta8 (server-only):
+[SERVER]
++ Add sending server/client version via heartbeat.
++ Resolve ~ home paths for lookupDirectories.
+* Invalidate the UUID accidentally spread in beta7.
+
 0.4.0-beta7 (server-only):
 [SERVER]
 + Completely change config file format.

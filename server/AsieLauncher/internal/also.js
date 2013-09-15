@@ -1,4 +1,4 @@
-var VERSION = "0.4.0-beta7-indev";
+var VERSION = "0.4.0-beta8";
 var JSON_REVISION = 5;
 
 // Initialize libraries (quite a lot of them, too!)
@@ -110,7 +110,8 @@ function runHeartbeat() {
 		uuid: config.heartbeat.uuid,
 		servers: config.serverList,
 		url: launcherConfig.serverUrl,
-		launcher: config.launcher
+		launcher: config.launcher,
+		version: JSON.parse(fs.readFileSync("./AsieLauncher/internal/info.json"))
 	};
 	var hbFunc = function() {
 		util.say("debug", "Sending heartbeat");
@@ -128,7 +129,8 @@ exports.run = function(cwd) {
 	config = configHandler.get();
 
 	// Generate unique heartbeat UUID
-	if(!config.heartbeat.uuid) {
+	if(!config.heartbeat.uuid || // The one below is a lingering thing from beta7.
+    	  config.heartbeat.uuid == "0c645216-de7c-4bed-944b-71eec036bfbe") {
 		config.heartbeat.uuid = uuid.v4();
 	}
 	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/temp/zips"]);
@@ -142,7 +144,7 @@ exports.run = function(cwd) {
 
 	// * PREPARING DIRECTORIES *
 	util.say("info", "Preparing directories");
-	files.initialize(config);
+	files.initialize(config.modpack);
 	initializeConfig();
 
 	_.each(config.modpack.directories.file, function(dir) {
@@ -164,7 +166,7 @@ exports.run = function(cwd) {
 
 	infoData.platforms = files.platforms();
 
-	_.each(config.modpack.options, function(option) {
+	_.each(config.modpack.optionalComponents, function(option) {
 		var dir = "./AsieLauncher/options/"+option.id;
 		if(!fs.existsSync(dir)) return;
 		util.say("info", "Adding option "+option.id+" ["+option.name+"]");

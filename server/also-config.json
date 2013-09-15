@@ -3,14 +3,20 @@
   "serverList": [
     {
       "ip": "asiekierka.humee.pl",
-      "name": "Fluttercraft",
-      "description": ""
+      "name": "Asiekierka's Experimental Server",
+      "description": "This one never really works.",
+      "owner": "asiekierka",
+      "website": "http://google.com"
     }
   ],
   "webServer": {
     "port": 8080
   },
   "modpack": {
+    "lookupDirectories": [
+      "./",
+      "./AsieLauncher/"
+    ],
     "directories": {
       "file": [
         "mods",
@@ -43,7 +49,16 @@
         "description": "Example option",
         "default": false,
         "zip": false,
-        "overwrite": true
+        "overwrite": true,
+        "files": [
+          {
+            "filename": "FILES_GO_HERE",
+            "size": 0,
+            "md5": "d41d8cd98f00b204e9800998ecf8427e",
+            "overwrite": true
+          }
+        ],
+        "size": 0
       },
       {
         "id": "example2",
@@ -51,7 +66,16 @@
         "description": "Example option",
         "default": true,
         "zip": false,
-        "overwrite": true
+        "overwrite": true,
+        "files": [
+          {
+            "filename": "FILES_GO_HERE",
+            "size": 0,
+            "md5": "d41d8cd98f00b204e9800998ecf8427e",
+            "overwrite": true
+          }
+        ],
+        "size": 0
       }
     ]
   },
@@ -62,8 +86,7 @@
   },
   "updatesURL": "http://asie.pl/launcher",
   "heartbeat": {
-    "url": "http://127.0.0.1:7253/pfudor",
-    "enabled": true,
-    "uuid": "0c645216-de7c-4bed-944b-71eec036bfbe"
+    "url": "http://asie.pl:7253/pfudor",
+    "enabled": true
   }
 }

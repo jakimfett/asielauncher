@@ -15,10 +15,11 @@ var configUpdaters = {
 		_.each(config.serverList, function(ip, name) {
 			newServerList.push({
 				"ip": ip, "name": name,
-				"description": ""
+				"description": "", "owner": "", "website": ""
 			});
 		});
 		config.serverList = newServerList;
+		config.modpack.lookupDirectories = ["./", "./AsieLauncher/"];
 		config.version = 2;
 	},
 	0: function() {
@@ -43,7 +44,7 @@ var configUpdaters = {
 			},
 			"updatesURL": "http://asie.pl/launcher",
 			"heartbeat": { // New in v1
-				"url": "http://asie.pl/launcher/heartbeat.todo",
+				"url": "http://asie.pl:7253/pfudor",
 				"enabled": true
 			}
 		};
