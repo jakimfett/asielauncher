@@ -5,6 +5,8 @@ var ansi = require('ansi')
   , crypto = require('crypto')
   , request = require('request');
 
+//require('node-zip');
+
 var DEBUG = false;
 
 exports.setDebug = function(d) { DEBUG = d; }

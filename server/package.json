@@ -11,6 +11,7 @@
     "adm-zip": "git+https://github.com/cthackers/adm-zip.git",
     "optimist": ">=0.6.0",
     "request": ">=2.27.0",
-    "async": ">=0.2.9"
+    "async": ">=0.2.9",
+    "node-zip": ">=1.0.1"
   }
 }
