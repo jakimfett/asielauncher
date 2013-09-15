@@ -1,4 +1,4 @@
-var version = "0.4.0-beta5-hotfix3";
+var version = "0.4.0-beta6";
 
 // Initialize libraries (quite a lot of them, too!)
 var express = require('express')
@@ -10,7 +10,8 @@ var express = require('express')
   , Zip = require('adm-zip')
   , path = require('path')
   , request = require('request')
-  , files = require('./also-files.js');
+  , files = require('./also-files.js')
+  , archiver = require('archiver');
 
 var app = express()
   , config = require("../../also-config.json") || require("../config.json")
@@ -75,24 +76,36 @@ function addLocalFolderRoot(zip, localPath, zipPath) {
 function createLauncherJAR() {
 	util.say("info", "[Launcher] Generating launcher JAR...");
 	util.deleteFile("./AsieLauncher/temp/launcher.jar");
-	var zip = new Zip();
-	addLocalFolderRoot(zip, "./AsieLauncher/internal/launcher", "");
-	addLocalFolderRoot(zip, "./AsieLauncher/launcherConfig", "resources/");
-	zip.writeZip("./AsieLauncher/temp/launcher.jar");
-
-	addFile("launcher.jar", "./AsieLauncher/temp/launcher.jar");
-	util.say("info", "[Launcher] Launcher ready!");
+	var archive = archiver("zip");
+	var launcher = new Zip("./AsieLauncher/temp/AsieLauncher-latest.jar");
+	archive.pipe(fs.createWriteStream("./AsieLauncher/temp/launcher.jar"));
+	_.each(launcher.getEntries(), function(entry) {
+		if(!(/\/$/.test(entry.entryName))) {
+			util.say("debug", "Packing " + entry.entryName);
+			archive.append(entry.getData(), {name: entry.entryName});
+		}
+	});
+	_.each(fs.readdirSync("./AsieLauncher/launcherConfig"), function(fn) {
+		archive.append(fs.createReadStream("./AsieLauncher/launcherConfig/"+fn),
+				{name: "resources/"+fn });
+	});
+	archive.finalize(function() {
+		addFile("launcher.jar", "./AsieLauncher/temp/launcher.jar");
+		util.say("info", "[Launcher] Launcher ready!");
+	});
 }
 
 exports.run = function(cwd) {
 	util.say("info", "Started ALSO " + version);
 
 	process.chdir(cwd);
-	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/internal/launcher", "./AsieLauncher/temp/zips"]);
+	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/temp/zips"]);
 	addDirectory("", "./AsieLauncher/htdocs");
+	// This directory has been deprecated in hotfix4.
+	wrench.rmdirSyncRecursive("./AsieLauncher/internal/launcher", function(){});
 
 	// * DOWNLOADING LAUNCHER *
-	if(fs.readdirSync("./AsieLauncher/internal/launcher").length >= 1) createLauncherJAR();
+	if(fs.existsSync("./AsieLauncher/temp/AsieLauncher-latest.jar")) createLauncherJAR();
 	else util.say("warning", "[Launcher] Launcher not found!");
 
 	// * PREPARING DIRECTORIES *

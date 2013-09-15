@@ -13,17 +13,19 @@ function downloadAndUnpack(urlS, target, cb) {
 	var tempFile = "./AsieLauncher/temp/" + filename;
 	util.say("info", tag + "Downloading "+filename+"...");
 	util.deleteFile(tempFile);
-	util.mkdir(["./AsieLauncher/temp", target]);
+	util.mkdir(["./AsieLauncher/temp", target || "./"]);
 	util.download(urlS, tempFile, function() {
-		util.say("info", tag + "Downloaded "+filename+"! Unpacking...");
-		var zip = new Zip(tempFile);
-		zip.extractAllTo(path.resolve(target), true);
+		util.say("info", tag + "Downloaded "+filename+"!" + (target != null ? " Unpacking..." : ""));
+		if(target != null) {
+			var zip = new Zip(tempFile);
+			zip.extractAllTo(path.resolve(target), true);
+		}
 		cb();
 	});
 }
 
 exports.updateClient = function(cb) {
-	downloadAndUnpack(urlPrefix + "AsieLauncher-latest.jar", "./AsieLauncher/internal/launcher", cb);
+	downloadAndUnpack(urlPrefix + "AsieLauncher-latest.jar", null, cb);
 }
 exports.updateServer = function(cb) {
 	downloadAndUnpack(urlPrefix + "AsieLauncher-latest-server.zip", "./AsieLauncher/internal", function() {

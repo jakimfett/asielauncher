@@ -1,3 +1,9 @@
+0.4.0-beta6 (server-only):
+[SERVER]
++ Add code to update package.json. (If not working, remove AsieLauncher/internal/info.json and try again.)
+* Fix JAR repacking.
+* Fix many other issues in the preceding hotfixes.
+
 0.4.0-beta5:
 [CLIENT]
 + Add logging to file.

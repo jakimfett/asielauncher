@@ -1,6 +1,5 @@
 #!/bin/sh
 rm -rf release/*.zip
-rm -rf release/*.jar
 # Client
 cd release
 mkdir al
@@ -8,7 +7,7 @@ cd al
 unzip ../AsieLauncher-latest.jar
 rm ../AsieLauncher-latest.jar
 rm -rf resources
-zip -9 -r ../AsieLauncher-latest.jar .
+zip -0 -r ../AsieLauncher-latest.jar .
 cd ..
 rm -rf al
 cd ..
