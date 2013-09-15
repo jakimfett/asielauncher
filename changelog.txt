@@ -1,3 +1,7 @@
+0.4.0-beta7 (server-only):
+[SERVER]
++ Completely change config file format.
+
 0.4.0-beta6 (server-only):
 [SERVER]
 + Add code to update package.json. (If not working, remove AsieLauncher/internal/info.json and try again.)

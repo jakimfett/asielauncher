@@ -1,4 +1,5 @@
-var version = "0.4.0-beta6";
+var VERSION = "0.4.0-beta6";
+var JSON_REVISION = 5;
 
 // Initialize libraries (quite a lot of them, too!)
 var express = require('express')
@@ -14,12 +15,10 @@ var express = require('express')
   , archiver = require('archiver');
 
 var app = express()
-  , config = require("../../also-config.json") || require("../config.json")
+  , config = {}
   , infoData = {}
   , DEBUG = false
   , DO_LOCAL = false;
-
-config.client_revision = 5;
 
 // Handle parameters
 DEBUG = argv.d || argv.debug || false;
@@ -54,18 +53,18 @@ function addDirectory(dirName, realDir) {
 }
 
 function initializeConfig() {
-	infoData.jarPatches = util.sortFilesBySubstrings(config.jarPatchOrder,
+	infoData.jarPatches = util.sortFilesBySubstrings(config.modpack.jarPatchesOrder,
 	                        files.getDirectoryList("./AsieLauncher/jarPatches", "jarPatches/", false, "jarPatches/")
 	                      );
 	infoData.files = [];
 	infoData.zips = [];
 	infoData.options = {};
 	infoData.size = 0;
-	infoData.jvmArguments = config.jvmArguments || "";
-	infoData.client_revision = config.client_revision;
-	infoData.servers = config.servers || {};
-	infoData.onlineMode = config.onlineMode || false;
-	infoData.mcVersion = config.mcVersion || "1.5.2"; // default is 1.5.2
+	infoData.jvmArguments = config.launcher.javaArguments || "";
+	infoData.client_revision = JSON_REVISION;
+	infoData.servers = config.serverlist || {};
+	infoData.onlineMode = config.launcher.onlineMode || false;
+	infoData.mcVersion = config.launcher.minecraftVersion || "1.5.2"; // default is 1.5.2
 }
 
 function addLocalFolderRoot(zip, localPath, zipPath) {
@@ -96,9 +95,12 @@ function createLauncherJAR() {
 }
 
 exports.run = function(cwd) {
-	util.say("info", "Started ALSO " + version);
+	util.say("info", "Started ALSO " + VERSION);
 
 	process.chdir(cwd);
+	var configHandler = require("./config.js");
+	config = configHandler.get();
+
 	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/temp/zips"]);
 	addDirectory("", "./AsieLauncher/htdocs");
 	// This directory has been deprecated in hotfix4.
@@ -113,7 +115,7 @@ exports.run = function(cwd) {
 	files.initialize(config);
 	initializeConfig();
 
-	_.each(config.loggedDirs, function(dir) {
+	_.each(config.modpack.directories.file, function(dir) {
 		infoData.files = _.union(infoData.files, files.file(dir));
 		var dirs = files.getPossibleDirectories(dir);
 		_.each(dirs, function(target) {
@@ -123,8 +125,8 @@ exports.run = function(cwd) {
 		if(dirs.length > 0) util.say("info", "Added directory "+dir);
 	});
 
-	_.each(config.zippedDirs, function(dir) {
-		var zip = files.zip(dir, !_.contains(config.noOverwrite, dir));
+	_.each(config.modpack.directories.zip, function(dir) {
+		var zip = files.zip(dir, !_.contains(config.modpack.nonOverwrittenFiles, dir));
 		if(zip === null) return;
 		infoData.zips.push(zip);
 		util.say("info", "Added ZIP directory "+dir);
@@ -132,7 +134,7 @@ exports.run = function(cwd) {
 
 	infoData.platforms = files.platforms();
 
-	_.each(config.options, function(option) {
+	_.each(config.modpack.options, function(option) {
 		var dir = "./AsieLauncher/options/"+option.id;
 		if(!fs.existsSync(dir)) return;
 		util.say("info", "Adding option "+option.id+" ["+option.name+"]");
@@ -161,7 +163,7 @@ exports.run = function(cwd) {
 	}
 
 	if(!DO_LOCAL) {
-		app.listen(config.port);
-		util.say("info", "Ready - listening on port "+config.port+"!");
+		app.listen(config.webServer.port);
+		util.say("info", "Ready - listening on port "+config.webServer.port+"!");
 	} else util.say("info", "Files exported to ./ALWebFiles/");
 }

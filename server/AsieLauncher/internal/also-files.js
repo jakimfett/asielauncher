@@ -5,8 +5,8 @@ var _ = require('underscore')
   , Zip = require('adm-zip');
 	
 var config = {
-	"blacklist": [],
-	"noOverwrite": []
+	"blacklistedFiles": [],
+	"nonOverwrittenFiles": []
 }
 	
 function getDirectoryList(name, destName, addLocation, prefix) {
@@ -16,7 +16,7 @@ function getDirectoryList(name, destName, addLocation, prefix) {
           .filter(function(file) {
             var location = name+"/"+file;
             var blacklisted = false;
-            _.each(config.blacklist, function(test) {
+            _.each(config.blacklistedFiles, function(test) {
               if(location.indexOf(test) >= 0) {
                 blacklisted = true;
                 util.say("info", "Blacklisted "+file);
@@ -29,9 +29,9 @@ function getDirectoryList(name, destName, addLocation, prefix) {
             var fileNew = {"filename": prefix+file, "size": util.getSize(name+"/"+file), "md5": util.md5(name+"/"+file)};
 						var destination = destName+file;
             if(addLocation) fileNew.location = name+"/"+file;
-				    fileNew.overwrite = !(_.contains(config.noOverwrite, file));
+				    fileNew.overwrite = !(_.contains(config.nonOverwrittenFiles, file));
 						if(fileNew.overwrite)
-				      fileNew.overwrite = !(_.some(config.noOverwrite, function(nameNO) {
+				      fileNew.overwrite = !(_.some(config.nonOverwrittenFiles, function(nameNO) {
 				        return (destination.indexOf(nameNO) == 0);
 				      }));
             return fileNew;

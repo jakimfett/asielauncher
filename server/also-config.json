@@ -1,32 +1,59 @@
-
-{ "loggedDirs": ["mods", "coremods", "texturepacks", "bin", "lib"],
-  "zippedDirs": ["config", "root"],
-  "noOverwrite": ["root"],
-  "mcVersion": "1.6.2",
-  "onlineMode": true,
-  "blacklist": ["mods/Dynmap", "mods/ForgeIRC", "lib/jython"],
-  "jarPatchOrder": ["forge", "OptiFine"],
-  "jvmArguments": "",
-  "port": 8080,
-  "servers": {
+{
+  "version": 1,
+  "serverList": {
     "Fluttercraft": "asiekierka.humee.pl"
   },
-  "options": [
-    {
-      "id": "example1",
-      "name": "Example1",
-      "description": "Example option",
-      "default": false,
-      "zip": false,
-      "overwrite": true
+  "webServer": {
+    "port": 8080
+  },
+  "modpack": {
+    "directories": {
+      "file": [
+        "mods",
+        "coremods",
+        "texturepacks",
+        "bin",
+        "lib"
+      ],
+      "zip": [
+        "config",
+        "root"
+      ]
     },
-    {
-      "id": "example2",
-      "name": "Example2",
-      "description": "Example option",
-      "default": true,
-      "zip": false,
-      "overwrite": true
-    }
-  ]
+    "nonOverwrittenFiles": [
+      "root"
+    ],
+    "blacklistedFiles": [
+      "mods/Dynmap",
+      "mods/ForgeIRC",
+      "lib/jython"
+    ],
+    "jarPatchesOrder": [
+      "forge",
+      "OptiFine"
+    ],
+    "optionalComponents": [
+      {
+        "id": "example1",
+        "name": "Example1",
+        "description": "Example option",
+        "default": false,
+        "zip": false,
+        "overwrite": true
+      },
+      {
+        "id": "example2",
+        "name": "Example2",
+        "description": "Example option",
+        "default": true,
+        "zip": false,
+        "overwrite": true
+      }
+    ]
+  },
+  "launcher": {
+    "minecraftVersion": "1.6.2",
+    "onlineMode": true,
+    "javaArguments": ""
+  }
 }
