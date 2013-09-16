@@ -310,7 +310,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		nativesDir = getNativesLocation(l, version);
 		File dir = new File(l.baseDir + "libraries/custom/");
 		if(!dir.exists()) dir.mkdirs();
-		if(!loadJSON(l.directory, l.baseDir, l.baseDir+"launchinfo.json", version)) return false;
+		if(!loadJSON(l.directory, l.baseDir, l.directory+"launchinfo.json", version)) return false;
 		if(!downloadMinecraft(getJarLocation(l, version), version)) return false;
 		return true;
 	}
