@@ -73,7 +73,7 @@ exports.initialize = function(_config) {
 }
 
 exports.file = function(dir) {
-  var list = getDirectoriesList(dir, false);
+  var list = getDirectoriesList(dir, true);
   return _.map(list, function(file) {
     file.filename = dir+"/"+file.filename;
     totalSize += file.size;
