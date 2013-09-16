@@ -23,7 +23,11 @@ public class Repacker {
 			String name = entry.getName();
 			if(!name.startsWith("META-INF")) {
 				if(fileMap.get(name).equals(patchName)) {
-					out.putNextEntry(entry);
+					ZipEntry destEntry = new ZipEntry (entry.getName());
+					destEntry.setTime(entry.getTime());
+					destEntry.setExtra(entry.getExtra());
+					destEntry.setComment(entry.getComment());
+					out.putNextEntry(destEntry);
 					Utils.copyStream(in, out);
 					out.closeEntry();
 				}

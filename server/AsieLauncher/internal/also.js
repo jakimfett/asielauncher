@@ -1,4 +1,4 @@
-var VERSION = "0.4.0-beta8";
+var VERSION = "0.4.0-beta9";
 var JSON_REVISION = 5;
 
 // Initialize libraries (quite a lot of them, too!)
