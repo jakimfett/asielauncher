@@ -157,14 +157,6 @@ exports.run = function(cwd) {
 		if(dirs.length > 0) util.say("info", "Added directory "+dir);
 	});
 
-	var fileList = infoData.files;
-	infoData.files = _.map(infoData.files, function(file) {
-		var newFile = _.clone(file);
-		delete newFile.location;
-		return newFile;
-	});
-	console.log(fileList);
-
 	_.each(config.modpack.directories.zip, function(dir) {
 		var zip = files.zip(dir, !_.contains(config.modpack.nonOverwrittenFiles, dir));
 		if(zip === null) return;
