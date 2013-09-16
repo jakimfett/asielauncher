@@ -1,4 +1,4 @@
-var VERSION = "0.4.0-beta9";
+var VERSION = "0.4.0-rc1";
 var JSON_REVISION = 5;
 
 // Initialize libraries (quite a lot of them, too!)
@@ -14,7 +14,9 @@ var express = require('express')
   , files = require('./also-files.js')
   , archiver = require('archiver')
   , uuid = require('node-uuid')
-  , configHandler = null;
+  , mcmod = require('./mcmod.js')
+  , configHandler = null
+  , modList = null;
 
 var app = express()
   , config = {}
@@ -105,12 +107,13 @@ function createLauncherJAR() {
 function runHeartbeat() {
 	var launcherConfig = JSON.parse(fs.readFileSync("./AsieLauncher/launcherConfig/config.json"));
 	var heartbeat = {
-		version: 1,
+		heartbeatVersion: 2,
 		uuid: config.heartbeat.uuid,
 		servers: config.serverList,
 		url: launcherConfig.serverUrl,
 		launcher: config.launcher,
-		version: JSON.parse(fs.readFileSync("./AsieLauncher/internal/info.json"))
+		version: JSON.parse(fs.readFileSync("./AsieLauncher/internal/info.json")),
+		mods: modList
 	};
 	var hbFunc = function() {
 		util.say("debug", "Sending heartbeat");
@@ -192,6 +195,8 @@ exports.run = function(cwd) {
 	addDirectory("jarPatches", "./AsieLauncher/jarPatches");
 
 	infoData.size = files.getTotalSize();
+
+	modList = mcmod.getModList(files, ["mods", "coremods", "lib", "jarPatches"]);
 
 	if(DO_LOCAL) {
 		fs.writeFileSync("./ALWebFiles/also.json", JSON.stringify(infoData));

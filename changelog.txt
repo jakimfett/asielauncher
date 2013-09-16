@@ -1,3 +1,7 @@
+0.4.0-rc1 (server-only):
+[SERVER]
++ Send the modpack list via the heartbeat!
+
 0.4.0-beta9:
 [CLIENT]
 * Fix JAR repacking bug.

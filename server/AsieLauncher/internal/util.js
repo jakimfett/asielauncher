@@ -81,8 +81,10 @@ exports.copyFileSync = function(srcFile, destFile, encoding) {
 exports.onlyExtension = function(array, ext) {
 	// Returnception.
 	return _.filter(array, function(item) {
+		var fn = _.isString(item.filename) ? item.filename : (_.isString(item) ? item : null);
+		if(fn === null) return false;
 		return _.any(ext, function(extI) {
-			return item.filename.indexOf(extI, item.filename.length - extI.length) !== -1;
+			return fn.indexOf(extI, fn.length - extI.length) !== -1;
 		});
 	});
 }
