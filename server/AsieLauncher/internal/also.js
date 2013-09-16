@@ -55,9 +55,9 @@ function addDirectory(dirName, realDir) {
 }
 
 function initializeConfig() {
-	infoData.jarPatches = util.sortFilesBySubstrings(config.modpack.jarPatchesOrder,
+	infoData.jarPatches = util.onlyExtension(util.sortFilesBySubstrings(config.modpack.jarPatchesOrder,
 	                        files.getDirectoryList("./AsieLauncher/jarPatches", "jarPatches/", false, "jarPatches/")
-	                      );
+	                      ), [".zip", ".jar"]);
 	infoData.files = [];
 	infoData.zips = [];
 	infoData.options = {};

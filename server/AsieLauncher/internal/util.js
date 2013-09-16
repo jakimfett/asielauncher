@@ -77,3 +77,12 @@ exports.copyFileSync = function(srcFile, destFile, encoding) {
   var content = fs.readFileSync(srcFile, encoding);
   fs.writeFileSync(destFile, content, encoding);
 }
+
+exports.onlyExtension = function(array, ext) {
+	// Returnception.
+	return _.filter(array, function(item) {
+		return _.any(ext, function(extI) {
+			return item.filename.indexOf(extI, item.filename.length - extI.length) !== -1;
+		});
+	});
+}

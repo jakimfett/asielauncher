@@ -4,6 +4,7 @@ update.sh
 upload.sh
 upload-dev.sh
 server-testing
+server-testing-1.5.2
 server/node_modules
 server/AsieLauncher/zips/*
 server/AsieLauncher/jarPatches/*.jar
