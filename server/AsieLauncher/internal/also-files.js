@@ -97,7 +97,7 @@ exports.createZip = createZip;
 
 exports.zip = function(dir, overwrite) {
 	var name = "./AsieLauncher/temp/zips/"+dir+".zip";
-	if(createZip(name, [dir])) {
+	if(createZip(name, getPossibleDirectories(dir))) {
 		var zipData = {"filename": dir+".zip", "directory": dir == "root" ? "" : dir,
 			"size": util.getSize(name),
 			"md5": util.md5(name), "overwrite": overwrite || true};
