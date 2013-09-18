@@ -1,3 +1,7 @@
+0.4.0-rc2 (server-only):
+[SERVER]
+* Fix a bug where the URL was not sent to the serverlist.
+
 0.4.0-rc1 (server-only):
 [SERVER]
 + Send the mod and plugin list via the heartbeat! (Disableable in the config.)

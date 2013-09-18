@@ -48,7 +48,8 @@ exports.getModList = function(fileHandler, directories) {
 				});
 			}
 			if(zip.getEntry("mcmod.info")) {
-				var data = JSON.parse(zip.readAsText("mcmod.info"));
+				// Replace newlines with spaces (EnderStorage)
+				var data = JSON.parse(zip.readAsText("mcmod.info").replace(/(\r|\n)/g, " "));
 				_.each(data, function(mod) {
 					if(!mod) return;
 					util.say("debug", "Read Forge mod: " + mod.name + " ("+dir+"/"+name+")");
@@ -92,14 +93,16 @@ exports.getPluginList = function(fileHandler, directories) {
 }
 
 exports.getServerProperties = function(filename) {
-	var lines = fs.readFileSync(filename).split('\n');
+	if(!fs.existsSync(filename)) return;
+	var lines = fs.readFileSync(filename, "utf8");
+	lines = lines.split('\n');
 	var props = {};
 	_.each(lines, function(line) {
 		if(line.indexOf("#") === 0 || line.length < 2) return; // Comment;
-		var info = /(\S+)=(\S*)/.match(line);
+		var info = line.match(/(\S+)=(\S*)/);
 		if(info) {
-			var key = info[0];
-			var value = info[1];
+			var key = info[1];
+			var value = info[2];
 			if(value == "true" || value == "false") { // Boolean
 				value = (value == "true") ? true : false;
 			} else if(/^([0-9]+)$/.test(value)) { // Number

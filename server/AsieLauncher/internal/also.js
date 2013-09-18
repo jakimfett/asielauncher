@@ -1,4 +1,4 @@
-var VERSION = "0.4.0-rc1";
+var VERSION = "0.4.0-rc2";
 var JSON_REVISION = 5;
 
 // Initialize libraries (quite a lot of them, too!)
@@ -106,15 +106,18 @@ function createLauncherJAR() {
 }
 
 function generateHeartbeat() {
+	var launcherConfig = JSON.parse(fs.readFileSync("./AsieLauncher/launcherConfig/config.json"));
 	return {
 		heartbeatVersion: 2,
 		uuid: config.heartbeat.uuid,
 		servers: _.map(config.serverList, function(serverCfg) {
-				var server = _.pick(serverCfg, ["ip", "name", "descrption", "owner", "url"]);
+				var server = _.pick(serverCfg, ["ip", "name", "description", "owner", "website"]);
 				var properties = {};
 				if(serverCfg.location.length > 0) {
+					var location = serverCfg.location;
+					if(!/\/$/.test(location)) location += "/";
 					// Parse server-specific files (if possible)
-					properties = fileParser.getServerProperties(serverCfg.location);
+					properties = fileParser.getServerProperties(serverCfg.location + "server.properties");
 				}
 				server.onlineMode = properties["online-mode"] || server.onlineMode || config.launcher.onlineMode;
 				server.whiteList = properties["white-list"] || server.whiteList || false;
@@ -162,6 +165,8 @@ var bannedUUIDs = [ // Those are UUIDs I accidentally distributed to people.
 
 exports.run = function(cwd) {
 	util.say("info", "Started ALSO " + VERSION);
+
+	if(DO_LOCAL) util.say("warning", "LOCAL MODE IS CURRENTLY BUGGY! USE AT YOUR OWN RISK");
 
 	process.chdir(cwd);
 	configHandler = require("./config.js");

@@ -7,7 +7,7 @@
       "description": "This one never really works.",
       "owner": "asiekierka",
       "website": "http://google.com",
-      "location": ""
+      "location": "./"
     }
   ],
   "webServer": {

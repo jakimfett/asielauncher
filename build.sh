@@ -13,7 +13,7 @@ rm -rf al
 cd ..
 # Server
 cd server/AsieLauncher/internal
-zip -9 -r ../../../release/AsieLauncher-latest-server.zip *.js
+zip -9 -r ../../../release/AsieLauncher-latest-server.zip *.js mod*.json
 cd ../..
 zip -9 -r ../release/AsieLauncher-latest-server.zip package.json
 # Bootstrap
