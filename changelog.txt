@@ -1,6 +1,10 @@
 0.4.0-rc1 (server-only):
 [SERVER]
-+ Send the modpack list via the heartbeat!
++ Send the mod and plugin list via the heartbeat! (Disableable in the config.)
++ The server now reads server.properties (when possible) to get whitelist/online mode information.
+* Optimize heartbeat-sent data a bit further.
+* Fix a few bugs.
+/ Fix tabbing on all internal files.
 
 0.4.0-beta9:
 [CLIENT]

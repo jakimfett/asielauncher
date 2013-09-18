@@ -1,12 +1,13 @@
 {
-  "version": 2,
+  "version": 3,
   "serverList": [
     {
       "ip": "asiekierka.humee.pl",
       "name": "Asiekierka's Experimental Server",
       "description": "This one never really works.",
       "owner": "asiekierka",
-      "website": "http://google.com"
+      "website": "http://google.com",
+      "location": ""
     }
   ],
   "webServer": {
@@ -72,6 +73,9 @@
   "updatesURL": "http://asie.pl/launcher",
   "heartbeat": {
     "url": "http://asie.pl:7253/pfudor",
-    "enabled": true
+    "enabled": true,
+    "uuid": "2edaba4e-77ee-48cd-a65e-5b7869446fc5",
+    "sendMods": true,
+    "sendPlugins": true
   }
 }

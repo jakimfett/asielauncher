@@ -71,6 +71,6 @@ exports.saveInfo = function(info) {
 
 exports.getOnlineInfo = function(cb) {
 	request({url: urlPrefix + "info.json", json: true}, function(e, r, info) {
-			checkPackage(function() { cb(info); }); // Workaround for buggy updating
-		});
+		checkPackage(function() { cb(info); }); // Workaround for buggy updating
+	});
 }

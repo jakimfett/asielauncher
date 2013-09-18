@@ -2,14 +2,27 @@ var fs = require("fs")
   , _ = require("underscore");
 
 var config = fs.existsSync("./also-config.json") ? require("../../also-config.json") : require("../config.json")
-  , LATEST_CONFIG = 2;
+  , LATEST_CONFIG = 3;
 
 var saveConfig = function() {
-  if(fs.existsSync("./AsieLauncher/config.json")) fs.unlinkSync("./AsieLauncher/config.json");
-  fs.writeFileSync("./also-config.json", JSON.stringify(config, undefined, 2));
+	if(fs.existsSync("./AsieLauncher/config.json")) fs.unlinkSync("./AsieLauncher/config.json");
+	fs.writeFileSync("./also-config.json", JSON.stringify(config, undefined, 2));
 }
 
 var configUpdaters = {
+	2: function() {
+		if(config.serverList.length == 1 && fs.existsSync("./server.properties")) {
+			config.serverList[0].location = "./";
+		} else {
+			_.map(config.serverList, function(list) {
+				list.location = "";
+				return list;
+			});
+		}
+		config.heartbeat.sendMods = true;
+		config.heartbeat.sendPlugins = true;
+		config.version = 3;
+	},
 	1: function() {
 		var newServerList = [];
 		_.each(config.serverList, function(ip, name) {

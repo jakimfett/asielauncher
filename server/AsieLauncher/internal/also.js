@@ -14,9 +14,10 @@ var express = require('express')
   , files = require('./also-files.js')
   , archiver = require('archiver')
   , uuid = require('node-uuid')
-  , mcmod = require('./mcmod.js')
+  , fileParser = require('./fileParser.js')
   , configHandler = null
-  , modList = null;
+  , modList = null
+  , pluginList = null;
 
 var app = express()
   , config = {}
@@ -104,25 +105,60 @@ function createLauncherJAR() {
 	});
 }
 
-function runHeartbeat() {
-	var launcherConfig = JSON.parse(fs.readFileSync("./AsieLauncher/launcherConfig/config.json"));
-	var heartbeat = {
+function generateHeartbeat() {
+	return {
 		heartbeatVersion: 2,
 		uuid: config.heartbeat.uuid,
-		servers: config.serverList,
+		servers: _.map(config.serverList, function(serverCfg) {
+				var server = _.pick(serverCfg, ["ip", "name", "descrption", "owner", "url"]);
+				var properties = {};
+				if(serverCfg.location.length > 0) {
+					// Parse server-specific files (if possible)
+					properties = fileParser.getServerProperties(serverCfg.location);
+				}
+				server.onlineMode = properties["online-mode"] || server.onlineMode || config.launcher.onlineMode;
+				server.whiteList = properties["white-list"] || server.whiteList || false;
+				return server;
+			}),
 		url: launcherConfig.serverUrl,
-		launcher: config.launcher,
-		version: JSON.parse(fs.readFileSync("./AsieLauncher/internal/info.json")),
-		mods: modList
+		launcher: config.launcher
 	};
-	var hbFunc = function() {
-		util.say("debug", "Sending heartbeat");
-		heartbeat.time = util.unix(new Date());
-		request.post(config.heartbeat.url, {"form": heartbeat}, function(){});
-	}
-	setInterval(hbFunc, 90*1000); // Every 90 seconds should be enough.
-	hbFunc();
 }
+
+function sendHeartbeat(data, prefix, cb) {
+	prefix = prefix || "";
+	cb = cb || function(){};
+	util.say("debug", "Sending heartbeat "+prefix);
+	data.time = util.unix(new Date());
+	request.post(config.heartbeat.url + prefix, {"form": data}, cb);
+}
+
+function runHeartbeat() {
+	var launcherConfig = JSON.parse(fs.readFileSync("./AsieLauncher/launcherConfig/config.json"));
+	var initialHeartbeat = { // Contains the "heavyweight" data (mods, etc)
+		heartbeatVersion: 2,
+		uuid: config.heartbeat.uuid,
+		version: JSON.parse(fs.readFileSync("./AsieLauncher/internal/info.json")),
+		mods: modList,
+		plugins: pluginList,
+		time: util.unix(new Date())
+	};
+	/* HEARTBEAT NOTES:
+	   - The reason for plugins and mods being split is plugins being per-server and mods, well... not.
+	*/
+	var hbFunc = function() {
+		// Contains lightweight and/or possibly changeable data (server information, launcher URL, etc)
+		sendHeartbeat(generateHeartbeat());
+	}
+	sendHeartbeat(initialHeartbeat, "/init", function(){
+		setInterval(hbFunc, 90*1000); // Every 90 seconds should be enough.
+		hbFunc();
+	});
+}
+
+var bannedUUIDs = [ // Those are UUIDs I accidentally distributed to people.
+	"0c645216-de7c-4bed-944b-71eec036bfbe" // beta7
+];
 
 exports.run = function(cwd) {
 	util.say("info", "Started ALSO " + VERSION);
@@ -132,13 +168,14 @@ exports.run = function(cwd) {
 	config = configHandler.get();
 
 	// Generate unique heartbeat UUID
-	if(!config.heartbeat.uuid || // The one below is a lingering thing from beta7.
-    	  config.heartbeat.uuid == "0c645216-de7c-4bed-944b-71eec036bfbe") {
+	if(!config.heartbeat.uuid || _.contains(bannedUUIDs, config.heartbeat.uuid)) {
 		config.heartbeat.uuid = uuid.v4();
 	}
+	
 	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/temp/zips"]);
 	addDirectory("", "./AsieLauncher/htdocs");
-	// This directory has been deprecated in hotfix4.
+	
+	// This directory has been deprecated around beta6.
 	wrench.rmdirSyncRecursive("./AsieLauncher/internal/launcher", function(){});
 
 	// * DOWNLOADING LAUNCHER *
@@ -170,13 +207,16 @@ exports.run = function(cwd) {
 	infoData.platforms = files.platforms();
 
 	_.each(config.modpack.optionalComponents, function(option) {
-		if(option.filename) delete option.filename; // beta8 bugs...
+		// A bug from beta8/9 causes us to delete the following stuff.
+		if(option.filename) delete option.filename;
 		if(option.directory) delete option.directory; 
-		if(option.size) delete option.size; 
+		if(option["size"]) delete option["size"]; 
 		if(option.md5) delete option.md5; 
-		if(option.files) delete option.files; 
+		if(option.files) delete option.files;
+		
 		var dir = "./AsieLauncher/options/"+option.id;
 		if(!fs.existsSync(dir)) return;
+		
 		util.say("info", "Adding option "+option.id+" ["+option.name+"]");
 		if(!option.zip) { // Directory
 			infoData.options[option.id] = _.extend(files.getFiles(dir), option);
@@ -196,8 +236,31 @@ exports.run = function(cwd) {
 
 	infoData.size = files.getTotalSize();
 
-	modList = mcmod.getModList(files, ["mods", "coremods", "lib", "jarPatches"]);
-
+	// * MOD/PLUGIN LIST GENERATION *
+	modList = [];
+	if(config.heartbeat.sendMods) {
+		modList = fileParser.getModList(files, ["mods", "coremods", "lib", "jarPatches"]);
+		fs.writeFileSync("./" + (DO_LOCAL ? "ALWebFiles/" : "") + "modList.json", JSON.stringify(modList, null, 4));
+	}
+	
+	pluginList = {};
+	if(config.heartbeat.sendPlugins) {
+		_.each(config.serverList, function(server) {
+			if(!server.location || !server.ip) return;
+			var location = server.location;
+			if(!/\/$/.test(location)) location += "/";
+			pluginList[server.ip] = fileParser.getPluginList(files, [server.location+"plugins"]);
+		});
+		if(_.keys(pluginList).length < 1) { // No plugins found! Try assuming one plugin pack.
+			_.each(config.serverList, function(server) {
+				if(!server.ip) return;
+				pluginList[server.ip] = fileParser.getPluginList(files, ["plugins"]);
+			});
+		}
+		fs.writeFileSync("./" + (DO_LOCAL ? "ALWebFiles/" : "") + "pluginList.json", JSON.stringify(pluginList, null, 4));
+	}
+	
+	// * SERVER/LOCAL SETUP *
 	if(DO_LOCAL) {
 		fs.writeFileSync("./ALWebFiles/also.json", JSON.stringify(infoData));
 	} else {
