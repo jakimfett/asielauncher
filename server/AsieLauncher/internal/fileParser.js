@@ -36,7 +36,9 @@ exports.getModList = function(fileHandler, directories) {
 		function(dir, name) {
 			var zip = new Zip(dir + "/" + name);
 			if(zip.getEntry("litemod.json")) {
-				var data = JSON.parse(zip.readAsText("litemod.json"));
+				try {
+					var data = JSON.parse(zip.readAsText("litemod.json"));
+				} catch(e) { util.say("error", "Error parsing "+name+"!"); return; }
 				util.say("debug", "Read LiteLoader mod: " + data.name + " ("+dir+"/"+name+")");
 				mods.push({
 					type: "LiteLoader",
@@ -48,8 +50,10 @@ exports.getModList = function(fileHandler, directories) {
 				});
 			}
 			if(zip.getEntry("mcmod.info")) {
-				// Replace newlines with spaces (EnderStorage)
-				var data = JSON.parse(zip.readAsText("mcmod.info").replace(/(\r|\n)/g, " "));
+				try {
+					// Replace newlines with spaces (EnderStorage)
+					var data = JSON.parse(zip.readAsText("mcmod.info").replace(/(\r|\n)/g, " "));
+				} catch(e) { util.say("error", "Error parsing "+name+"!"); return; }
 				_.each(data, function(mod) {
 					if(!mod) return;
 					util.say("debug", "Read Forge mod: " + mod.name + " ("+dir+"/"+name+")");
@@ -75,9 +79,11 @@ exports.getPluginList = function(fileHandler, directories) {
 		function(dir, name) {
 			var zip = new Zip(dir + "/" + name);
 			if(zip.getEntry("plugin.yml")) {
-				var data = yaml.safeLoad(zip.readAsText("plugin.yml"), {
-					filename: name + ":plugin.yml"
-				});
+				try {
+					var data = yaml.safeLoad(zip.readAsText("plugin.yml"), {
+						filename: name + ":plugin.yml"
+					});
+				} catch(e) { util.say("error", "Error parsing "+name+"!"); return; }
 				plugins.push({
 					type: "Bukkit",
 					id: data.name,
