@@ -74,7 +74,6 @@
   "heartbeat": {
     "url": "http://asie.pl:7253/pfudor",
     "enabled": true,
-    "uuid": "2edaba4e-77ee-48cd-a65e-5b7869446fc5",
     "sendMods": true,
     "sendPlugins": true
   }

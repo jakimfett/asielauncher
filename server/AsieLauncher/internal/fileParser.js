@@ -54,6 +54,9 @@ exports.getModList = function(fileHandler, directories) {
 					// Replace newlines with spaces (EnderStorage)
 					var data = JSON.parse(zip.readAsText("mcmod.info").replace(/(\r|\n)/g, " "));
 				} catch(e) { util.say("error", "Error parsing "+name+"!"); return; }
+				if(data.modinfoversion >= 2) {
+					data = data.modlist;
+				}
 				_.each(data, function(mod) {
 					if(!mod) return;
 					util.say("debug", "Read Forge mod: " + mod.name + " ("+dir+"/"+name+")");
@@ -117,6 +120,5 @@ exports.getServerProperties = function(filename) {
 			props[key] = value;
 		}
 	});
-	console.log(props);
 	return props;
 }

@@ -1,4 +1,4 @@
-var VERSION = "0.4.0-rc2";
+var VERSION = "0.4.0-rc3";
 var JSON_REVISION = 5;
 
 // Initialize libraries (quite a lot of them, too!)
@@ -119,8 +119,8 @@ function generateHeartbeat() {
 					// Parse server-specific files (if possible)
 					properties = fileParser.getServerProperties(serverCfg.location + "server.properties");
 				}
-				server.onlineMode = properties["online-mode"] || server.onlineMode || config.launcher.onlineMode;
-				server.whiteList = properties["white-list"] || server.whiteList || false;
+				server.onlineMode = _(properties).contains("online-mode") ? properties["online-mode"] : (server.onlineMode || config.launcher.onlineMode);
+				server.whiteList = _(properties).contains("white-list") ? properties["white-list"] : (server.whiteList || false);
 				return server;
 			}),
 		url: launcherConfig.serverUrl,
@@ -160,6 +160,7 @@ function runHeartbeat() {
 }
 
 var bannedUUIDs = [ // Those are UUIDs I accidentally distributed to people.
+	"2edaba4e-77ee-48cd-a65e-5b7869446fc5", // rc2
 	"0c645216-de7c-4bed-944b-71eec036bfbe" // beta7
 ];
 
