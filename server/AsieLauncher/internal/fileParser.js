@@ -1,6 +1,6 @@
 var tag = "[FileParser] "
   , util = require("./util.js")
-  , modNames = require("./modNameDB.json")
+  , modDB = require("./modDB.json")
   , Zip = require("adm-zip")
   , _ = require("underscore")
   , fs = require("fs")
@@ -11,7 +11,7 @@ var tag = "[FileParser] "
 if(fs.existsSync("./mcmod.js")) fs.unlinkSync("./mcmod.js");
 
 function getName(oldName) {
-	if(_.contains(_.keys(modNames), oldName)) return modNames[oldName];
+	if(_.contains(_.keys(modDB.names), oldName)) return modDB.names[oldName];
 	else return oldName;
 }
 
@@ -48,8 +48,7 @@ exports.getModList = function(fileHandler, directories) {
 					description: data.description || "",
 					version: data.version
 				});
-			}
-			if(zip.getEntry("mcmod.info")) {
+			} else if(zip.getEntry("mcmod.info")) {
 				try {
 					// Replace newlines with spaces (EnderStorage)
 					var data = JSON.parse(zip.readAsText("mcmod.info").replace(/(\r|\n)/g, " "));
@@ -69,6 +68,18 @@ exports.getModList = function(fileHandler, directories) {
 						authors: mod.authors || [mod.author || "Unknown"],
 						url: mod.url || ""
 					});
+				});
+			} else {
+				var filename = name.split("/").reverse()[0];
+				_.each(modDB.filenames, function(template, regexStr) {
+					var regex = new RegExp(regexStr, 'i');
+					if(regex.test(filename)) {
+						var matches = filename.match(regex);
+						_.each(template, function(v, k) {
+							template[k] = _.isNumber(v) ? matches[v] : v;
+						});
+						mods.push(template);
+					}
 				});
 			}
 		});

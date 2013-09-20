@@ -2,11 +2,11 @@
   "version": 3,
   "serverList": [
     {
-      "ip": "asiekierka.humee.pl",
-      "name": "Asiekierka's Experimental Server",
-      "description": "This one never really works.",
-      "owner": "asiekierka",
-      "website": "http://google.com",
+      "ip": "127.0.0.1",
+      "name": "Dummy Server",
+      "description": "Derp.",
+      "owner": "Anonymous",
+      "website": "http://xkcd.com",
       "location": "./"
     }
   ],
@@ -14,16 +14,11 @@
     "port": 8080
   },
   "modpack": {
-    "lookupDirectories": [
-      "./",
-      "./AsieLauncher/"
-    ],
     "directories": {
       "file": [
         "mods",
         "coremods",
         "texturepacks",
-        "resourcepacks",
         "bin",
         "lib"
       ],
@@ -51,8 +46,7 @@
         "description": "Example option",
         "default": false,
         "zip": false,
-        "overwrite": true,
-        "size": 0
+        "overwrite": true
       },
       {
         "id": "example2",
@@ -60,9 +54,12 @@
         "description": "Example option",
         "default": true,
         "zip": false,
-        "overwrite": true,
-        "size": 0
+        "overwrite": true
       }
+    ],
+    "lookupDirectories": [
+      "./",
+      "./AsieLauncher/"
     ]
   },
   "launcher": {

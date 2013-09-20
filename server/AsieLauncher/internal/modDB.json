@@ -1,0 +1,33 @@
+{
+	"names": {"minelp": "Mine Little Pony"},
+	"filenames": {
+		"^SoulShards-(\\d+\\.\\d+\\.\\d+)-universal-srg\\.jar$": {
+			"authors": ["ShadwDrgn"],
+			"description": "Soul Shards allows you to create a Soul Shard that absorbs the souls of monsters you kill to be inserted into a Soul Cage later. This Soul Cage is a special block that can spawn the type of mob your Soul Shard was absorbing, usually at much better rates than a vanilla monster spawner.",
+			"id": "SoulShards", "name": "SoulShards", "type": "Forge",
+			"url": "http://www.minecraftforum.net/topic/1475847-162-forgeirc-v1018-soul-shards-v1039-and-recipe-remover-v11-updated-9162013/",
+			"version": 1
+		},
+		"^More Pistons - (\\d\\.\\d\\.\\d) - (\\d+\\.\\d+\\.\\d+) build Smeagol\\.zip$": {
+			"authors": ["MontyPylon", "Smeagol"],
+			"description": "More Pistons is a mod that adds new types of pistons.",
+			"id": "MorePistons", "name": "More Pistons", "type": "Forge",
+			"url": "http://www.minecraftforum.net/topic/1794925-16x-15x-forge-more-pistons-141-build-by-smeagol/",
+			"version": 2
+		},
+		"^MFFS_v(3\\.\\d+\\.\\d+\\.\\d+|3\\.\\d+\\.\\d+)\\.jar$": {
+			"authors": ["Calclavia", "Thunderdark", "Thutmose", "Briman", "Comply_cat_Ed", "Sweet Walrus", "mousecop", "mr_hazard", "Archtikz"],
+			"description": "Modular Force Field System is a Minecraft mod that brings in modular force fields into Minecraft. Ever tired of nuclear explosions blowing up your house or want to prevent people from entering your secret bases? May the mass times acceleration be with you!",
+			"id": "MFFSv3", "name": "Modular Force Field System",
+			"type": "Forge", "version": 1,
+			"url": "http://universalelectricity.com/mffs"
+		},
+		"^Paintings\\+\\+ (\\d\\.\\d\\.\\d) v(\\d+)\\.zip$": {
+			"authors": ["Subaraki"],
+			"description": "Paintings++ is a mod that adds more paintings.",
+			"id": "PaintingsPlusPlus", "name": "Paintings++",
+			"type": "Forge", "version": 2,
+			"url": "http://www.minecraftforum.net/topic/1617109-162-subarakis-paintings-no-more-bugs/"
+		}
+	}
+}
