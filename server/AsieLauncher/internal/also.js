@@ -142,7 +142,7 @@ function runHeartbeat() {
 		heartbeatVersion: 2,
 		uuid: config.heartbeat.uuid,
 		version: JSON.parse(fs.readFileSync("./AsieLauncher/internal/info.json")),
-		mods: modList,
+		mods: config.heartbeat.sendMods ? modList : [],
 		plugins: pluginList,
 		time: util.unix(new Date())
 	};
@@ -184,14 +184,34 @@ exports.run = function(cwd) {
 	// This directory has been deprecated around beta6.
 	wrench.rmdirSyncRecursive("./AsieLauncher/internal/launcher", function(){});
 
-	// * DOWNLOADING LAUNCHER *
 	if(fs.existsSync("./AsieLauncher/temp/AsieLauncher-latest.jar")) createLauncherJAR();
 	else util.say("warning", "[Launcher] Launcher not found!");
-
+	
 	// * PREPARING DIRECTORIES *
 	util.say("info", "Preparing directories");
 	files.initialize(config.modpack);
 	initializeConfig();
+
+	// * MOD/PLUGIN LIST GENERATION *
+	modList = fileParser.getModList(files, ["mods", "coremods", "lib", "jarPatches"]);
+	fs.writeFileSync("./" + (DO_LOCAL ? "ALWebFiles/" : "") + "modList.json", JSON.stringify(modList, null, 4));
+	
+	pluginList = {};
+	if(config.heartbeat.sendPlugins) {
+		_.each(config.serverList, function(server) {
+			if(!server.location || !server.ip) return;
+			var location = server.location;
+			if(!/\/$/.test(location)) location += "/";
+			pluginList[server.ip] = fileParser.getPluginList(files, [server.location+"plugins"]);
+		});
+		if(_.keys(pluginList).length < 1) { // No plugins found! Try assuming one plugin pack.
+			_.each(config.serverList, function(server) {
+				if(!server.ip) return;
+				pluginList[server.ip] = fileParser.getPluginList(files, ["plugins"]);
+			});
+		}
+		fs.writeFileSync("./" + (DO_LOCAL ? "ALWebFiles/" : "") + "pluginList.json", JSON.stringify(pluginList, null, 4));
+	}
 
 	_.each(config.modpack.directories.file, function(dir) {
 		infoData.files = _.union(infoData.files, files.file(dir));
@@ -242,30 +262,6 @@ exports.run = function(cwd) {
 
 	infoData.size = files.getTotalSize();
 
-	// * MOD/PLUGIN LIST GENERATION *
-	modList = [];
-	if(config.heartbeat.sendMods) {
-		modList = fileParser.getModList(files, ["mods", "coremods", "lib", "jarPatches"]);
-		fs.writeFileSync("./" + (DO_LOCAL ? "ALWebFiles/" : "") + "modList.json", JSON.stringify(modList, null, 4));
-	}
-	
-	pluginList = {};
-	if(config.heartbeat.sendPlugins) {
-		_.each(config.serverList, function(server) {
-			if(!server.location || !server.ip) return;
-			var location = server.location;
-			if(!/\/$/.test(location)) location += "/";
-			pluginList[server.ip] = fileParser.getPluginList(files, [server.location+"plugins"]);
-		});
-		if(_.keys(pluginList).length < 1) { // No plugins found! Try assuming one plugin pack.
-			_.each(config.serverList, function(server) {
-				if(!server.ip) return;
-				pluginList[server.ip] = fileParser.getPluginList(files, ["plugins"]);
-			});
-		}
-		fs.writeFileSync("./" + (DO_LOCAL ? "ALWebFiles/" : "") + "pluginList.json", JSON.stringify(pluginList, null, 4));
-	}
-	
 	// * SERVER/LOCAL SETUP *
 	if(DO_LOCAL) {
 		fs.writeFileSync("./ALWebFiles/also.json", JSON.stringify(infoData));
@@ -276,7 +272,7 @@ exports.run = function(cwd) {
 	if(!DO_LOCAL) {
 		app.listen(config.webServer.port);
 		util.say("info", "Ready - listening on port "+config.webServer.port+"!");
-		runHeartbeat();
+		if(config.heartbeat.enabled) runHeartbeat();
 	} else util.say("info", "Files exported to ./ALWebFiles/");
 
 	configHandler.set(config);

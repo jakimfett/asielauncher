@@ -22,3 +22,5 @@ rm -rf AsieLauncher/temp/*
 mv AsieLauncher/internal/info.json temp-info.json
 zip -9 -r ../release/AsieLauncher-latest-bootstrap.zip AsieLauncher also-config.json package.json also.js
 mv temp-info.json AsieLauncher/internal/info.json
+cd ..
+zip -9 -r release/AsieLauncher-latest-bootstrap.zip docs changelog.txt

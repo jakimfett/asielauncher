@@ -28,6 +28,34 @@
 			"id": "PaintingsPlusPlus", "name": "Paintings++",
 			"type": "Forge", "version": 2,
 			"url": "http://www.minecraftforum.net/topic/1617109-162-subarakis-paintings-no-more-bugs/"
+		},
+		"^StevesCarts(\\d\\.\\d\\.\\d+\\.a\\d+)\\.zip$": {
+			"authors": ["Vswe"],
+			"description": "Steve's Carts 2 introduces a modular system where you can build a huge amount of carts(hundreds of millions) by combining the parts you want.",
+			"id": "StevesCarts", "name": "Steve's Carts",
+			"type": "Forge", "version": 1,
+			"url": "http://stevescarts2.wikispaces.com"
+		},
+		"miscperipherals-(\\d\\.\\d[a-z]?\\d?)\\.(zip|jar)": {
+			"authors": ["RichardG867"],
+			"description": "MiscPeripherals is a ComputerCraft addon that adds many peripherals.",
+			"id": "MiscPeripherals", "name": "MiscPeripherals",
+			"type": "Forge", "version": 1,
+			"url": "http://www.computercraft.info/forums2/index.php?/topic/4587-cc153mc152-miscperipherals-33/"
+		},
+		"^ZansMinimap(\\d\\.\\d\\.\\d)\\.zip$": {
+			"authors": ["MamiyaOtaru"],
+			"description": "Zan's Minimap is a minimap for Minecraft, also known as VoxelMap.",
+			"id": "ZansMinimap", "name": "Zan's Minimap",
+			"type": "Forge", "version": 1,
+			"url": "http://www.minecraftforum.net/topic/1116564-164-162-mamiyaotarus-mods-zans-minimap-voxelmap-chatbubbles-etc/"
+		},
+		"^\\[(\\d\\.\\d\\.\\d)\\] Rei's Minimap (\\d\\.\\d_?\\d*)\\.zip$": {
+			"authors": ["ReiFNSK"],
+			"description": "Rei's Minimap is a minimap for Minecraft.",
+			"id": "ReisMinimap", "name": "Rei's Minimap",
+			"type": "Forge", "version": 2,
+			"url": "http://www.minecraftforum.net/topic/482147-162-jul08-reis-minimap-v34-01/"
 		}
 	}
 }

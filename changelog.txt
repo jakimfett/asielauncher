@@ -1,3 +1,14 @@
+0.4.0:
+[CLIENT]
+/ Bump version.
+[SERVER]
+* Fix a bug where launcher.enabled did nothing.
+/ Update modDB.
+
+0.4.0-rc4 (server-only):
+[SERVER]
++ Introduce modDB for filling in mods without mcmod.info.
+
 0.4.0-rc3 (server-only):
 [SERVER]
 + Add Forge v2 mod parsing (Immibis)
