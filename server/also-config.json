@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "serverList": [
     {
       "ip": "127.0.0.1",
@@ -65,7 +65,10 @@
   "launcher": {
     "minecraftVersion": "1.6.2",
     "onlineMode": true,
-    "javaArguments": ""
+    "javaArguments": "",
+    "windowName": "Fluttercraft",
+    "serverUrl": "http://127.0.0.1:8080/",
+    "directoryName": "FluttercraftMC"
   },
   "updatesURL": "http://asie.pl/launcher",
   "heartbeat": {

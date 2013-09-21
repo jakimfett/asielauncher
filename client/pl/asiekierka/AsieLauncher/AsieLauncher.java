@@ -21,12 +21,12 @@ import org.smbarbour.mcu.*;
 
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
-	public static final int VERSION = 5;
+	public static final int VERSION = 6;
 	private ServerListHandler serverlist;
-	public static final String VERSION_STRING = "0.4.0-beta9";
+	public static final String VERSION_STRING = "0.4.1-dev";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
-	private String PREFIX = "/.asielauncher/default/";
+	private String PREFIX = "default";
 	private ArrayList<ModFile> baseFiles;
 	protected String directory, baseDir;
 	private String OS;
@@ -76,11 +76,10 @@ public class AsieLauncher implements IProgressUpdater {
 		return revNew.intValue();
 	}
 	
-	public boolean sameClientRevision() {
+	public boolean compatibleClientRevision() {
 		if(file == null) return true; // Assumptions!
 		Long revNew = (Long)(file.get("client_revision"));
-		if(revNew == null) {
-			return (VERSION == 1);
+		if(revNew == null) { return false; // Ancient
 		} else return revNew.intValue() == VERSION;
 	}
 	
@@ -130,12 +129,16 @@ public class AsieLauncher implements IProgressUpdater {
 		}
 		return optionMap;
 	}
+	
 	public void configureConfig() {
 		configFile = Utils.readJSONUrlFile(getClass().getResource("/resources/config.json"));
 		PREFIX = (String)configFile.get("directoryName");
 		URL = (String)configFile.get("serverUrl");
-		WINDOW_NAME = (String)configFile.get("windowName");
+		if(!URL.startsWith("http://") && (URL.indexOf("://") < 0)) {
+			URL = "http://" + URL;
+		}
 	}
+	
 	public AsieLauncher() {
 		configureConfig();
 		baseDir = System.getProperty("user.home") + "/.asielauncher/";
@@ -173,6 +176,9 @@ public class AsieLauncher implements IProgressUpdater {
 			if(o instanceof Boolean) onlineMode = ((Boolean)o);
 			if(getFileRevision(file) >= 5) {
 				mcVersion = (String)file.get("mcVersion");
+				if(getFileRevision(file) >= 6) {
+					WINDOW_NAME = (String)file.get("windowName");
+				} else WINDOW_NAME = "";
 			} else mcVersion = "1.6.2";
 			if(Utils.versionToInt(this.mcVersion) <= Utils.versionToInt("1.5.2")) {
 				mc = new MinecraftHandler152();

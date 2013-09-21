@@ -2,7 +2,7 @@ var fs = require("fs")
   , _ = require("underscore");
 
 var config = fs.existsSync("./also-config.json") ? require("../../also-config.json") : require("../config.json")
-  , LATEST_CONFIG = 3;
+  , LATEST_CONFIG = 4;
 
 var saveConfig = function() {
 	if(fs.existsSync("./AsieLauncher/config.json")) fs.unlinkSync("./AsieLauncher/config.json");
@@ -10,6 +10,12 @@ var saveConfig = function() {
 }
 
 var configUpdaters = {
+	3: function() {
+		var launcherConfig = JSON.parse(fs.readFileSync("./AsieLauncher/launcherConfig/config.json"));
+		config.launcher = _.extend(config.launcher, launcherConfig);
+		fs.unlinkSync("./AsieLauncher/launcherConfig/config.json");
+		config.version = 4;
+	},
 	2: function() {
 		if(config.serverList.length == 1 && fs.existsSync("./server.properties")) {
 			config.serverList[0].location = "./";

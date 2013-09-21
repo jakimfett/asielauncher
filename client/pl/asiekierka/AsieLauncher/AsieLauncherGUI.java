@@ -205,7 +205,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 			JOptionPane.showMessageDialog(this, Strings.WRONG_MINECRAFT_VERSION);
 		}
 		initGUILogin();
-		if(!launcher.sameClientRevision()) {
+		if(!launcher.compatibleClientRevision()) {
 			JOptionPane.showMessageDialog(this, Strings.WRONG_CLIENT_REVISION);
 		}
 		return true;

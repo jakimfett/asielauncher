@@ -1,5 +1,5 @@
-var VERSION = "0.4.0-rc4";
-var JSON_REVISION = 5;
+var VERSION = "0.4.1-dev";
+var JSON_REVISION = 6;
 
 // Initialize libraries (quite a lot of them, too!)
 var express = require('express')
@@ -70,6 +70,8 @@ function initializeConfig() {
 	infoData.onlineMode = config.launcher.onlineMode || false;
 	infoData.mcVersion = config.launcher.minecraftVersion || "1.5.2"; // default is 1.5.2
 	infoData.servers = {};
+	infoData.windowName = config.launcher.windowName || "";
+	infoData.directoryName = config.launcher.directoryName || config.heartbeat.uuid;
 	_.each(config.serverList, function(server) {
 		infoData.servers[server.name] = server.ip;
 	});
@@ -94,9 +96,12 @@ function createLauncherJAR() {
 		}
 	});
 	_.each(fs.readdirSync("./AsieLauncher/launcherConfig"), function(fn) {
+		if(fn === "config.json") return; // deprecated since 0.4.1
 		archive.append(fs.createReadStream("./AsieLauncher/launcherConfig/"+fn),
 				{name: "resources/"+fn });
 	});
+	archive.append(JSON.stringify({"serverUrl": config.launcher.serverUrl, "directoryName": config.launcher.directoryName}),
+			{name: "resources/config.json"});
 	archive.finalize(function() {
 		outputStream.on("close", function() {
 			addFile("launcher.jar", "./AsieLauncher/temp/launcher.jar");
@@ -106,7 +111,6 @@ function createLauncherJAR() {
 }
 
 function generateHeartbeat() {
-	var launcherConfig = JSON.parse(fs.readFileSync("./AsieLauncher/launcherConfig/config.json"));
 	return {
 		heartbeatVersion: 2,
 		uuid: config.heartbeat.uuid,
@@ -123,7 +127,7 @@ function generateHeartbeat() {
 				server.whiteList = _(properties).contains("white-list") ? properties["white-list"] : (server.whiteList || false);
 				return server;
 			}),
-		url: launcherConfig.serverUrl,
+		url: config.launcher.serverUrl,
 		launcher: config.launcher
 	};
 }
@@ -137,7 +141,6 @@ function sendHeartbeat(data, prefix, cb) {
 }
 
 function runHeartbeat() {
-	var launcherConfig = JSON.parse(fs.readFileSync("./AsieLauncher/launcherConfig/config.json"));
 	var initialHeartbeat = { // Contains the "heavyweight" data (mods, etc)
 		heartbeatVersion: 2,
 		uuid: config.heartbeat.uuid,
