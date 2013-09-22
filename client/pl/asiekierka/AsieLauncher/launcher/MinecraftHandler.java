@@ -1,4 +1,4 @@
-package pl.asiekierka.AsieLauncher;
+package pl.asiekierka.AsieLauncher.launcher;
 
 public interface MinecraftHandler {
 	public String getJarLocation(AsieLauncher l, String version);

@@ -9,7 +9,8 @@ server/node_modules
 server/AsieLauncher/zips/*
 server/AsieLauncher/jarPatches/*.jar
 server/AsieLauncher/internal/launcher/*
-server/AsieLauncher/libs/*.jar
+server/AsieLauncher/lib/*.jar
 server/AsieLauncher/temp/*
+server/*List.json
 server/mods/*
 .DS_Store

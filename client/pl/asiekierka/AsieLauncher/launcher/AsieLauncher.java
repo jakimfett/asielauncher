@@ -1,4 +1,4 @@
-package pl.asiekierka.AsieLauncher;
+package pl.asiekierka.AsieLauncher.launcher;
 
 import java.awt.Dimension;
 import java.io.*;
@@ -18,6 +18,8 @@ import net.minecraft.Launcher;
 import org.json.simple.*;
 import org.json.simple.parser.*;
 import org.smbarbour.mcu.*;
+
+import pl.asiekierka.AsieLauncher.common.Utils;
 
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {

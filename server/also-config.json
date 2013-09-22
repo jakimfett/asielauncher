@@ -63,7 +63,7 @@
     ]
   },
   "launcher": {
-    "minecraftVersion": "1.6.2",
+    "minecraftVersion": "1.6.4",
     "onlineMode": true,
     "javaArguments": "",
     "windowName": "Fluttercraft",
@@ -75,6 +75,7 @@
     "url": "http://asie.pl:7253/pfudor",
     "enabled": true,
     "sendMods": true,
-    "sendPlugins": true
+    "sendPlugins": true,
+    "uuid": "cb07ca39-0679-42a7-a734-91a7958de6af"
   }
 }

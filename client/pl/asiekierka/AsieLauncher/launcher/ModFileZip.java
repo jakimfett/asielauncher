@@ -1,7 +1,10 @@
-package pl.asiekierka.AsieLauncher;
+package pl.asiekierka.AsieLauncher.launcher;
 
 import java.io.*;
+
 import org.json.simple.*;
+
+import pl.asiekierka.AsieLauncher.common.Utils;
 
 public class ModFileZip extends ModFileHTTP {
 	public String directory, installDirectory;

@@ -1,4 +1,4 @@
-package pl.asiekierka.AsieLauncher;
+package pl.asiekierka.AsieLauncher.launcher;
 
 public class LauncherThread extends Thread {
 	private AsieLauncher launcher;

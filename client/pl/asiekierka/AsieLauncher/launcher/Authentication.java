@@ -1,4 +1,4 @@
-package pl.asiekierka.AsieLauncher;
+package pl.asiekierka.AsieLauncher.launcher;
 
 public abstract class Authentication {
 	protected String realUsername, sessionID, error;

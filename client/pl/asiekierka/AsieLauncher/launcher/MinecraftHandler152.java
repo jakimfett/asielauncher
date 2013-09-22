@@ -1,4 +1,4 @@
-package pl.asiekierka.AsieLauncher;
+package pl.asiekierka.AsieLauncher.launcher;
 
 import java.awt.Dimension;
 import java.io.File;
@@ -10,6 +10,8 @@ import java.util.logging.Level;
 import javax.swing.ImageIcon;
 
 import org.smbarbour.mcu.MinecraftFrame;
+
+import pl.asiekierka.AsieLauncher.common.Utils;
 
 public class MinecraftHandler152 implements MinecraftHandler {
 	private MinecraftFrame frame;

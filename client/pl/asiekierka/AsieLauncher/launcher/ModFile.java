@@ -1,8 +1,10 @@
-package pl.asiekierka.AsieLauncher;
+package pl.asiekierka.AsieLauncher.launcher;
 
 import java.io.*;
 
 import org.json.simple.*;
+
+import pl.asiekierka.AsieLauncher.common.Utils;
 
 public abstract class ModFile {
 	private String filename, md5;

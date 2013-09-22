@@ -1,7 +1,10 @@
-package pl.asiekierka.AsieLauncher;
+package pl.asiekierka.AsieLauncher.launcher;
 
 import java.net.*;
+
 import org.json.simple.*;
+
+import pl.asiekierka.AsieLauncher.common.Utils;
 
 public class ModFileHTTP extends ModFile {
 	protected URL url;

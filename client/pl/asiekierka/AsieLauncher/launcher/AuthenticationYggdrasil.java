@@ -1,4 +1,4 @@
-package pl.asiekierka.AsieLauncher;
+package pl.asiekierka.AsieLauncher.launcher;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -10,6 +10,8 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.json.simple.*;
 import org.json.simple.parser.*;
+
+import pl.asiekierka.AsieLauncher.common.Utils;
 
 public class AuthenticationYggdrasil extends Authentication {
 	// Special thanks to the MinecraftCoalition.
