@@ -1,28 +1,27 @@
-package pl.asiekierka.AsieLauncher.launcher;
+package pl.asiekierka.AsieLauncher.download;
 
 import java.io.*;
 
 import org.json.simple.*;
 
+import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
 import pl.asiekierka.AsieLauncher.common.Utils;
 
-public abstract class ModFile {
+public abstract class FileDownloader {
 	private String filename, md5;
 	protected String absoluteFilename;
 	protected File file;
-	protected AsieLauncher launcher;
 	protected JSONObject information;
 	private int filesize;
 	private boolean overwrite;
 	
-	public ModFile(AsieLauncher _launcher, JSONObject data, String prefix) {
-		launcher = _launcher;
+	public FileDownloader(String baseDirectory, JSONObject data, String prefix) {
 		information = data;
 		filename = (String)information.get("filename");
 		md5 = (String)data.get("md5");
 		Long longFilesize = (Long)(information.get("size"));
 		filesize = longFilesize.intValue();
-		absoluteFilename = launcher.directory + (String)information.get("filename");
+		absoluteFilename = baseDirectory + (String)information.get("filename");
 		file = new File(absoluteFilename);
 		overwrite = information.containsKey("overwrite")
 					? (Boolean)(information.get("overwrite"))
@@ -56,7 +55,7 @@ public abstract class ModFile {
 	public abstract boolean install(IProgressUpdater updater);
 	public abstract boolean remove();
 	
-	public boolean shouldTouch() {
+	public boolean shouldDownload() {
 		if(file.exists()) {
 			if(!overwrite) return false;
 			try {
@@ -76,8 +75,8 @@ public abstract class ModFile {
 	
 	@Override
 	public boolean equals(Object other) {
-		if(other == null || !(other instanceof ModFile)) return false;
-		ModFile mother = (ModFile)other;
+		if(other == null || !(other instanceof FileDownloader)) return false;
+		FileDownloader mother = (FileDownloader)other;
 		return mother.filename.equals(filename);
     }
 	

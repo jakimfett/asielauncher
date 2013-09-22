@@ -1,19 +1,21 @@
-package pl.asiekierka.AsieLauncher.launcher;
+package pl.asiekierka.AsieLauncher.download;
 
 import java.net.*;
 
 import org.json.simple.*;
 
+import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
 import pl.asiekierka.AsieLauncher.common.Utils;
+import pl.asiekierka.AsieLauncher.launcher.Strings;
 
-public class ModFileHTTP extends ModFile {
+public class FileDownloaderHTTP extends FileDownloader {
 	protected URL url;
 
-	public ModFileHTTP(AsieLauncher _launcher, JSONObject data, String prefix) {
-		super(_launcher, data, prefix);
-		String targetURL = launcher.URL + prefix + this.getFilename();
-		try { url = new URL(Utils.fixURLString(targetURL)); }
-		catch(Exception e) { e.printStackTrace(); url = null; }
+	public FileDownloaderHTTP(String directory, String url, JSONObject data, String prefix) {
+		super(directory, data, prefix);
+		String targetURL = url + prefix + this.getFilename();
+		try { this.url = new URL(Utils.fixURLString(targetURL)); }
+		catch(Exception e) { e.printStackTrace(); this.url = null; }
 	}
 	
 	@Override
@@ -24,7 +26,7 @@ public class ModFileHTTP extends ModFile {
 	public boolean install(IProgressUpdater updater, boolean forceOverwrite) {
 		int filesize = this.getFilesize();
 		super.createDirsIfMissing();
-		if(!shouldTouch() && !forceOverwrite) {
+		if(!shouldDownload() && !forceOverwrite) {
 			updater.update(filesize, filesize);
 			return true;
 		}

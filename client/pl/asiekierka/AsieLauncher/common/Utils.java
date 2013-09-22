@@ -13,7 +13,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import pl.asiekierka.AsieLauncher.launcher.AsieLauncher;
-import pl.asiekierka.AsieLauncher.launcher.IProgressUpdater;
 
 public class Utils {
 	private static final int BUFFER = 65536;

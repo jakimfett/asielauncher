@@ -11,6 +11,7 @@ import javax.swing.ImageIcon;
 
 import org.smbarbour.mcu.MinecraftFrame;
 
+import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
 import pl.asiekierka.AsieLauncher.common.Utils;
 
 public class MinecraftHandler152 implements MinecraftHandler {

@@ -9,13 +9,11 @@ import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.xml.parsers.*;
-
 import org.json.simple.*;
-import org.w3c.dom.*;
 
+import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
 import pl.asiekierka.AsieLauncher.common.Utils;
-import pl.asiekierka.AsieLauncher.downloader.AssetDownloader;
+import pl.asiekierka.AsieLauncher.download.AssetDownloader;
 
 public class MinecraftHandler162 implements MinecraftHandler {
 	private AssetDownloader assetDownloader;
@@ -41,6 +39,19 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		File dir = new File(l.baseDir + "versions/" + version + "/natives/");
 		if(!dir.exists()) dir.mkdirs();
 		return Utils.getPath(l.baseDir + "versions/" + version + "/natives/");
+	}
+	
+	public String findForge(File[] jarPatchFiles) {
+		if(jarPatchFiles != null) {
+			for(File f: jarPatchFiles) {
+				if(f.getName().startsWith("minecraftforge")) {
+					// Found it!
+					AsieLauncher.logger.log(Level.FINE, "Found an instance of Forge: " + f.getAbsolutePath());
+					return f.getAbsolutePath();
+				}
+			}
+		}
+		return null;
 	}
 	
 	public boolean downloadLibraries(String patchDir, String libraryDir) {
@@ -86,17 +97,10 @@ public class MinecraftHandler162 implements MinecraftHandler {
 					AsieLauncher.logger.log(Level.FINER, "Replacing library " + filename + " with local copy");
 				}
 				if(filename.startsWith("minecraftforge")) {
-					// Forge workaround
-					if(jarPatchFiles != null) {
-						for(File f: jarPatchFiles) {
-							if(f.getName().startsWith("minecraftforge")) {
-								// Found it!
-								AsieLauncher.logger.log(Level.FINE, "Found an instance of Forge: " + f.getAbsolutePath());
-								filePath = f.getAbsolutePath();
-								found = true;
-							}
-							if(found) break;
-						}
+					String forgeLocation = findForge(jarPatchFiles);
+					if(forgeLocation != null) {
+						filePath = forgeLocation;
+						found = true;
 					}
 				}
 				if(!found) downloadLibrary(urlPrefix, data[0], data[1], data[2], addon, libraryDir, false);

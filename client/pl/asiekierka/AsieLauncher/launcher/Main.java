@@ -1,5 +1,7 @@
 package pl.asiekierka.AsieLauncher.launcher;
 
+import pl.asiekierka.AsieLauncher.launcher.gui.AsieLauncherGUI;
+
 public class Main {
 	public static void main(String[] args) {
 		AsieLauncherGUI al = new AsieLauncherGUI();

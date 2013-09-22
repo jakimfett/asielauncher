@@ -1,4 +1,4 @@
-package pl.asiekierka.AsieLauncher.launcher;
+package pl.asiekierka.AsieLauncher.auth;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

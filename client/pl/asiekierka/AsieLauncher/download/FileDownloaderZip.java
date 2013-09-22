@@ -1,20 +1,22 @@
-package pl.asiekierka.AsieLauncher.launcher;
+package pl.asiekierka.AsieLauncher.download;
 
 import java.io.*;
 
 import org.json.simple.*;
 
+import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
 import pl.asiekierka.AsieLauncher.common.Utils;
+import pl.asiekierka.AsieLauncher.launcher.Strings;
 
-public class ModFileZip extends ModFileHTTP {
+public class FileDownloaderZip extends FileDownloaderHTTP {
 	public String directory, installDirectory;
 	
-	public ModFileZip(AsieLauncher _launcher, JSONObject data, String prefix) {
-		super(_launcher, data, prefix);
-		absoluteFilename = launcher.directory + prefix + (String)information.get("filename");
+	public FileDownloaderZip(String directory, String url, JSONObject data, String prefix) {
+		super(directory, url, data, prefix);
+		absoluteFilename = directory + prefix + (String)information.get("filename");
 		file = new File(absoluteFilename);
 		installDirectory = (String)data.get("directory");
-		directory = launcher.directory + installDirectory;
+		this.directory = directory + installDirectory;
 	}
 	@Override
 	public boolean install(IProgressUpdater updater) {

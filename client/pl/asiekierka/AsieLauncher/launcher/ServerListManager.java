@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import org.jnbt.*;
 
-public class ServerListHandler {
+public class ServerListManager {
 	private String filename;
 	private File file;
 	private boolean hideAddress;
@@ -15,7 +15,7 @@ public class ServerListHandler {
 		return filename;
 	}
 
-	public ServerListHandler(String _filename, boolean _hideAddress) {
+	public ServerListManager(String _filename, boolean _hideAddress) {
 		filename = _filename;
 		hideAddress = _hideAddress;
 		file = new File(filename);

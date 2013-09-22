@@ -1,4 +1,4 @@
-package pl.asiekierka.AsieLauncher.launcher;
+package pl.asiekierka.AsieLauncher.launcher.gui;
 
 import com.camick.BackgroundPanel;
 
@@ -7,7 +7,11 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
 import pl.asiekierka.AsieLauncher.common.Utils;
+import pl.asiekierka.AsieLauncher.launcher.AsieLauncher;
+import pl.asiekierka.AsieLauncher.launcher.LauncherThread;
+import pl.asiekierka.AsieLauncher.launcher.Strings;
 
 public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	private static final long serialVersionUID = 550781190397000747L;

@@ -19,18 +19,25 @@ import org.json.simple.*;
 import org.json.simple.parser.*;
 import org.smbarbour.mcu.*;
 
+import pl.asiekierka.AsieLauncher.auth.Authentication;
+import pl.asiekierka.AsieLauncher.auth.AuthenticationMojangLegacy;
+import pl.asiekierka.AsieLauncher.auth.AuthenticationYggdrasil;
+import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
 import pl.asiekierka.AsieLauncher.common.Utils;
+import pl.asiekierka.AsieLauncher.download.FileDownloader;
+import pl.asiekierka.AsieLauncher.download.FileDownloaderHTTP;
+import pl.asiekierka.AsieLauncher.download.FileDownloaderZip;
 
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 6;
-	private ServerListHandler serverlist;
+	private ServerListManager serverlist;
 	public static final String VERSION_STRING = "0.4.1-dev";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "default";
-	private ArrayList<ModFile> baseFiles;
-	protected String directory, baseDir;
+	private ArrayList<FileDownloader> baseFiles;
+	public String directory, baseDir;
 	private String OS;
 	private JSONObject file, oldFile, configFile;
 	private int fullProgress, fullTotal;
@@ -85,38 +92,38 @@ public class AsieLauncher implements IProgressUpdater {
 		} else return revNew.intValue() == VERSION;
 	}
 	
-	public ArrayList<ModFile> loadModFiles(JSONArray jsonList, String mode, String prefix) {
-		ArrayList<ModFile> list = new ArrayList<ModFile>();
+	public ArrayList<FileDownloader> loadModFiles(JSONArray jsonList, String mode, String prefix) {
+		ArrayList<FileDownloader> list = new ArrayList<FileDownloader>();
 		for(Object o: jsonList) {
 			if(o instanceof JSONObject) {
 				if(mode.equals("http")) {
-					ModFile modFile = new ModFileHTTP(this, (JSONObject)o, prefix);
-					list.add(modFile);
+					FileDownloader fileDownloader = new FileDownloaderHTTP(directory, URL, (JSONObject)o, prefix);
+					list.add(fileDownloader);
 				} else if(mode.equals("zip")) {
-					ModFile modFile = new ModFileZip(this, (JSONObject)o, "zips/" + prefix);
-					list.add(modFile);
+					FileDownloader fileDownloader = new FileDownloaderZip(directory, URL, (JSONObject)o, "zips/" + prefix);
+					list.add(fileDownloader);
 				}
 			}
 		}
 		return list;
 	}
 	
-	public ArrayList<ModFile> loadModFiles(JSONArray jsonList, String mode) {
+	public ArrayList<FileDownloader> loadModFiles(JSONArray jsonList, String mode) {
 		return loadModFiles(jsonList, mode, "");
 	}
 	
-	public ArrayList<ModFile> loadModFiles(JSONObject object, String mode, String prefix) {
-		if(object == null) return new ArrayList<ModFile>();
+	public ArrayList<FileDownloader> loadModFiles(JSONObject object, String mode, String prefix) {
+		if(object == null) return new ArrayList<FileDownloader>();
 		if(mode.equals("http") && object.containsKey("files")) {
 			JSONArray array = (JSONArray)object.get("files");
 			return loadModFiles(array, mode, prefix);
 		} else if(mode.equals("zip") && object.containsKey("zips")) {
 			JSONArray array = (JSONArray)object.get("zips");
 			return loadModFiles(array, mode, prefix);
-		} else return new ArrayList<ModFile>();
+		} else return new ArrayList<FileDownloader>();
 	}
 	
-	public ArrayList<ModFile> loadModFiles(JSONObject object, String mode) {
+	public ArrayList<FileDownloader> loadModFiles(JSONObject object, String mode) {
 		return loadModFiles(object, mode, "");
 	}
 	
@@ -151,7 +158,7 @@ public class AsieLauncher implements IProgressUpdater {
 			handler.setFormatter(new SimpleFormatter());
 			logger.addHandler(handler);
 		} catch(Exception e) { e.printStackTrace(); }
-		serverlist = new ServerListHandler(directory + "servers.dat", false);
+		serverlist = new ServerListManager(directory + "servers.dat", false);
 		if(!(new File(directory).exists())) {
 			new File(directory).mkdirs();
 		} else {
@@ -224,8 +231,8 @@ public class AsieLauncher implements IProgressUpdater {
 		if(updater != null) updater.setStatus(status);
 	}
 	
-	public ArrayList<ModFile> getFileList(JSONObject source, ArrayList<String> options) {
-		ArrayList<ModFile> files = loadModFiles(source, "http");
+	public ArrayList<FileDownloader> getFileList(JSONObject source, ArrayList<String> options) {
+		ArrayList<FileDownloader> files = loadModFiles(source, "http");
 		files.addAll(loadModFiles(source, "zip"));
 		if(mc instanceof MinecraftHandler152) {
 			// 1.5.2 still downloads platform data.
@@ -245,9 +252,9 @@ public class AsieLauncher implements IProgressUpdater {
 		return files;
 	}
 	
-	public int calculateTotalSize(ArrayList<ModFile> files) {
+	public int calculateTotalSize(ArrayList<FileDownloader> files) {
 		int totalSize = 0;
-		for(ModFile mf: files) {
+		for(FileDownloader mf: files) {
 			totalSize += mf.getFilesize();
 		}
 		return totalSize;
@@ -273,16 +280,16 @@ public class AsieLauncher implements IProgressUpdater {
 		return install(options, oldOptions, dry);
 	}
 	public boolean install(ArrayList<String> options, ArrayList<String> oldOptions, boolean dry) {
-		ArrayList<ModFile> installFiles = getFileList(file, options);
-		ArrayList<ModFile> oldInstallFiles = null;
+		ArrayList<FileDownloader> installFiles = getFileList(file, options);
+		ArrayList<FileDownloader> oldInstallFiles = null;
 		int dryTotal = 0;
 		installLog = new ArrayList<String>();
 		if(oldFile != null) {
 			oldInstallFiles = getFileList(oldFile, oldOptions);
 			// Delete old files
-			for(ModFile mf: oldInstallFiles) {
+			for(FileDownloader mf: oldInstallFiles) {
 				if(!installFiles.contains(mf)) {
-					if(dry && !(mf instanceof ModFileZip)) { // Dry run
+					if(dry && !(mf instanceof FileDownloaderZip)) { // Dry run
 						installLog.add("[-] " + mf.getFilename());
 						dryTotal -= mf.getFilesize();
 						continue;
@@ -295,13 +302,13 @@ public class AsieLauncher implements IProgressUpdater {
 				}
 			}
 		}
-		else oldInstallFiles = new ArrayList<ModFile>();
+		else oldInstallFiles = new ArrayList<FileDownloader>();
 		fullTotal = calculateTotalSize(installFiles);
-		for(ModFile mf: installFiles) {
-			if(dry && mf.shouldTouch()) {
+		for(FileDownloader mf: installFiles) {
+			if(dry && mf.shouldDownload()) {
 				dryTotal += mf.getFilesize();
-				if(mf instanceof ModFileZip) {
-					ModFileZip mfz = (ModFileZip) mf;
+				if(mf instanceof FileDownloaderZip) {
+					FileDownloaderZip mfz = (FileDownloaderZip) mf;
 					installLog.add("[+] " + mfz.getFilename() + " => ./" + mfz.installDirectory);
 				} else {
 					installLog.add("[+] " + mf.getFilename());

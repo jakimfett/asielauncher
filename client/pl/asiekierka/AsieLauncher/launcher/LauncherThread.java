@@ -1,5 +1,7 @@
 package pl.asiekierka.AsieLauncher.launcher;
 
+import pl.asiekierka.AsieLauncher.launcher.gui.AsieLauncherOptionsGUI;
+
 public class LauncherThread extends Thread {
 	private AsieLauncher launcher;
 	private String u, pass;

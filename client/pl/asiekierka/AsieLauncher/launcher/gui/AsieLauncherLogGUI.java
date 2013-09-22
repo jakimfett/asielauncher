@@ -1,9 +1,11 @@
-package pl.asiekierka.AsieLauncher.launcher;
+package pl.asiekierka.AsieLauncher.launcher.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.*;
+
+import pl.asiekierka.AsieLauncher.launcher.Strings;
 
 public class AsieLauncherLogGUI extends JFrame {
 	private static final long serialVersionUID = 6375185686352264799L;

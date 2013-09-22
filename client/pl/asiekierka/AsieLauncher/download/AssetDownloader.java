@@ -1,4 +1,4 @@
-package pl.asiekierka.AsieLauncher.downloader;
+package pl.asiekierka.AsieLauncher.download;
 
 import java.io.File;
 import java.net.URL;
@@ -11,8 +11,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
 import pl.asiekierka.AsieLauncher.common.Utils;
-import pl.asiekierka.AsieLauncher.launcher.IProgressUpdater;
 import pl.asiekierka.AsieLauncher.launcher.Strings;
 
 public class AssetDownloader {

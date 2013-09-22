@@ -1,4 +1,4 @@
-package pl.asiekierka.AsieLauncher.launcher;
+package pl.asiekierka.AsieLauncher.common;
 
 public interface IProgressUpdater {
 	public void update(int progress, int total);

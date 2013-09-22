@@ -1,4 +1,4 @@
-package pl.asiekierka.AsieLauncher.launcher;
+package pl.asiekierka.AsieLauncher.launcher.gui;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -14,6 +14,8 @@ import java.util.*;
 import javax.swing.*;
 
 import org.json.simple.*;
+
+import pl.asiekierka.AsieLauncher.launcher.Strings;
 
 public class AsieLauncherOptionsGUI extends JFrame {
 	public static final int OPTIONS_VERSION = 2;
