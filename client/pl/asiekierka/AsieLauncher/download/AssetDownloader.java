@@ -1,8 +1,7 @@
 package pl.asiekierka.AsieLauncher.download;
 
-import java.io.File;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -12,13 +11,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
-import pl.asiekierka.AsieLauncher.common.Utils;
 import pl.asiekierka.AsieLauncher.launcher.Strings;
 
-public class AssetDownloader {
+public class AssetDownloader implements IProgressUpdater {
 
 	private String assetURL;
 	private IProgressUpdater updater;
+	private int realTotal, currTotal;
 	
 	public AssetDownloader(String assetURL, IProgressUpdater updater) {
 		this.assetURL = assetURL;
@@ -48,9 +47,7 @@ public class AssetDownloader {
 			Document doc = db.parse(new URL(assetURL).openStream());
 			// Welcome to DOM. The land of torture.
 			NodeList files = doc.getElementsByTagName("Contents");
-			int totalFilesize = 0;
-			int currFilesize = 0;
-			HashMap<String, Integer> fileMap = new HashMap<String, Integer>(files.getLength());
+			ArrayList<FileDownloader> filelist = new ArrayList<FileDownloader>(files.getLength());
 			for(int i=0; i<files.getLength(); i++) {
 				Node file = files.item(i);
 				NodeList fileNodes = file.getChildNodes();
@@ -67,28 +64,27 @@ public class AssetDownloader {
 				}
 				if(filename == null || filesize == -1) continue; // Invalid data.
 				if(filename.endsWith("/")) continue; // Is secretly a directory.
-				fileMap.put(filename, filesize);
-				totalFilesize += filesize;
+				filelist.add(new FileDownloaderHTTP(assetURL + filename, directory + filename, "", filesize, true));
+				realTotal += filesize;
 			}
 			// Out of DOM we go, never to remember it again.
-			for(String filename: fileMap.keySet()) {
-				if(updater != null) updater.setStatus(Strings.DOWNLOADING+" assets/"+filename+" ...");
-				File file = new File(directory + filename);
-				int filesize = fileMap.get(filename);
-				if(file.exists() && file.length() == filesize) {
-					currFilesize += filesize;
-					if(updater != null) updater.update(currFilesize, totalFilesize);
-					continue; // We have this one!
-				}
-				if(!Utils.download(new URL(assetURL + filename), directory + filename, currFilesize, totalFilesize, updater)) {
-					return false;
-				}
-				currFilesize += filesize;
+			for(FileDownloader file: filelist) {
+				if(!file.install(this)) return false;
+				currTotal += file.getFilesize();
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
 			return false;
 		}
 		return true;
+	}
+	
+	@Override
+	public void update(int a, int b) {
+		if(updater != null) updater.update(currTotal+a, realTotal);
+	}
+	@Override
+	public void setStatus(String status) {
+		updater.setStatus(status);
 	}
 }

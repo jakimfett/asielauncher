@@ -11,6 +11,6 @@ public abstract class Authentication {
 		return true;
 	}
 	public String getUsername() { return realUsername; }
-	public String getSessionID() { return sessionID; }
+	public String getSessionToken() { return sessionID; }
 	public String getErrorMessage() { return error; }
 }

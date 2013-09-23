@@ -122,11 +122,7 @@ public class AuthenticationYggdrasil extends Authentication {
 	}
 	
 	@Override
-	public String getSessionID() {
-		return getMojangSessionID();
-	}
-	
-	public String getMojangSessionID() {
+	public String getSessionToken() {
 		if(!info.containsKey("selectedProfile")) return null;
 		JSONObject profile = (JSONObject)info.get("selectedProfile");
 		return "token:"+sessionID+":"+(String)profile.get("id");

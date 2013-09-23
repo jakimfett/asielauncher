@@ -2,32 +2,24 @@ package pl.asiekierka.AsieLauncher.download;
 
 import java.io.*;
 
-import org.json.simple.*;
-
 import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
 import pl.asiekierka.AsieLauncher.common.Utils;
 
 public abstract class FileDownloader {
-	private String filename, md5;
-	protected String absoluteFilename;
+	private String filename, md5, outputLocation;
 	protected File file;
-	protected JSONObject information;
 	private int filesize;
 	private boolean overwrite;
 	
-	public FileDownloader(String baseDirectory, JSONObject data, String prefix) {
-		information = data;
-		filename = (String)information.get("filename");
-		md5 = (String)data.get("md5");
-		Long longFilesize = (Long)(information.get("size"));
-		filesize = longFilesize.intValue();
-		absoluteFilename = baseDirectory + (String)information.get("filename");
-		file = new File(absoluteFilename);
-		overwrite = information.containsKey("overwrite")
-					? (Boolean)(information.get("overwrite"))
-					: true;
+	public FileDownloader(String out, String md5, int filesize, boolean overwrite) {
+		this.file = new File(out);
+		this.filename = this.file.getName();
+		this.filesize = filesize;
+		this.outputLocation = out;
+		this.md5 = md5;
+		this.overwrite = overwrite;
 	}
-	
+
 	public String getMD5() {
 		return md5;
 	}
@@ -39,11 +31,11 @@ public abstract class FileDownloader {
 	public String getFilename() {
 		return filename;
 	}
-
-	public void setFilename(String filename) {
-		this.filename = filename;
+	
+	public String getLocation() {
+		return this.outputLocation;
 	}
-
+	
 	public int getFilesize() {
 		return filesize;
 	}
@@ -55,29 +47,40 @@ public abstract class FileDownloader {
 	public abstract boolean install(IProgressUpdater updater);
 	public abstract boolean remove();
 	
-	public boolean shouldDownload() {
+	public boolean verify(boolean checkMD5) {
 		if(file.exists()) {
-			if(!overwrite) return false;
 			try {
-				String fileMD5 = Utils.md5(file);
-				System.out.println("Comparison: "+md5+" "+fileMD5);
-				if(fileMD5.equalsIgnoreCase(md5)) {
-					return false;
+				if(checkMD5 && md5 != null && md5.length() > 0) {
+					String fileMD5 = Utils.md5(file);
+					if(fileMD5.equalsIgnoreCase(md5)) {
+						return true;
+					}
+				} else {
+					// Check filesize instead. Should work on most occasions.
+					Long fileFilesizeLong = (Long)(file.length());
+					int fileFilesize = fileFilesizeLong.intValue();
+					if(this.filesize == fileFilesize) {
+						return true;
+					}
 				}
 			} catch(Exception e) { /* Can be ignored. */ }
 		}
-		return true;
+		return false;
 	}
+	
+	public boolean verify() { return verify(true); }
+	
 	public void createDirsIfMissing() {
 		File path = new File(file.getParentFile().getPath());
 		path.mkdirs();
 	}
 	
+	// Those serve mostly for removing duplicates.
 	@Override
 	public boolean equals(Object other) {
 		if(other == null || !(other instanceof FileDownloader)) return false;
-		FileDownloader mother = (FileDownloader)other;
-		return mother.filename.equals(filename);
+		FileDownloader fother = (FileDownloader)other;
+		return fother.filename.equals(filename);
     }
 	
 	@Override

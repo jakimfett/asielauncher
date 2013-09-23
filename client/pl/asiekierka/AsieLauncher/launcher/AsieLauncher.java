@@ -96,11 +96,21 @@ public class AsieLauncher implements IProgressUpdater {
 		ArrayList<FileDownloader> list = new ArrayList<FileDownloader>();
 		for(Object o: jsonList) {
 			if(o instanceof JSONObject) {
+				JSONObject mod = (JSONObject) o;
+				String filename = (String)mod.get("filename");
+				Long filesize = (Long)mod.get("size");
+				String md5 = (String)mod.get("md5");
+				boolean overwrite = (Boolean)mod.get("overwrite");
 				if(mode.equals("http")) {
-					FileDownloader fileDownloader = new FileDownloaderHTTP(directory, URL, (JSONObject)o, prefix);
+					String inputAddress = URL + prefix + filename;
+					String outputFile = directory + filename;
+					FileDownloader fileDownloader = new FileDownloaderHTTP(inputAddress, outputFile, md5, filesize.intValue(), overwrite);
 					list.add(fileDownloader);
 				} else if(mode.equals("zip")) {
-					FileDownloader fileDownloader = new FileDownloaderZip(directory, URL, (JSONObject)o, "zips/" + prefix);
+					String inputAddress = URL + "zips/" + prefix + filename;
+					String outputFile = directory + "zips/" + filename;
+					String unpackLocation = directory + (String)mod.get("directory") + "/";
+					FileDownloader fileDownloader = new FileDownloaderZip(inputAddress, outputFile, unpackLocation, md5, filesize.intValue(), overwrite);
 					list.add(fileDownloader);
 				}
 			}
@@ -172,7 +182,7 @@ public class AsieLauncher implements IProgressUpdater {
 	
 	public boolean isSupported() {
 		if(this.mcVersion == null) return true; // Default hack
-		return Utils.versionToInt(this.mcVersion) <= Utils.versionToInt("1.6.2");
+		return Utils.versionToInt(this.mcVersion) <= Utils.versionToInt("1.6.4");
 	}
 	public boolean init() {
 		file = Utils.readJSONUrlFile(URL + "also.json");
@@ -305,11 +315,11 @@ public class AsieLauncher implements IProgressUpdater {
 		else oldInstallFiles = new ArrayList<FileDownloader>();
 		fullTotal = calculateTotalSize(installFiles);
 		for(FileDownloader mf: installFiles) {
-			if(dry && mf.shouldDownload()) {
+			if(dry && !mf.verify()) {
 				dryTotal += mf.getFilesize();
 				if(mf instanceof FileDownloaderZip) {
 					FileDownloaderZip mfz = (FileDownloaderZip) mf;
-					installLog.add("[+] " + mfz.getFilename() + " => ./" + mfz.installDirectory);
+					installLog.add("[+] " + mfz.getFilename() + " => ./" + mfz.unpackLocation);
 				} else {
 					installLog.add("[+] " + mf.getFilename());
 				}
@@ -370,7 +380,7 @@ public class AsieLauncher implements IProgressUpdater {
 				return;
 			} else {
 				username = auth.getUsername();
-				sessionID = auth.getSessionID();
+				sessionID = auth.getSessionToken();
 			}
 		}
 		launchedMinecraft = mc.launch(directory, username, sessionID, jvmArgs, this);
