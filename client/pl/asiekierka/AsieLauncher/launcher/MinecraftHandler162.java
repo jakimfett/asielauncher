@@ -157,23 +157,6 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		} else return true;
 	}
 	
-	public void scanLiteLoader(String modDir, String libraryDir, String version) {
-		try {
-			File[] loaderFiles = new File(modDir).listFiles();
-			if(loaderFiles == null) return;
-			for(File f: loaderFiles) {
-				if(f.getName().endsWith(".litemod")) {
-					AsieLauncher.logger.log(Level.INFO, "LiteLoader mod '" + f.getName() + "' found, downloading LiteLoader...");
-					addTweak("com.mumfrey.liteloader.launch.LiteLoaderTweaker");
-					downloadLibrary("http://dl.liteloader.com/versions/", "com.mumfrey",
-							"liteloader", version, libraryDir, false);
-					libraries.add(libraryDir+"liteloader-"+version+".jar");
-					return;
-				}
-			}
-		} catch(Exception e) { e.printStackTrace(); }
-	}
-	
 	public boolean loadJSON(String patchDir, String gameDir, String jsonDir, String version) {
 		if(launchInfo != null) return true; // Already been here
 		if(updater != null) {
@@ -237,7 +220,6 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		}
 		// Libraries
 		libraries = new ArrayList<String>();
-		scanLiteLoader(patchDir + "mods/", gameDir + "libraries/", version);
 		if(!downloadLibraries(patchDir, gameDir + "libraries/")) return false; // Get necessary libraries
 		return true;
 	}
