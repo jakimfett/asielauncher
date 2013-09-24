@@ -33,7 +33,7 @@ public class AssetDownloader implements IProgressUpdater {
 		this((IProgressUpdater)null);
 	}
 
-	public boolean download(String directory) {
+	public ArrayList<FileDownloader> list(String directory) {
 		if(updater != null) {
 			updater.update(0, 2);
 			updater.setStatus(Strings.ASSET_CHECKING);
@@ -67,14 +67,19 @@ public class AssetDownloader implements IProgressUpdater {
 				filelist.add(new FileDownloaderHTTP(assetURL + filename, directory + filename, "", filesize, true));
 				realTotal += filesize;
 			}
-			// Out of DOM we go, never to remember it again.
-			for(FileDownloader file: filelist) {
-				if(!file.install(this)) return false;
-				currTotal += file.getFilesize();
-			}
+			return filelist;
 		} catch(Exception e) {
 			e.printStackTrace();
-			return false;
+			return null;
+		}
+	}
+	
+	public boolean download(String directory) {
+		ArrayList<FileDownloader> filelist = list(directory);
+		if(filelist == null) return false;
+		for(FileDownloader file: filelist) {
+			if(!file.install(this)) return false;
+			currTotal += file.getFilesize();
 		}
 		return true;
 	}

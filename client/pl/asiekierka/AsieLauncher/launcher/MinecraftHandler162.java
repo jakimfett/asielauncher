@@ -30,16 +30,16 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public String getJarLocation(AsieLauncher l, String version) {
-		File dir = new File(l.baseDir + "versions/" + version + "/");
+	public String getJarLocation(AsieLauncher l) {
+		File dir = new File(l.baseDir + "versions/" + l.mcVersion + "/");
 		if(!dir.exists()) dir.mkdirs();
-		return Utils.getPath(l.baseDir + "versions/" + version + "/minecraft.jar");
+		return Utils.getPath(l.baseDir + "versions/" + l.mcVersion + "/minecraft.jar");
 	}
 	
-	public String getNativesLocation(AsieLauncher l, String version) {
-		File dir = new File(l.baseDir + "versions/" + version + "/natives/");
+	public String getNativesLocation(AsieLauncher l) {
+		File dir = new File(l.baseDir + "versions/" + l.mcVersion + "/natives/");
 		if(!dir.exists()) dir.mkdirs();
-		return Utils.getPath(l.baseDir + "versions/" + version + "/natives/");
+		return dir.getAbsolutePath();
 	}
 	
 	public String findForge(File[] jarPatchFiles) {
@@ -236,23 +236,23 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		return true;
 	}
 	
-	public boolean checkMinecraft(AsieLauncher l, String version) {
+	public boolean checkMinecraft(AsieLauncher l) {
 		assetsDir = l.baseDir+"assets/";
-		gameVersion = version;
-		nativesDir = getNativesLocation(l, version);
+		gameVersion = l.mcVersion;
+		nativesDir = getNativesLocation(l);
 		File dir = new File(l.baseDir + "libraries/custom/");
 		if(!dir.exists()) dir.mkdirs();
-		if(!loadJSON(l.directory, l.baseDir, l.directory+"launchinfo.json", version)) return false;
-		if(!downloadMinecraft(getJarLocation(l, version), version)) return false;
+		if(!loadJSON(l.directory, l.baseDir, l.directory+"launchinfo.json", l.mcVersion)) return false;
+		if(!downloadMinecraft(getJarLocation(l), l.mcVersion)) return false;
 		return true;
 	}
 	
 	@Override
-	public boolean download(AsieLauncher l, String version) {
+	public boolean download(AsieLauncher l) {
 		assetDownloader = new AssetDownloader(updater);
 		assetsDir = l.baseDir+"assets/";
 		if(!assetDownloader.download(assetsDir)) return false;
-		if(!checkMinecraft(l, version)) return false;
+		if(!checkMinecraft(l)) return false;
 		return true;
 	}
 	
@@ -260,7 +260,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		String classpathSeparator = ":";
 		if(Utils.getSystemName().equals("windows")) classpathSeparator = ";";
 		StringBuilder sb = new StringBuilder();
-		sb.append(getJarLocation(l, l.mcVersion)); // Minecraft.jar
+		sb.append(getJarLocation(l)); // Minecraft.jar
 		if(libraries != null) {
 			for(String s : libraries) { // Libraries
 				sb.append(classpathSeparator);
@@ -313,7 +313,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	
 	@Override
 	public boolean launch(String path, String username, String sessionID, String jvmArgs, AsieLauncher l) {
-		if(!checkMinecraft(l, l.mcVersion)) return false;
+		if(!checkMinecraft(l)) return false;
 		if(sessionID == null || sessionID.length() == 0) sessionID = "null";
 		// Launch Minecraft.
 		setStatus(l, Strings.LAUNCHING);

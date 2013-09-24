@@ -21,19 +21,19 @@ public class MinecraftHandler152 implements MinecraftHandler {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public String getJarLocation(AsieLauncher l, String version) {
-		File dir = new File(l.baseDir + "versions/" + version + "/");
+	public String getJarLocation(AsieLauncher l) {
+		File dir = new File(l.baseDir + "versions/" + l.mcVersion + "/");
 		if(!dir.exists()) dir.mkdirs();
-		return Utils.getPath(l.baseDir + "versions/" + version + "/minecraft.jar");
+		return Utils.getPath(l.baseDir + "versions/" + l.mcVersion + "/minecraft.jar");
 	}
 	@Override
-	public boolean download(AsieLauncher l, String version) {
+	public boolean download(AsieLauncher l) {
 		boolean downloaded = false;
-		if(!(new File(getJarLocation(l, version)).exists())) {
+		if(!(new File(getJarLocation(l)).exists())) {
 			// Does not exist, download.
 			try {
-				URL url = new URL("http://assets.minecraft.net/"+version.replace('.', '_')+"/minecraft.jar");
-				downloaded = Utils.download(url, getJarLocation(l, version));
+				URL url = new URL("http://assets.minecraft.net/"+l.mcVersion.replace('.', '_')+"/minecraft.jar");
+				downloaded = Utils.download(url, getJarLocation(l));
 			} catch(Exception e) { e.printStackTrace(); }
 		}
 		return downloaded;
