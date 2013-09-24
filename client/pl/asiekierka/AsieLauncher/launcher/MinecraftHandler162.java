@@ -12,6 +12,7 @@ import java.util.zip.ZipFile;
 import org.json.simple.*;
 
 import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
+import pl.asiekierka.AsieLauncher.common.JavaLauncher;
 import pl.asiekierka.AsieLauncher.common.Utils;
 import pl.asiekierka.AsieLauncher.download.AssetDownloader;
 
@@ -46,7 +47,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 			for(File f: jarPatchFiles) {
 				if(f.getName().startsWith("minecraftforge")) {
 					// Found it!
-					AsieLauncher.logger.log(Level.FINE, "Found an instance of Forge: " + f.getAbsolutePath());
+					Utils.logger.log(Level.FINE, "Found an instance of Forge: " + f.getAbsolutePath());
 					return f.getAbsolutePath();
 				}
 			}
@@ -94,7 +95,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				if(new File(jarPatchesDirectory, filename).exists()) { // We have one in custom
 					found = true;
 					filePath = new File(jarPatchesDirectory, filename).getAbsolutePath();
-					AsieLauncher.logger.log(Level.FINER, "Replacing library " + filename + " with local copy");
+					Utils.logger.log(Level.FINER, "Replacing library " + filename + " with local copy");
 				}
 				if(filename.startsWith("minecraftforge")) {
 					String forgeLocation = findForge(jarPatchFiles);
@@ -130,7 +131,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		} else {
 			gameArguments += " --tweakClass "+s;
 			// Install the tweaker
-			AsieLauncher.logger.log(Level.WARNING, "TODO: INSTALL TWEAKER WITHOUT FORGE; MIGHT GET A BIT MESSY");
+			Utils.logger.log(Level.WARNING, "TODO: INSTALL TWEAKER WITHOUT FORGE; MIGHT GET A BIT MESSY");
 		}
 	}
 	
@@ -278,9 +279,8 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		if(l.updater != null) l.updater.setStatus(status);
 	}
 	
-	public ArrayList<String> getMCArguments(AsieLauncher l, String path, String jarPath, String classpath, String username, String sessionID, String jvmArgs) {
+	public ArrayList<String> getMCArguments(AsieLauncher l, String path, String classpath, String username, String sessionID, String jvmArgs) {
 		ArrayList<String> args = new ArrayList<String>();
-		args.add(jarPath);
 		args.addAll(Arrays.asList(jvmArgs.split(" ")));
 		args.add("-cp"); args.add(generateClasspath(l));
 		args.add("-Djava.library.path=" + new File(nativesDir).getAbsolutePath());
@@ -307,7 +307,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				gameArgArray[i] = Utils.getPath(assetsDir);
 		}
 		args.addAll(Arrays.asList(gameArgArray));
-		AsieLauncher.logger.log(Level.INFO, "Launching with arguments: " + args.toString());
+		Utils.logger.log(Level.INFO, "Launching with arguments: " + args.toString());
 		return args;
 	}
 	
@@ -324,18 +324,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	    String jarPath = System.getProperty("java.home")
 	            + separator + "bin" + separator + Utils.getJavaBinaryName();
 		setStatus(l, Strings.LAUNCHING);
-	    if((new File(jarPath)).exists()) {
-	    	ProcessBuilder processBuilder = new ProcessBuilder(getMCArguments(l,path,jarPath,classpath,username,sessionID,jvmArgs));
-	    	try {
-	    		processBuilder.directory(new File(path));
-	    		Process process = processBuilder.start();
-		    	Utils.pipeOutput(process);
-	    		try { Thread.sleep(500); } catch(Exception e){}
-	    		return true;
-	    	}
-	    	catch(Exception e) { }
-	    }
-	    return true;
+		return JavaLauncher.launch(path, jarPath, getMCArguments(l, path, classpath, username, sessionID, jvmArgs));
 	}
 
 	public IProgressUpdater getUpdater() {

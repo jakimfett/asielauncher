@@ -12,6 +12,7 @@ import javax.swing.ImageIcon;
 import org.smbarbour.mcu.MinecraftFrame;
 
 import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
+import pl.asiekierka.AsieLauncher.common.JavaLauncher;
 import pl.asiekierka.AsieLauncher.common.Utils;
 
 public class MinecraftHandler152 implements MinecraftHandler {
@@ -46,9 +47,8 @@ public class MinecraftHandler152 implements MinecraftHandler {
 		if(l.updater != null) l.updater.setStatus(status);
 	}
 	
-	public ArrayList<String> getMCArguments(AsieLauncher l, String path, String jarPath, String classpath, String username, String sessionID, String jvmArgs) {
+	public ArrayList<String> getMCArguments(AsieLauncher l, String path, String classpath, String username, String sessionID, String jvmArgs) {
 		ArrayList<String> args = new ArrayList<String>();
-		args.add(jarPath);
 		args.addAll(Arrays.asList(jvmArgs.split(" ")));
 		args.add("-cp"); args.add(classpath);
 		args.add("org.smbarbour.mcu.MinecraftFrame");
@@ -57,7 +57,7 @@ public class MinecraftHandler152 implements MinecraftHandler {
 		args.add(new File(path, "bin").getAbsolutePath());
 		args.add("854"); args.add("480");
 		args.add("null"); args.add("false");
-		AsieLauncher.logger.log(Level.FINE, "Launching with arguments: " + args.toString());
+		Utils.logger.log(Level.FINE, "Launching with arguments: " + args.toString());
 		return args;
 	}
 	
@@ -77,28 +77,18 @@ public class MinecraftHandler152 implements MinecraftHandler {
 	    String jarPath = System.getProperty("java.home")
 	            + separator + "bin" + separator + Utils.getJavaBinaryName();
 		setStatus(l, Strings.LAUNCHING);
-	    if((new File(jarPath)).exists()) {
-	    	AsieLauncher.logger.log(Level.INFO, "Launching via process spawner");
-	    	ProcessBuilder processBuilder = new ProcessBuilder(getMCArguments(l,path,jarPath,classpath,username,sessionID,jvmArgs));
-	    	try {
-	    		processBuilder.directory(new File(path));
-	    		Process process = processBuilder.start();
-		    	Utils.pipeOutput(process);
-	    		try { Thread.sleep(500); } catch(Exception e){}
-	    		return true;
-	    	}
-	    	catch(Exception e) { }
+	    if(!JavaLauncher.launch(path, jarPath, getMCArguments(l,path,classpath,username,sessionID,jvmArgs))) {
+		    // Failsafe
+		    Utils.logger.log(Level.INFO, "Launching via internal Java process!!!");
+		    System.setProperty("user.dir", (new File(path).getAbsolutePath()));
+		    frame = new MinecraftFrame(l.WINDOW_NAME, new ImageIcon(this.getClass().getResource("/resources/icon.png")));
+			frame.launch(new File(path),
+					new File(path, "bin"),
+					username, sessionID,
+					"", new Dimension(854, 480), false);
+			try { Thread.sleep(500); } catch(Exception e){}
 	    }
-	    // Failsafe
-	    AsieLauncher.logger.log(Level.INFO, "Launching via internal Java process");
-	    System.setProperty("user.dir", (new File(path).getAbsolutePath()));
-	    frame = new MinecraftFrame(l.WINDOW_NAME, new ImageIcon(this.getClass().getResource("/resources/icon.png")));
-		frame.launch(new File(path),
-				new File(path, "bin"),
-				username, sessionID,
-				"", new Dimension(854, 480), false);
-		try { Thread.sleep(500); } catch(Exception e){}
-		return true;
+	    return true;
 	}
 
 }

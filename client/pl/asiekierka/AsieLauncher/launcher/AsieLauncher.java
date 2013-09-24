@@ -48,11 +48,6 @@ public class AsieLauncher implements IProgressUpdater {
 	private Authentication auth;
 	public String mcVersion;
 	public String defaultJvmArgs;
-	public static Logger logger;
-	
-	static {
-		logger = Logger.getLogger(AsieLauncher.class.getName());
-	}
 	
 	public boolean canKeepPassword() {
 		return (auth instanceof AuthenticationYggdrasil);
@@ -162,11 +157,10 @@ public class AsieLauncher implements IProgressUpdater {
 		configureConfig();
 		baseDir = System.getProperty("user.home") + "/.asielauncher/";
 		directory = baseDir + PREFIX + "/";
-		logger.addHandler(new ConsoleHandler());
 		try {
 			FileHandler handler = new FileHandler(Utils.getPath(directory + "AsieLauncher.log"), false);
 			handler.setFormatter(new SimpleFormatter());
-			logger.addHandler(handler);
+			Utils.logger.addHandler(handler);
 		} catch(Exception e) { e.printStackTrace(); }
 		serverlist = new ServerListManager(directory + "servers.dat", false);
 		if(!(new File(directory).exists())) {
@@ -177,7 +171,7 @@ public class AsieLauncher implements IProgressUpdater {
 		loadDir = (new File(".").getAbsolutePath());
 		loadDir = loadDir.substring(0,loadDir.length()-1);
 		OS = Utils.getSystemName();
-		logger.log(Level.INFO, "OS: " + OS);
+		Utils.logger.log(Level.INFO, "OS: " + OS);
 	}
 	
 	public boolean isSupported() {
@@ -237,7 +231,7 @@ public class AsieLauncher implements IProgressUpdater {
 		if(progress == total) fullProgress += total;
 	}
 	public void setStatus(String status) {
-		logger.log(Level.INFO, "Status: "+status);
+		Utils.logger.log(Level.INFO, "Status: "+status);
 		if(updater != null) updater.setStatus(status);
 	}
 	
@@ -258,7 +252,7 @@ public class AsieLauncher implements IProgressUpdater {
 			JSONArray data = (JSONArray)source.get("jarPatches");
 			files.addAll(loadModFiles(data, "http"));
 		}
-		logger.log(Level.FINER, "getFileList: got " + files.size() + " files");
+		Utils.logger.log(Level.FINER, "getFileList: got " + files.size() + " files");
 		return files;
 	}
 	
@@ -362,9 +356,8 @@ public class AsieLauncher implements IProgressUpdater {
 			for(Object o: serversJson.entrySet()) {
 				if(!(o instanceof Entry)) continue;
 				@SuppressWarnings("unchecked")
-				Entry<? extends Object, ? extends Object> e = (Entry<? extends Object, ? extends Object>)o;
-				if(!(e.getKey() instanceof String)) continue;
-				if(!(e.getValue() instanceof String)) continue;
+				Entry<? extends Object, ? extends Object> e = (Entry<? extends Object, ? extends Object>)o; // WTF, Java?
+				if(!(e.getKey() instanceof String) || !(e.getValue() instanceof String)) continue;
 				servers.put((String)e.getKey(), (String)e.getValue());
 			}
 			serverlist.updateServerList(servers);

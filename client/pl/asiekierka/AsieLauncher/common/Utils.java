@@ -6,16 +6,22 @@ import java.math.*;
 import java.net.URL;
 import java.security.*;
 import java.util.*;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.*;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import pl.asiekierka.AsieLauncher.launcher.AsieLauncher;
-
 public class Utils {
 	private static final int BUFFER = 65536;
+	public static Logger logger;
+	
+	static {
+		logger = Logger.getLogger(Utils.class.getName());
+		logger.addHandler(new ConsoleHandler());
+	}
 	
 	public static String getPath(String path) {
 		if(path == null) return null;
@@ -202,7 +208,7 @@ public class Utils {
     			if(updater != null) updater.update(prefix+totalCount, totalFilesize);
     		}
     	}
-    	catch(Exception e) { e.printStackTrace(); AsieLauncher.logger.log(Level.SEVERE, "Download error!"); downloaded = false; }
+    	catch(Exception e) { e.printStackTrace(); Utils.logger.log(Level.SEVERE, "Download error!"); downloaded = false; }
     	finally {
     		try {
     			close(in);
