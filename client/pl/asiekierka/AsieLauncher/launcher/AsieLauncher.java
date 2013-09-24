@@ -27,6 +27,7 @@ import pl.asiekierka.AsieLauncher.common.Utils;
 import pl.asiekierka.AsieLauncher.download.FileDownloader;
 import pl.asiekierka.AsieLauncher.download.FileDownloaderHTTP;
 import pl.asiekierka.AsieLauncher.download.FileDownloaderZip;
+import pl.asiekierka.AsieLauncher.download.FileParserJSON;
 
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
@@ -85,51 +86,6 @@ public class AsieLauncher implements IProgressUpdater {
 		Long revNew = (Long)(file.get("client_revision"));
 		if(revNew == null) { return false; // Ancient
 		} else return revNew.intValue() == VERSION;
-	}
-	
-	public ArrayList<FileDownloader> loadModFiles(JSONArray jsonList, String mode, String prefix) {
-		ArrayList<FileDownloader> list = new ArrayList<FileDownloader>();
-		for(Object o: jsonList) {
-			if(o instanceof JSONObject) {
-				JSONObject mod = (JSONObject) o;
-				String filename = (String)mod.get("filename");
-				Long filesize = (Long)mod.get("size");
-				String md5 = (String)mod.get("md5");
-				boolean overwrite = (Boolean)mod.get("overwrite");
-				if(mode.equals("http")) {
-					String inputAddress = URL + prefix + filename;
-					String outputFile = directory + filename;
-					FileDownloader fileDownloader = new FileDownloaderHTTP(inputAddress, outputFile, md5, filesize.intValue(), overwrite);
-					list.add(fileDownloader);
-				} else if(mode.equals("zip")) {
-					String inputAddress = URL + "zips/" + prefix + filename;
-					String outputFile = directory + "zips/" + filename;
-					String unpackLocation = directory + (String)mod.get("directory") + "/";
-					FileDownloader fileDownloader = new FileDownloaderZip(inputAddress, outputFile, unpackLocation, md5, filesize.intValue(), overwrite);
-					list.add(fileDownloader);
-				}
-			}
-		}
-		return list;
-	}
-	
-	public ArrayList<FileDownloader> loadModFiles(JSONArray jsonList, String mode) {
-		return loadModFiles(jsonList, mode, "");
-	}
-	
-	public ArrayList<FileDownloader> loadModFiles(JSONObject object, String mode, String prefix) {
-		if(object == null) return new ArrayList<FileDownloader>();
-		if(mode.equals("http") && object.containsKey("files")) {
-			JSONArray array = (JSONArray)object.get("files");
-			return loadModFiles(array, mode, prefix);
-		} else if(mode.equals("zip") && object.containsKey("zips")) {
-			JSONArray array = (JSONArray)object.get("zips");
-			return loadModFiles(array, mode, prefix);
-		} else return new ArrayList<FileDownloader>();
-	}
-	
-	public ArrayList<FileDownloader> loadModFiles(JSONObject object, String mode) {
-		return loadModFiles(object, mode, "");
 	}
 	
 	public HashMap<String, JSONObject> getOptionMap() {
@@ -236,21 +192,21 @@ public class AsieLauncher implements IProgressUpdater {
 	}
 	
 	public ArrayList<FileDownloader> getFileList(JSONObject source, ArrayList<String> options) {
-		ArrayList<FileDownloader> files = loadModFiles(source, "http");
-		files.addAll(loadModFiles(source, "zip"));
+		FileParserJSON parser = new FileParserJSON(URL, directory);
+		ArrayList<FileDownloader> files = parser.parse(source);
 		if(mc instanceof MinecraftHandler152) {
 			// 1.5.2 still downloads platform data.
-			files.addAll(loadModFiles(getPlatformData(source), "http", "platform/"+OS+"/"));
+			files.addAll(parser.parse(getPlatformData(source), "http", "platform/"+OS+"/"));
 		}
 		if(getFileRevision(source) >= 2) for(String id: options) {
 			JSONObject data = getOptionData(source, id);
 			if(data == null) continue;
 			boolean doZip = (Boolean)data.get("zip");
-			files.addAll(loadModFiles(data, doZip?"zip":"http", "options/"+id+"/"));
+			files.addAll(parser.parse(data, doZip?"zip":"http", "options/"+id+"/"));
 		}
 		if(getFileRevision(source) >= 5) {
 			JSONArray data = (JSONArray)source.get("jarPatches");
-			files.addAll(loadModFiles(data, "http"));
+			files.addAll(parser.parse(data, "http"));
 		}
 		Utils.logger.log(Level.FINER, "getFileList: got " + files.size() + " files");
 		return files;
