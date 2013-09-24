@@ -18,7 +18,7 @@ public class AuthenticationMojangLegacy extends Authentication {
 	}
 
 	@Override
-	public boolean authenticate(String username, String password) {
+	public int authenticate(String username, String password) {
 		try {
 			URL url = new URL("https://login.minecraft.net");
 			HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
@@ -34,16 +34,16 @@ public class AuthenticationMojangLegacy extends Authentication {
 			String inputLine;
 			inputLine = in.readLine();
 			in.close();
-			if(inputLine.length() == 0) return false;
+			if(inputLine.length() == 0) return SERVER_DOWN;
 			String[] output = inputLine.split(":");
 			if(output.length < 5) { // Bad login, User not premium, etc
 				error = inputLine;
-				return false;
+				return LOGIN_INVALID;
 			}
 			realUsername = output[2];
 			sessionID = output[3];
-			return true;
-		} catch(Exception e) { e.printStackTrace(); error = "Internal AsieLauncher error"; return false; }
+			return OK;
+		} catch(Exception e) { e.printStackTrace(); error = "Internal AsieLauncher error"; return GENERAL_ERROR; }
 	}
 
 }

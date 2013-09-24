@@ -368,7 +368,7 @@ public class AsieLauncher implements IProgressUpdater {
 		if(updater != null) updater.update(100,100);
 		if(auth != null) {
 			setStatus(Strings.AUTH_STATUS);
-			if(!auth.authenticate(username, password)) {
+			if(auth.authenticate(username, password) != Authentication.OK) {
 				setStatus(Strings.LOGIN_ERROR+": " + auth.getErrorMessage());
 				return;
 			} else {

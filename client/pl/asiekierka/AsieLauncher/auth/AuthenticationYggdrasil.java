@@ -82,15 +82,15 @@ public class AuthenticationYggdrasil extends Authentication {
 		}
 	}
 	
-	private boolean handlingError(JSONObject errorJSON) {
+	private int handlingError(JSONObject errorJSON) {
 		if(errorJSON == null) {
 			error = "Server error!";
-			return true;
+			return SERVER_DOWN;
 		}
-		if(!errorJSON.containsKey("error")) return false;
+		if(!errorJSON.containsKey("error")) return GENERAL_ERROR;
 		if(errorJSON.containsKey("errorMessage")) error = (String)errorJSON.get("errorMessage");
 		else error = (String)errorJSON.get("error");
-		return true;
+		return LOGIN_INVALID;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -107,7 +107,7 @@ public class AuthenticationYggdrasil extends Authentication {
 		payload.put("clientToken", get("clientToken"));
 		payload.put("selectedProfile", null);
 		JSONObject answer = sendJSONPayload("/refresh", payload);
-		if(handlingError(answer)) {
+		if(handlingError(answer) != OK) {
 			sessionID = null;
 			return false;
 		}
@@ -136,9 +136,9 @@ public class AuthenticationYggdrasil extends Authentication {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean authenticate(String username, String password) {
+	public int authenticate(String username, String password) {
 		if(triedRenewSessionID && sessionID != null && sessionID.length() > 0) {
-			return true; // Already authenticated, don't bother.
+			return OK; // Already authenticated, don't bother.
 		}
 		realUsername = username; // For now.
 		JSONObject payload = new JSONObject();
@@ -146,7 +146,7 @@ public class AuthenticationYggdrasil extends Authentication {
 		payload.put("password", password);
 		payload.put("clientToken", get("clientToken"));
 		JSONObject answer = sendJSONPayload("/authenticate", payload);
-		if(handlingError(answer)) return false;
+		if(handlingError(answer) != OK) return handlingError(answer);
 		JSONObject profile = (JSONObject)answer.get("selectedProfile");
 		realUsername = (String)profile.get("name");
 		sessionID = (String)answer.get("accessToken");
@@ -155,7 +155,7 @@ public class AuthenticationYggdrasil extends Authentication {
 			info.put("sessionID", sessionID);
 			save();
 		}
-		return true;
+		return OK;
 	}
 
 }
