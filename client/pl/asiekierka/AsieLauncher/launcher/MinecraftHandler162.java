@@ -279,7 +279,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		if(l.updater != null) l.updater.setStatus(status);
 	}
 	
-	public ArrayList<String> getMCArguments(AsieLauncher l, String path, String classpath, String username, String sessionID, String jvmArgs) {
+	public ArrayList<String> getMCArguments(AsieLauncher l, String path, String username, String sessionID, String jvmArgs) {
 		ArrayList<String> args = new ArrayList<String>();
 		args.addAll(Arrays.asList(jvmArgs.split(" ")));
 		args.add("-cp"); args.add(generateClasspath(l));
@@ -316,15 +316,8 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		if(!checkMinecraft(l, l.mcVersion)) return false;
 		if(sessionID == null || sessionID.length() == 0) sessionID = "null";
 		// Launch Minecraft.
-		String separator = System.getProperty("file.separator");
-	    String classpath = System.getProperty("java.class.path");
-	    if(classpath.indexOf(separator) == -1 || (l.getLoadDir().indexOf("/") == 0 && classpath.indexOf("/") != 0)) {
-	    	classpath = (new File(l.getLoadDir(), classpath)).getAbsolutePath();
-	    }
-	    String jarPath = System.getProperty("java.home")
-	            + separator + "bin" + separator + Utils.getJavaBinaryName();
 		setStatus(l, Strings.LAUNCHING);
-		return JavaLauncher.launch(path, jarPath, getMCArguments(l, path, classpath, username, sessionID, jvmArgs));
+		return JavaLauncher.launch(path, getMCArguments(l, path, username, sessionID, jvmArgs));
 	}
 
 	public IProgressUpdater getUpdater() {

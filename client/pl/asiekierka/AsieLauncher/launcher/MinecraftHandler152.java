@@ -74,10 +74,8 @@ public class MinecraftHandler152 implements MinecraftHandler {
 	    if(classpath.indexOf(separator) == -1 || (l.getLoadDir().indexOf("/") == 0 && classpath.indexOf("/") != 0)) {
 	    	classpath = (new File(Utils.getPath(l.getLoadDir()), classpath)).getAbsolutePath();
 	    }
-	    String jarPath = System.getProperty("java.home")
-	            + separator + "bin" + separator + Utils.getJavaBinaryName();
 		setStatus(l, Strings.LAUNCHING);
-	    if(!JavaLauncher.launch(path, jarPath, getMCArguments(l,path,classpath,username,sessionID,jvmArgs))) {
+	    if(!JavaLauncher.launch(path, getMCArguments(l,path,classpath,username,sessionID,jvmArgs))) {
 		    // Failsafe
 		    Utils.logger.log(Level.INFO, "Launching via internal Java process!!!");
 		    System.setProperty("user.dir", (new File(path).getAbsolutePath()));

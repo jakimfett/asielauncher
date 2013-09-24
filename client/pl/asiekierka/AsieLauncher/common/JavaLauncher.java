@@ -9,7 +9,10 @@ public class JavaLauncher {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public static boolean launch(String path, String jarPath, List<String> arguments) {
+	public static boolean launch(String path, List<String> arguments) {
+		String separator = System.getProperty("file.separator");
+	    String jarPath = System.getProperty("java.home")
+	            + separator + "bin" + separator + Utils.getJavaBinaryName();
 		arguments.add(0, jarPath);
 		if((new File(jarPath)).exists()) {
 			ProcessBuilder processBuilder = new ProcessBuilder(arguments);
