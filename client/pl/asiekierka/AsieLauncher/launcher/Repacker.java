@@ -73,6 +73,9 @@ public class Repacker {
 		try {
 			File fMCFile = new File(jarFilename);
 			if(fMCFile.exists()) fMCFile.delete();
+			else {
+				fMCFile.getParentFile().mkdirs();
+			}
 			merge(mcFile, patches, jarFilename);
 		} catch(Exception e) { e.printStackTrace(); return false; }
 		return true;

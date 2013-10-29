@@ -20,11 +20,11 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	private AssetDownloader assetDownloader;
 	private IProgressUpdater updater;
 	private String assetsDir;
-	private boolean hasForge = false;
 	private JSONObject launchInfo;
 	private String gameArguments, gameVersion;
 	private ArrayList<String> libraries;
 	private String mainClass, nativesDir;
+	private boolean hasForge = false;
 	
 	public MinecraftHandler162() {
 		// TODO Auto-generated constructor stub
@@ -54,6 +54,38 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		}
 		return null;
 	}
+	
+	public void addTweak(String s, String version) {
+		if(version.equals("1.6.2")) addTweak162(s);
+		else gameArguments += " --tweakClass "+s;
+	}
+	
+    private void addTweak162(String s) {
+        if(gameArguments.indexOf("tweakClass") >= 0 || hasForge) {
+                gameArguments += " --cascadedTweaks "+s;
+        } else {
+                gameArguments += " --tweakClass "+s;
+                // Install the tweaker
+                Utils.logger.log(Level.WARNING, "TODO: INSTALL TWEAKER WITHOUT FORGE; MIGHT GET A BIT MESSY");
+        }
+    }
+    
+    public void scanLiteLoader(String modDir, String libraryDir, String version) {
+        try {
+                File[] loaderFiles = new File(modDir).listFiles();
+                if(loaderFiles == null) return;
+                for(File f: loaderFiles) {
+                        if(f.getName().endsWith(".litemod")) {
+                                Utils.logger.log(Level.INFO, "LiteLoader mod '" + f.getName() + "' found, downloading LiteLoader...");
+                                addTweak("com.mumfrey.liteloader.launch.LiteLoaderTweaker", version);
+                                downloadLibrary("http://dl.liteloader.com/versions/", "com.mumfrey",
+                                                "liteloader", version, libraryDir, false);
+                                libraries.add(libraryDir+"liteloader-"+version+".jar");
+                                return;
+                        }
+                }
+        } catch(Exception e) { e.printStackTrace(); }
+}
 	
 	public boolean downloadLibraries(String patchDir, String libraryDir) {
 		ArrayList<String> addedLibraries = new ArrayList<String>();
@@ -94,6 +126,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				boolean found = false;
 				if(new File(jarPatchesDirectory, filename).exists()) { // We have one in custom
 					found = true;
+					hasForge = true;
 					filePath = new File(jarPatchesDirectory, filename).getAbsolutePath();
 					Utils.logger.log(Level.FINER, "Replacing library " + filename + " with local copy");
 				}
@@ -123,16 +156,6 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		}
 		// All done.
 		return true;
-	}
-	
-	public void addTweak(String s) {
-		if(gameArguments.indexOf("tweakClass") >= 0 || hasForge) {
-			gameArguments += " --cascadedTweaks "+s;
-		} else {
-			gameArguments += " --tweakClass "+s;
-			// Install the tweaker
-			Utils.logger.log(Level.WARNING, "TODO: INSTALL TWEAKER WITHOUT FORGE; MIGHT GET A BIT MESSY");
-		}
 	}
 	
 	public boolean downloadLibrary(String urlPrefix, String className, String name, String version, String libraryDir, boolean force) {
@@ -182,7 +205,6 @@ public class MinecraftHandler162 implements MinecraftHandler {
 					for(String s: Utils.getZipList(patchFile.getAbsolutePath())) {
 						if(s.equals("version.json")) {
 							found = true; // Got one!
-							hasForge = true;
 							// Now to unpack it
 						    ZipFile zip = new ZipFile(patchFile);
 						    Enumeration<? extends ZipEntry> zipFileEntries = zip.entries();
@@ -216,11 +238,12 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		// Parse
 		gameArguments = (String)launchInfo.get("minecraftArguments"); // Arguments are parsed in getMCArguments();
 		mainClass = (String)launchInfo.get("mainClass");
-		if(gameArguments.indexOf("cpw.mods.fml") >= 0) {
-			hasForge = true; // Found Forge in arguments
-		}
+        if(gameArguments.indexOf("cpw.mods.fml") >= 0) {
+            hasForge = true; // Found Forge in arguments
+        }
 		// Libraries
 		libraries = new ArrayList<String>();
+        scanLiteLoader(patchDir + "mods/", gameDir + "libraries/", version);
 		if(!downloadLibraries(patchDir, gameDir + "libraries/")) return false; // Get necessary libraries
 		return true;
 	}
@@ -292,11 +315,15 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				                     .replaceAll("\\$\\{auth_session\\}", sessionID)
 				                     .replaceAll("\\$\\{version_name\\}", gameVersion);
 		// Fix cascadedTweaks because Forge bugs
-		if(gameArguments.indexOf("--cascadedTweaks") >= 0 // If we have more tweaks
-				&& gameArguments.indexOf("--tweakClass cpw.mods.fml.common.launcher.FMLTweaker") >= 0) {
-			gameArguments = gameArguments.replaceAll("--tweakClass cpw.mods.fml.common.launcher.FMLTweaker", "")
-										 .replaceFirst("--cascadedTweaks", "--tweakClass")
-										 + " --cascadedTweaks cpw.mods.fml.common.launcher.FMLTweaker";
+		if(l.mcVersion.equalsIgnoreCase("1.6.2")) {
+			if(gameArguments.indexOf("--cascadedTweaks") >= 0 // If we have more tweaks
+					&& gameArguments.indexOf("--tweakClass cpw.mods.fml.common.launcher.FMLTweaker") >= 0) {
+				gameArguments = gameArguments.replaceAll("--tweakClass cpw.mods.fml.common.launcher.FMLTweaker", "")
+											 .replaceFirst("--cascadedTweaks", "--tweakClass")
+											 + " --cascadedTweaks cpw.mods.fml.common.launcher.FMLTweaker";
+			}
+		} else {
+			gameArguments = gameArguments.replaceAll("--cascadedTweaks", "--tweakClass");
 		}
 		// Workaround for broken Windows path handling
 		String[] gameArgArray = gameArguments.split(" ");

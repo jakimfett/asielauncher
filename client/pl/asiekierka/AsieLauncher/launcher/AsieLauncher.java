@@ -33,7 +33,7 @@ import pl.asiekierka.AsieLauncher.download.FileParserJSON;
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 6;
 	private ServerListManager serverlist;
-	public static final String VERSION_STRING = "0.4.1-dev";
+	public static final String VERSION_STRING = "0.4.1-rc";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "default";
@@ -132,13 +132,14 @@ public class AsieLauncher implements IProgressUpdater {
 	
 	public boolean isSupported() {
 		if(this.mcVersion == null) return true; // Default hack
-		return Utils.versionToInt(this.mcVersion) <= Utils.versionToInt("1.6.4");
+		return Utils.versionToInt(this.mcVersion) <= Utils.versionToInt("1.7.2");
 	}
+	
 	public boolean init() {
 		file = Utils.readJSONUrlFile(URL + "also.json");
 		if(!(file instanceof JSONObject)) {
 			file = oldFile;
-		}
+		} else System.out.println("Config revision: " + getFileRevision(file));
 		if(file instanceof JSONObject) { // Set variables;.
 			Object o = file.get("onlineMode");
 			boolean onlineMode = false;
@@ -284,12 +285,10 @@ public class AsieLauncher implements IProgressUpdater {
 		this.setStatus(Strings.DOWNLOAD_MC);
 		mc.setUpdater(updater);
 		mc.download(this);
-		if(mc instanceof MinecraftHandler152) {
-			Repacker repacker = new Repacker(directory + "bin/minecraft.jar");
-			List<String> repackFiles = getRepackedFiles();
-			this.setStatus(Strings.REPACK_JAR);
-			if(!repacker.repackJar(mc.getJarLocation(this), repackFiles.toArray(new String[repackFiles.size()]))) return false;
-		}
+		Repacker repacker = new Repacker(directory + "bin/minecraft.jar");
+		List<String> repackFiles = getRepackedFiles();
+		this.setStatus(Strings.REPACK_JAR);
+		if(!repacker.repackJar(mc.getJarLocation(this), repackFiles.toArray(new String[repackFiles.size()]))) return false;
 		if(!dry) {
 			this.setStatus(Strings.SAVING);
 			this.save();
