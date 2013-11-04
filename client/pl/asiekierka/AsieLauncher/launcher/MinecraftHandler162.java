@@ -143,7 +143,8 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				// This is a /native/ file, so extract it
 				try {
 					Utils.extract(filePath, nativesDir, true);
-				} catch(Exception e) { e.printStackTrace(); return false; }
+				}
+				catch(Exception e) { e.printStackTrace(); return false; }
 			}
 			if(!filename.startsWith("minecraftforge")) libraries.add(filePath);
 			addedLibraries.add(uid);
@@ -164,7 +165,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	
 	public boolean downloadLibrary(String urlPrefix, String className, String name, String version, String addon, String libraryDir, boolean force) {
 		String filename = name + "-" + version + ".jar";
-		if(addon.length() > 0)
+		if(addon != null && addon.length() > 0)
 			filename = name + "-" + version + "-" + addon + ".jar";
 		String filePath = libraryDir + filename;
 		if(libraries.contains(filePath)) return true; // Already downloaded

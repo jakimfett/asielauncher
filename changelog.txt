@@ -1,3 +1,10 @@
+0.4.1:
+[CLIENT]
+* Fix changelog option.
+/ Major refactor. Might still be a tiny bit buggy.
+[SERVER]
++ Window name is now set on the server side.
+
 0.4.0:
 [CLIENT]
 / Bump version.

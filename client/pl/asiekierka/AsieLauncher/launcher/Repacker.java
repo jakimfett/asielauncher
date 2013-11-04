@@ -38,11 +38,16 @@ public class Repacker {
 		}
 	}
 	
-	public void merge(String jarFile, String[] patches, String outFile) throws ZipException, IOException {
+	public String merge(String jarFile, String[] patches, String outFile) throws ZipException, IOException {
 		fileMap = new HashMap<String, String>();
 		// Generate filemap.
-		for(String s: Utils.getZipList(jarFile)) {
-			fileMap.put(s, jarFile);
+		try {
+			for(String s: Utils.getZipList(jarFile)) {
+				fileMap.put(s, jarFile);
+			}
+		} catch(ZipException e) {
+			new File(jarFile).delete();
+			return "Corrupted file - restart AsieLauncher!";
 		}
 		for(String p: patches) {
 			for(String s: Utils.getZipList(p)) {
@@ -67,17 +72,19 @@ public class Repacker {
 			Utils.close(patchIn);
 		}
 		Utils.close(outStream);
+		return null;
 	}
 	
-	public boolean repackJar(String mcFile, String[] patches) {
+	public String repackJar(String mcFile, String[] patches) {
 		try {
 			File fMCFile = new File(jarFilename);
 			if(fMCFile.exists()) fMCFile.delete();
 			else {
 				fMCFile.getParentFile().mkdirs();
 			}
-			merge(mcFile, patches, jarFilename);
-		} catch(Exception e) { e.printStackTrace(); return false; }
-		return true;
+			String mergeError = merge(mcFile, patches, jarFilename);
+			if(mergeError != null) return mergeError;
+		} catch(Exception e) { e.printStackTrace(); return "Repacking error!"; }
+		return null;
 	}
 }

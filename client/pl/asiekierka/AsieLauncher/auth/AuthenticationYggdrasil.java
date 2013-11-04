@@ -2,8 +2,10 @@ package pl.asiekierka.AsieLauncher.auth;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Random;
 import java.util.UUID;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -48,8 +50,21 @@ public class AuthenticationYggdrasil extends Authentication {
 		keepLoggedIn = l;
 	}
 	
+	private String readIn(BufferedReader in) {
+		try {
+			String answer = "";
+			String inputLine = in.readLine();
+			while(inputLine != null) {
+				answer += inputLine;
+				inputLine = in.readLine();
+			}
+			in.close();
+			return answer;
+		} catch(Exception e) { return ""; }
+	}
 	@SuppressWarnings("unchecked")
 	private JSONObject sendJSONPayload(String path, JSONObject payload) {
+		HttpsURLConnection con = null;
 		try {
 			if(!payload.containsKey("agent")) {
 				JSONObject agent = new JSONObject();
@@ -58,7 +73,7 @@ public class AuthenticationYggdrasil extends Authentication {
 				payload.put("agent", agent);
 			}
 			URL url = new URL(SERVER + path);
-			HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
+			con = (HttpsURLConnection)url.openConnection();
 			con.setRequestMethod("POST");
 			con.setRequestProperty("Content-Type", "application/json");
 			con.setDoOutput(true);
@@ -66,16 +81,20 @@ public class AuthenticationYggdrasil extends Authentication {
 			dos.writeBytes(payload.toJSONString());
 			dos.flush();
 			dos.close();
-			String sAnswer = "";
+			System.out.println("Sent: "+payload.toJSONString());
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-			String inputLine;
-			inputLine = in.readLine();
-			while(inputLine != null) {
-				sAnswer += inputLine;
-				inputLine = in.readLine();
+			return (JSONObject)new JSONParser().parse(readIn(in));
+		}
+		catch(IOException ioe) {
+			try {
+				if(con == null) throw new Exception("Connection not initialized here");
+				else {
+					BufferedReader in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+					return (JSONObject)new JSONParser().parse(readIn(in));
+				}
+			} catch(Exception e) {
+				e.printStackTrace(); error = "Internal AsieLauncher error"; return null;
 			}
-			in.close();
-			return (JSONObject)new JSONParser().parse(sAnswer);
 		}
 		catch(Exception e) {
 			 e.printStackTrace(); error = "Internal AsieLauncher error"; return null;
@@ -87,7 +106,7 @@ public class AuthenticationYggdrasil extends Authentication {
 			error = "Server error!";
 			return SERVER_DOWN;
 		}
-		if(!errorJSON.containsKey("error")) return GENERAL_ERROR;
+		if(!errorJSON.containsKey("error")) return OK;
 		if(errorJSON.containsKey("errorMessage")) error = (String)errorJSON.get("errorMessage");
 		else error = (String)errorJSON.get("error");
 		return LOGIN_INVALID;

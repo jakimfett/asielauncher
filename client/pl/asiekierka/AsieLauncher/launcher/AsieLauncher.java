@@ -33,7 +33,7 @@ import pl.asiekierka.AsieLauncher.download.FileParserJSON;
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 6;
 	private ServerListManager serverlist;
-	public static final String VERSION_STRING = "0.4.1-rc";
+	public static final String VERSION_STRING = "0.4.1";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "default";
@@ -282,13 +282,18 @@ public class AsieLauncher implements IProgressUpdater {
 				return false;
 			}
 		}
+		if(dry) return true;
 		this.setStatus(Strings.DOWNLOAD_MC);
 		mc.setUpdater(updater);
 		mc.download(this);
 		Repacker repacker = new Repacker(directory + "bin/minecraft.jar");
 		List<String> repackFiles = getRepackedFiles();
 		this.setStatus(Strings.REPACK_JAR);
-		if(!repacker.repackJar(mc.getJarLocation(this), repackFiles.toArray(new String[repackFiles.size()]))) return false;
+		String repackError = repacker.repackJar(mc.getJarLocation(this), repackFiles.toArray(new String[repackFiles.size()]));
+		if(repackError != null) {
+			this.setStatus(repackError);
+			return false;
+		}
 		if(!dry) {
 			this.setStatus(Strings.SAVING);
 			this.save();
@@ -323,7 +328,9 @@ public class AsieLauncher implements IProgressUpdater {
 		if(updater != null) updater.update(100,100);
 		if(auth != null) {
 			setStatus(Strings.AUTH_STATUS);
-			if(auth.authenticate(username, password) != Authentication.OK) {
+			int result = auth.authenticate(username, password);
+			if(result != Authentication.OK) {
+				System.out.println("Result is: " + result);
 				setStatus(Strings.LOGIN_ERROR+": " + auth.getErrorMessage());
 				return;
 			} else {
