@@ -30,7 +30,7 @@ var runList = function(fileHandler, directories, extensions, fn) {
 }
 
 exports.getModList = function(fileHandler, directories) {
-	util.say("info", tag + "Scanning through mod files...");
+	//util.say("info", tag + "Scanning through mod files...");
 	var mods = [];
 	runList(fileHandler, directories, [".zip", ".jar", ".litemod"],
 		function(dir, name) {
@@ -87,7 +87,7 @@ exports.getModList = function(fileHandler, directories) {
 }
 
 exports.getPluginList = function(fileHandler, directories) {
-	util.say("info", tag + "Scanning through plugin files...");
+	//util.say("info", tag + "Scanning through plugin files...");
 	var plugins = [];
 	runList(fileHandler, directories, [".jar"],
 		function(dir, name) {
