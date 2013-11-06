@@ -72,19 +72,9 @@ function addLocalFolderRoot(zip, localPath, zipPath) {
 	zip.addLocalFolder(path.resolve(localPath), zipPath);
 }
 
-var bannedUUIDs = [ // Those are UUIDs I accidentally distributed to people.
-	"2edaba4e-77ee-48cd-a65e-5b7869446fc5", // rc2
-	"0c645216-de7c-4bed-944b-71eec036bfbe" // beta7
-];
-
 exports.run = function(config, serverInfo) {
 	if(DO_LOCAL) util.say("warning", "LOCAL MODE IS CURRENTLY BUGGY! USE AT YOUR OWN RISK");
 
-	// Generate unique heartbeat UUID
-	if(!config.heartbeat.uuid || _.contains(bannedUUIDs, config.heartbeat.uuid)) {
-		config.heartbeat.uuid = uuid.v4();
-	}
-	
 	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/temp/zips"]);
 	addDirectory("", "./AsieLauncher/htdocs");
 	
@@ -113,19 +103,12 @@ exports.run = function(config, serverInfo) {
 		var zip = files.zip(dir, !_.contains(config.modpack.nonOverwrittenFiles, dir));
 		if(zip === null) return;
 		infoData.zips.push(zip);
-		util.say("info", "Added ZIP directory "+dir);
+		util.say("info", "Zipped directory "+dir);
 	});
 
 	infoData.platforms = files.platforms();
 
 	_.each(config.modpack.optionalComponents, function(option) {
-		// A bug from beta8/9 causes us to delete the following stuff.
-		if(option.filename) delete option.filename;
-		if(option.directory) delete option.directory; 
-		if(option["size"]) delete option["size"]; 
-		if(option.md5) delete option.md5; 
-		if(option.files) delete option.files;
-		
 		var dir = "./AsieLauncher/options/"+option.id;
 		if(!fs.existsSync(dir)) return;
 		

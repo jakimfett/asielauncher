@@ -3,8 +3,19 @@ var _ = require('underscore')
   , request = require('request')
   , util = require('./util.js');
 
+var bannedUUIDs = [ // Those are UUIDs I accidentally distributed to people.
+	"2edaba4e-77ee-48cd-a65e-5b7869446fc5", // rc2
+	"0c645216-de7c-4bed-944b-71eec036bfbe" // beta7
+];
+
 exports.create = function(config, serverInfo) {
 	var heartbeat = {};
+
+	// Generate unique heartbeat UUID
+	if(!config.heartbeat.uuid || _.contains(bannedUUIDs, config.heartbeat.uuid)) {
+		config.heartbeat.uuid = uuid.v4();
+	}
+	
 
 	function generateHeartbeat() {
 		return {
