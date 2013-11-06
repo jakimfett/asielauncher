@@ -14,8 +14,7 @@ var express = require('express')
   , archiver = require('archiver')
   , uuid = require('node-uuid')
   , fileParser = require('./fileParser.js')
-  , modList = null
-  , pluginList = null;
+  , launcher = require('./also-launcher.js');
 
 var app = express()
   , infoData = {}
@@ -73,34 +72,6 @@ function addLocalFolderRoot(zip, localPath, zipPath) {
 	zip.addLocalFolder(path.resolve(localPath), zipPath);
 }
 
-function createLauncherJAR(config) {
-	util.say("info", "[Launcher] Generating launcher JAR...");
-	util.deleteFile("./AsieLauncher/temp/launcher.jar");
-	var archive = archiver("zip");
-	var launcher = new Zip("./AsieLauncher/temp/AsieLauncher-latest.jar");
-	var outputStream = fs.createWriteStream("./AsieLauncher/temp/launcher.jar");
-	archive.pipe(outputStream);
-	_.each(launcher.getEntries(), function(entry) {
-		if(!(/\/$/.test(entry.entryName))) {
-			util.say("debug", "Packing " + entry.entryName);
-			archive.append(entry.getData(), {name: entry.entryName});
-		}
-	});
-	_.each(fs.readdirSync("./AsieLauncher/launcherConfig"), function(fn) {
-		if(fn === "config.json") return; // deprecated since 0.4.1
-		archive.append(fs.createReadStream("./AsieLauncher/launcherConfig/"+fn),
-				{name: "resources/"+fn });
-	});
-	archive.append(JSON.stringify({"serverUrl": config.launcher.serverUrl, "directoryName": config.launcher.directoryName}),
-			{name: "resources/config.json"});
-	archive.finalize(function() {
-		outputStream.on("close", function() {
-			addFile("launcher.jar", "./AsieLauncher/temp/launcher.jar");
-			util.say("info", "[Launcher] Launcher ready!");
-		});
-	});
-}
-
 var bannedUUIDs = [ // Those are UUIDs I accidentally distributed to people.
 	"2edaba4e-77ee-48cd-a65e-5b7869446fc5", // rc2
 	"0c645216-de7c-4bed-944b-71eec036bfbe" // beta7
@@ -117,39 +88,16 @@ exports.run = function(config, serverInfo) {
 	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/temp/zips"]);
 	addDirectory("", "./AsieLauncher/htdocs");
 	
-	// This directory has been deprecated around beta6.
-	wrench.rmdirSyncRecursive("./AsieLauncher/internal/launcher", function(){});
-
-	if(fs.existsSync("./AsieLauncher/temp/AsieLauncher-latest.jar")) createLauncherJAR(config);
-	else util.say("warning", "[Launcher] Launcher not found!");
+	if(fs.existsSync("./AsieLauncher/temp/AsieLauncher-latest.jar")) {
+		launcher.create(config, "./AsieLauncher/temp/launcher.jar", function(target) {
+			addFile("launcher.jar", target);
+		});
+	} else util.say("warning", "[Launcher] Launcher not found!");
 	
 	// * PREPARING DIRECTORIES *
 	util.say("info", "Preparing directories");
 	files.initialize(config.modpack);
 	initializeConfig(config);
-
-	// * MOD/PLUGIN LIST GENERATION *
-	modList = serverInfo.mods;
-	fs.writeFileSync("./" + (DO_LOCAL ? "ALWebFiles/" : "") + "modList.json", JSON.stringify(modList, null, 4));
-	
-	pluginList = serverInfo.plugins;
-	if(config.heartbeat.sendPlugins) {
-		/*
-		_.each(config.serverList, function(server) {
-			if(!server.location || !server.ip) return;
-			var location = server.location;
-			if(!/\/$/.test(location)) location += "/";
-			pluginList[server.ip] = fileParser.getPluginList(files, [server.location+"plugins"]);
-		});
-		if(_.keys(pluginList).length < 1) { // No plugins found! Try assuming one plugin pack.
-			_.each(config.serverList, function(server) {
-				if(!server.ip) return;
-				pluginList[server.ip] = fileParser.getPluginList(files, ["plugins"]);
-			});
-		}
-		*/
-		fs.writeFileSync("./" + (DO_LOCAL ? "ALWebFiles/" : "") + "pluginList.json", JSON.stringify(pluginList, null, 4));
-	} else pluginList = {};
 
 	_.each(config.modpack.directories.file, function(dir) {
 		infoData.files = _.union(infoData.files, files.file(dir));

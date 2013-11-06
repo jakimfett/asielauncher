@@ -32,6 +32,9 @@ var loadServer = function(config, server) {
 	serverInfo.mods = fileParser.getModList(files, ["mods", "coremods", "lib", "jarPatches"]);
 	util.say("info", "- plugins");
 	serverInfo.plugins = fileParser.getPluginList(files, ["./plugins"]);
+	util.say("info", "Writing information to JSON files...");
+	fs.writeFileSync("./modList.json", JSON.stringify(serverInfo.mods, null, 4));
+	fs.writeFileSync("./pluginList.json", JSON.stringify(serverInfo.plugins, null, 4));
 
 	process.chdir(cwd);
 	return serverInfo;
