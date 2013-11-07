@@ -65,7 +65,7 @@ function getModInfo(filename) {
 			});
 		});
 	} else {
-		var filename = name.split("/").reverse()[0];
+		var filename = path.basename(filename);
 		_.each(modDB.filenames, function(template, regexStr) {
 			var regex = new RegExp(regexStr, 'i');
 			if(regex.test(filename)) {

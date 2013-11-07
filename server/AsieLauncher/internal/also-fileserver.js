@@ -99,6 +99,8 @@ exports.run = function(config, serverInfo) {
 								"directory": "", "size": util.getSize(zipFile), "md5": util.md5(zipFile)}, option);
 			}
 		}
+		// 0.4.1 launcher compat
+		infoData.options[option.id].zip = (option.output == "zip");
 	});
 
 	files.addDirectory("zips", "./AsieLauncher/temp/zips");

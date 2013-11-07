@@ -18,13 +18,13 @@ var app = null;
 exports.setExpress = function(_app) { app = _app; }
 
 exports.addFile = function(file, location) {
-	util.say("debug", "Adding file " + fileName + " <- " + realFile);
+	util.say("debug", "Adding file " + file + " <- " + location);
 
 	if(configOut.mode == "local") {
 		util.copyFileSync(file, configOut.local.location+"/"+location);
 	}
 	if(configOut.mode == "http") {
-		app.use("/" + fileName, function(req,res) { res.sendfile(file); });
+		app.use("/" + file, function(req,res) { res.sendfile(location); });
 	}
 }
 
