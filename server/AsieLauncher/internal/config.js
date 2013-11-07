@@ -14,10 +14,16 @@ var configUpdaters = {
 		// Add server.id fields
 		var usedFirstID = false;
 		_.each(config.serverList, function(server) {
+			if(_.isString(server.id)) return;
 			server.id = usedFirstID ? server.name.replace(/\W/g, '').toLowerCase() : config.launcher.directoryName;
 			usedFirstID = true;
 		});
-		config.output = {
+		_.each(config.modpack.optionalComponents, function(option) {
+			if(_.isString(option.output)) return;
+			option.output = (option.zip ? "zip" : "file");
+			delete option.zip;
+		});
+		if(!config.output) config.output = {
 			"mode": "http",
 			"http": {
 				"port": config.webServer.port

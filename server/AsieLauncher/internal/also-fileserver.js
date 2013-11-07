@@ -90,9 +90,9 @@ exports.run = function(config, serverInfo) {
 		if(!fs.existsSync(dir)) return;
 		
 		util.say("info", "Adding option "+option.id+" ["+option.name+"]");
-		if(!option.zip) { // Directory
+		if(option.output == "file") { // Directory
 			infoData.options[option.id] = _.extend(files.getFiles(dir), option);
-		} else { // ZIP
+		} else if(option.output == "zip") { // ZIP
 			var name = "./AsieLauncher/temp/zips/option-"+option.id+".zip";
 			if(createZip(name, [dir])) {
  				infoData.options[option.id] = _.extend({"filename": "option-"+option.id+".zip",

@@ -22,7 +22,7 @@ exports.create = function(config, serverInfo) {
 			heartbeatVersion: 2,
 			uuid: config.heartbeat.uuid,
 			servers: _.map(serverInfo, function(serverCfg) {
-				var server = _.pick(serverCfg, ["ip", "name", "description", "owner", "website", "properties"]);
+				var server = _.pick(serverCfg, ["id", "ip", "name", "description", "owner", "website", "properties"]);
 				var properties = server.properties;
 				server.onlineMode = _(properties).contains("online-mode") ? properties["online-mode"] : (server.onlineMode || config.launcher.onlineMode);
 				server.whiteList = _(properties).contains("white-list") ? properties["white-list"] : (server.whiteList || false);
