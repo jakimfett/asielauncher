@@ -9,7 +9,34 @@ var config = {
 	"blacklistedFiles": [],
 	"nonOverwrittenFiles": []
 }
-	
+
+var configOut = null;
+
+exports.addFile = function(file, location) {
+	util.say("debug", "Adding file " + fileName + " <- " + realFile);
+
+	if(configOut.mode == "local") {
+		util.copyFileSync(file, configOut.local.location+"/"+location);
+	}
+	if(configOut.mode == "http") {
+		app.use("/" + fileName, function(req,res) { res.sendfile(file); });
+	}
+}
+
+
+exports.addDirectory = function (dirName, realDir) {
+	util.say("debug", "Adding directory: " + dirName + " <- " + realDir);
+
+	if(configOut.mode == "local") {
+		wrench.copyDirSyncRecursive(realDir+"/", configOut.local.location+"/"+dirName+"/", {
+ 			excludeHiddenUnix: false
+		});
+	}
+	if(configOut.mode == "http") {
+		app.use("/" + dirName, express.static(realDir));
+	}
+}
+
 function getDirectoryList(name, destName, addLocation, prefix) {
 	if(!_.isString(prefix)) prefix = "";
 	if(!fs.existsSync(name)) return [];
@@ -67,7 +94,8 @@ var totalSize = 0;
 
 exports.initialize = function(_config) {
 	totalSize = 0;
-	config = _config;
+	config = _config.modpack;
+	configOut = _config.output;
 }
 
 exports.file = function(dir) {

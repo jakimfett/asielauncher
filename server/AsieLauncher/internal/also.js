@@ -18,7 +18,7 @@ var loadServer = function(config, server) {
 	var cwd = process.cwd();
 	var files = require("./also-files.js");
 	var location = server.location;
-	files.initialize(config.modpack);
+	files.initialize(config);
 
 	process.chdir(path.resolve(location));
 	

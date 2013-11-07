@@ -15,6 +15,16 @@ var configUpdaters = {
 		config.launcher = _.extend(config.launcher, launcherConfig);
 		fs.unlinkSync("./AsieLauncher/launcherConfig/config.json");
 		config.version = 4;
+		config.output = {
+			"mode": "http",
+			"http": {
+				"port": config.webServer.port
+			},
+			"local": {
+				"location": "./ALWebFiles"
+			}
+		};
+		delete config.webServer;
 	},
 	2: function() {
 		if(config.serverList.length == 1 && fs.existsSync("./server.properties")) {

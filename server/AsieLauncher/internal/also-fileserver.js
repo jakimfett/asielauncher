@@ -17,35 +17,7 @@ var express = require('express')
   , launcher = require('./also-launcher.js');
 
 var app = express()
-  , infoData = {}
-  , DO_LOCAL = false;
-
-DO_LOCAL = argv.l || argv.local || false;
-
-// Handle parameters
-if(DO_LOCAL && fs.existsSync("./ALWebFiles")) {
-	wrench.rmdirSyncRecursive('./ALWebFiles', true);
-}
-
-function addFile(fileName, realFile) {
-	util.say("debug", "addFile: " + fileName + " <- " + realFile);
-	if(DO_LOCAL) {
-		util.copyFileSync(realFile, "./ALWebFiles/"+fileName);
-	} else {
-		app.use("/" + fileName, function(req,res) { res.sendfile(realFile); });
-	}
-}
-
-function addDirectory(dirName, realDir) {
-	util.say("debug", "addDirectory: " + dirName + " <- " + realDir);
-	if(DO_LOCAL) {
-		wrench.copyDirSyncRecursive(realDir+"/", './ALWebFiles/'+dirName+"/", {
- 			excludeHiddenUnix: false
-		});
-	} else {
-		app.use("/" + dirName, express.static(realDir));
-	}
-}
+  , infoData = {};
 
 function initializeConfig(config) {
 	infoData.jarPatches = util.onlyExtension(util.sortFilesBySubstrings(config.modpack.jarPatchesOrder,
@@ -73,27 +45,31 @@ function addLocalFolderRoot(zip, localPath, zipPath) {
 }
 
 exports.run = function(config, serverInfo) {
-	if(DO_LOCAL) util.say("warning", "LOCAL MODE IS CURRENTLY BUGGY! USE AT YOUR OWN RISK");
+	if(config.output.mode == "local") {
+		util.say("warning", "LOCAL MODE IS CURRENTLY BUGGY! USE AT YOUR OWN RISK");
+		if(fs.existsSync("./ALWebFiles"))
+			wrench.rmdirSyncRecursive('./ALWebFiles', true);
+	}
+
+	// * PREPARING DIRECTORIES *
+	util.say("info", "Preparing directories");
+	files.initialize(config);
+	initializeConfig(config);
 
 	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/temp/zips"]);
-	addDirectory("", "./AsieLauncher/htdocs");
+	files.addDirectory("", "./AsieLauncher/htdocs");
 	
 	if(fs.existsSync("./AsieLauncher/temp/AsieLauncher-latest.jar")) {
 		launcher.create(config, "./AsieLauncher/temp/launcher.jar", function(target) {
-			addFile("launcher.jar", target);
+			files.addFile("launcher.jar", target);
 		});
 	} else util.say("warning", "[Launcher] Launcher not found!");
 	
-	// * PREPARING DIRECTORIES *
-	util.say("info", "Preparing directories");
-	files.initialize(config.modpack);
-	initializeConfig(config);
-
 	_.each(config.modpack.directories.file, function(dir) {
 		infoData.files = _.union(infoData.files, files.file(dir));
 		var dirs = files.getPossibleDirectories(dir);
 		_.each(dirs, function(target) {
-			addDirectory(dir, target);
+			files.addDirectory(dir, target);
 			found = true;
 		});
 		if(dirs.length > 0) util.say("info", "Added directory "+dir);
@@ -124,22 +100,21 @@ exports.run = function(config, serverInfo) {
 		}
 	});
 
-	addDirectory("zips", "./AsieLauncher/temp/zips");
-	addDirectory("platform", "./AsieLauncher/platform");
-	addDirectory("options", "./AsieLauncher/options");
-	addDirectory("jarPatches", "./AsieLauncher/jarPatches");
+	files.addDirectory("zips", "./AsieLauncher/temp/zips");
+	files.addDirectory("platform", "./AsieLauncher/platform");
+	files.addDirectory("options", "./AsieLauncher/options");
+	files.addDirectory("jarPatches", "./AsieLauncher/jarPatches");
 
 	infoData.size = files.getTotalSize();
 
 	// * SERVER/LOCAL SETUP *
-	if(DO_LOCAL) {
+	if(config.output.mode == "local") {
 		fs.writeFileSync("./ALWebFiles/also.json", JSON.stringify(infoData));
-	} else {
-		app.use("/also.json", function(req, res) { res.json(infoData); });
+		util.say("info", "Files exported to ./ALWebFiles/");
 	}
-
-	if(!DO_LOCAL) {
+	if(config.output.mode == "http") {
+		app.use("/also.json", function(req, res) { res.json(infoData); });
 		app.listen(config.webServer.port);
 		util.say("info", "Ready - listening on port "+config.webServer.port+"!");
-	} else util.say("info", "Files exported to ./ALWebFiles/");
+	}
 }
