@@ -14,20 +14,12 @@ exports.create = function(config, serverInfo) {
 	// Generate unique heartbeat UUID
 	if(!config.heartbeat.uuid || _.contains(bannedUUIDs, config.heartbeat.uuid)) {
 		config.heartbeat.uuid = uuid.v4();
-	}
-	
+	}	
 
 	function generateHeartbeat() {
 		return {
-			heartbeatVersion: 2,
+			heartbeatVersion: 3,
 			uuid: config.heartbeat.uuid,
-			servers: _.map(serverInfo, function(serverCfg) {
-				var server = _.pick(serverCfg, ["id", "ip", "name", "description", "owner", "website", "properties"]);
-				var properties = server.properties;
-				server.onlineMode = _(properties).contains("online-mode") ? properties["online-mode"] : (server.onlineMode || config.launcher.onlineMode);
-				server.whiteList = _(properties).contains("white-list") ? properties["white-list"] : (server.whiteList || false);
-				return server;
-			}),
 			url: config.launcher.serverUrl,
 			launcher: config.launcher
 		};
@@ -37,24 +29,25 @@ exports.create = function(config, serverInfo) {
 		prefix = prefix || "";
 		cb = cb || function(){};
 		util.say("debug", "Sending heartbeat "+prefix);
+		util.say("debug", JSON.stringify(data));
 		data.time = util.unix(new Date());
 		request.post(config.heartbeat.url + prefix, {"form": data}, cb);
 	}
 
 	function runHeartbeat() {
 		var initialHeartbeat = { // Contains the "heavyweight" data (mods, etc)
-			heartbeatVersion: 2,
-			uuid: config.heartbeat.uuid,
 			version: JSON.parse(fs.readFileSync("./AsieLauncher/internal/info.json")),
-			mods: config.heartbeat.sendMods ? serverInfo.mods : [],
-			plugins: config.heartbeat.sendPlugins ? serverInfo.plugins : [],
+			servers: _.map(serverInfo, function(serverCfg) {
+				var server = _.pick(serverCfg, ["id", "ip", "name", "description", "owner", "website", "properties", "mods", "plugins"]);
+				var properties = server.properties;
+				server.onlineMode = _(properties).contains("online-mode") ? properties["online-mode"] : (server.onlineMode || config.launcher.onlineMode);
+				server.whiteList = _(properties).contains("white-list") ? properties["white-list"] : (server.whiteList || false);
+				return server;
+			}),
 			time: util.unix(new Date())
 		};
-		/* HEARTBEAT NOTES:
-		   - The reason for plugins and mods being split is plugins being per-server and mods, well... not.
-		*/
+		initialHeartbeat = _.extend(initialHeartbeat, generateHeartbeat());
 		var hbFunc = function() {
-			// Contains lightweight and/or possibly changeable data (server information, launcher URL, etc)
 			sendHeartbeat(generateHeartbeat(config));
 		}
 		sendHeartbeat(initialHeartbeat, "/init", function(){
