@@ -3,7 +3,8 @@ var _ = require('underscore')
   , wrench = require('wrench')
   , util = require('./util.js')
   , Zip = require('adm-zip')
-  , path = require('path');
+  , path = require('path')
+  , express = require('express');
 	
 var config = {
 	"blacklistedFiles": [],
@@ -11,6 +12,10 @@ var config = {
 }
 
 var configOut = null;
+
+var app = null;
+
+exports.setExpress = function(_app) { app = _app; }
 
 exports.addFile = function(file, location) {
 	util.say("debug", "Adding file " + fileName + " <- " + realFile);

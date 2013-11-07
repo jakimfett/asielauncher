@@ -54,6 +54,7 @@ exports.run = function(config, serverInfo) {
 	// * PREPARING DIRECTORIES *
 	util.say("info", "Preparing directories");
 	files.initialize(config);
+	files.setExpress(app);
 	initializeConfig(config);
 
 	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/temp/zips"]);
@@ -114,7 +115,7 @@ exports.run = function(config, serverInfo) {
 	}
 	if(config.output.mode == "http") {
 		app.use("/also.json", function(req, res) { res.json(infoData); });
-		app.listen(config.webServer.port);
-		util.say("info", "Ready - listening on port "+config.webServer.port+"!");
+		app.listen(config.output.http.port);
+		util.say("info", "Ready - listening on port "+config.output.http.port+"!");
 	}
 }
