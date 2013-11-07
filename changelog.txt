@@ -2,6 +2,7 @@
 [CLIENT]
 [SERVER]
 + Heartbeats can now be ran independently of the file server.
++ The output location for AsieLauncher's local mode can now be changed.
 * WARNING! LOCAL MODE IS NOW SELECTED IN CONFIG
 
 0.4.1:

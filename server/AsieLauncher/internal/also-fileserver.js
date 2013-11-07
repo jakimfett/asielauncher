@@ -47,8 +47,8 @@ function addLocalFolderRoot(zip, localPath, zipPath) {
 exports.run = function(config, serverInfo) {
 	if(config.output.mode == "local") {
 		util.say("warning", "LOCAL MODE IS CURRENTLY BUGGY! USE AT YOUR OWN RISK");
-		if(fs.existsSync("./ALWebFiles"))
-			wrench.rmdirSyncRecursive('./ALWebFiles', true);
+		if(fs.existsSync(config.output.local.location))
+			wrench.rmdirSyncRecursive(config.output.local.location, true);
 	}
 
 	// * PREPARING DIRECTORIES *
@@ -109,8 +109,8 @@ exports.run = function(config, serverInfo) {
 
 	// * SERVER/LOCAL SETUP *
 	if(config.output.mode == "local") {
-		fs.writeFileSync("./ALWebFiles/also.json", JSON.stringify(infoData));
-		util.say("info", "Files exported to ./ALWebFiles/");
+		fs.writeFileSync(config.output.local.location + "/also.json", JSON.stringify(infoData));
+		util.say("info", "Files exported to " + config.output.local.location);
 	}
 	if(config.output.mode == "http") {
 		app.use("/also.json", function(req, res) { res.json(infoData); });

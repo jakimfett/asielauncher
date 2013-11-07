@@ -43,7 +43,7 @@ var loadServer = function(config, server) {
 exports.run = function(cwd) {
 	process.chdir(cwd);
 
-	util.say("info", "Started AsieLauncher server v" + VERSION);
+	util.say("info", "Started AsieLauncher server " + VERSION);
 
 	// Load configuration
 	configHandler = require("./config.js");
