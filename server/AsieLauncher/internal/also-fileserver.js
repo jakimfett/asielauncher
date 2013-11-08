@@ -20,9 +20,6 @@ var app = express()
   , infoData = {};
 
 function initializeConfig(config) {
-	infoData.jarPatches = util.onlyExtension(util.sortFilesBySubstrings(config.modpack.jarPatchesOrder,
-	                        files.getDirectoryList("./AsieLauncher/jarPatches", "jarPatches/", false, "jarPatches/")
-	                      ), [".zip", ".jar"]);
 	infoData.files = [];
 	infoData.zips = [];
 	infoData.options = {};
@@ -64,6 +61,7 @@ exports.prepare = function(config, serverInfo, prefix) {
 	if(config.output.mode == "local") {
 		fs.mkdirSync(config.output.local.location + "/" + prefix);
 		fs.mkdirSync(config.output.local.location + "/" + prefix + "zips");
+		fs.mkdirSync(config.output.local.location + "/" + prefix + "options");
 	}
 
 	if(fs.existsSync("./AsieLauncher/temp/AsieLauncher-latest.jar")) {
@@ -93,26 +91,34 @@ exports.prepare = function(config, serverInfo, prefix) {
 	infoData.platforms = files.platforms();
 
 	_.each(config.modpack.optionalComponents, function(option) {
-		var dir = "./AsieLauncher/options/"+option.id;
+		var dir = serverInfo.location + "AsieLauncher/options/"+option.id;
+		if(!fs.existsSync(dir)) dir = "./AsieLauncher/options/"+option.id;
 		if(!fs.existsSync(dir)) return;
 		
 		util.say("info", "Adding option "+option.id+" ["+option.name+"]");
 		if(option.output == "file") { // Directory
 			infoData.options[option.id] = _.extend(files.getFiles(dir), option);
+			files.addDirectory(prefix + "options/" + option.id, dir);
 		} else if(option.output == "zip") { // ZIP
-			var name = "./AsieLauncher/temp/zips/option-"+option.id+".zip";
+			var filename = "option-"+serverInfo.id+"-"+option.id+".zip";
+			var name = "./AsieLauncher/temp/zips/"+filename;
 			if(createZip(name, [dir])) {
- 				infoData.options[option.id] = _.extend({"filename": "option-"+option.id+".zip",
-								"directory": "", "size": util.getSize(zipFile), "md5": util.md5(zipFile)}, option);
+ 				infoData.options[option.id] = _.extend({"filename": filename, "directory": "",
+								"size": util.getSize(zipFile), "md5": util.md5(zipFile)}, option);
 			}
 		}
 		// 0.4.1 launcher compat
 		infoData.options[option.id].zip = (option.output == "zip");
 	});
 
+	if(fs.existsSync(serverInfo.location + "AsieLauncher/jarPatches")) {
+		infoData.jarPatches = util.onlyExtension(util.sortFilesBySubstrings(config.modpack.jarPatchesOrder,
+	                        files.getDirectoryList(serverInfo.location + "AsieLauncher/jarPatches", "jarPatches/", 
+				false, "jarPatches/")), [".zip", ".jar"]);
+		files.addDirectory(prefix + "jarPatches", serverInfo.location + "AsieLauncher/jarPatches");
+	} else { infoData.jarPatches = []; }
+
 	files.addDirectory(prefix + "platform", "./AsieLauncher/platform");
-	files.addDirectory(prefix + "options", "./AsieLauncher/options");
-	files.addDirectory(prefix + "jarPatches", "./AsieLauncher/jarPatches");
 
 	infoData.size = files.getTotalSize();
 
