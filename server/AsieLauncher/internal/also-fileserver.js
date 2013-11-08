@@ -44,13 +44,12 @@ function addLocalFolderRoot(zip, localPath, zipPath) {
 	zip.addLocalFolder(path.resolve(localPath), zipPath);
 }
 
-exports.run = function(config, serverInfo) {
+exports.init = function(config) {
 	if(config.output.mode == "local") {
 		util.say("warning", "LOCAL MODE IS CURRENTLY BUGGY! USE AT YOUR OWN RISK");
 		if(fs.existsSync(config.output.local.location))
 			wrench.rmdirSyncRecursive(config.output.local.location, true);
 	}
-
 	// * PREPARING DIRECTORIES *
 	util.say("info", "Preparing directories");
 	files.initialize(config);
@@ -59,27 +58,35 @@ exports.run = function(config, serverInfo) {
 
 	util.mkdir(["./AsieLauncher/temp", "./AsieLauncher/temp/zips"]);
 	files.addDirectory("", "./AsieLauncher/htdocs");
-	
+}
+
+exports.prepare = function(config, serverInfo, prefix) {
+	if(config.output.mode == "local") {
+		fs.mkdirSync(config.output.local.location + "/" + prefix);
+		fs.mkdirSync(config.output.local.location + "/" + prefix + "zips");
+	}
+
 	if(fs.existsSync("./AsieLauncher/temp/AsieLauncher-latest.jar")) {
-		launcher.create(config, "./AsieLauncher/temp/launcher.jar", function(target) {
-			files.addFile("launcher.jar", target);
+		launcher.create(config, "./AsieLauncher/temp/launcher-"+serverInfo.id+".jar", prefix, function(target) {
+			files.addFile(prefix+"launcher.jar", target);
 		});
 	} else util.say("warning", "[Launcher] Launcher not found!");
 	
 	_.each(config.modpack.directories.file, function(dir) {
 		infoData.files = _.union(infoData.files, files.file(dir));
-		var dirs = files.getPossibleDirectories(dir);
+		var dirs = files.getPossibleDirectories(serverInfo.location + dir);
 		_.each(dirs, function(target) {
-			files.addDirectory(dir, target);
+			files.addDirectory(prefix+dir, target);
 			found = true;
 		});
 		if(dirs.length > 0) util.say("info", "Added directory "+dir);
 	});
 
 	_.each(config.modpack.directories.zip, function(dir) {
-		var zip = files.zip(dir, !_.contains(config.modpack.nonOverwrittenFiles, dir));
+		var zip = files.zip(dir, !_.contains(config.modpack.nonOverwrittenFiles, dir), serverInfo.id, serverInfo.location);
 		if(zip === null) return;
 		infoData.zips.push(zip);
+		files.addFile(prefix + "zips/"+zip.filename, "./AsieLauncher/temp/zips/"+zip.filename);
 		util.say("info", "Zipped directory "+dir);
 	});
 
@@ -103,20 +110,28 @@ exports.run = function(config, serverInfo) {
 		infoData.options[option.id].zip = (option.output == "zip");
 	});
 
-	files.addDirectory("zips", "./AsieLauncher/temp/zips");
-	files.addDirectory("platform", "./AsieLauncher/platform");
-	files.addDirectory("options", "./AsieLauncher/options");
-	files.addDirectory("jarPatches", "./AsieLauncher/jarPatches");
+	files.addDirectory(prefix + "platform", "./AsieLauncher/platform");
+	files.addDirectory(prefix + "options", "./AsieLauncher/options");
+	files.addDirectory(prefix + "jarPatches", "./AsieLauncher/jarPatches");
 
 	infoData.size = files.getTotalSize();
 
+	if(config.output.mode == "local") {
+		fs.writeFileSync(config.output.local.location + "/" + prefix + "also.json", JSON.stringify(infoData));
+	}
+	if(config.output.mode == "http") {
+		app.use("/" + prefix + "also.json", function(req, res) {
+			res.json(infoData);
+		});
+	}
+}
+
+exports.run = function(config) {
 	// * SERVER/LOCAL SETUP *
 	if(config.output.mode == "local") {
-		fs.writeFileSync(config.output.local.location + "/also.json", JSON.stringify(infoData));
 		util.say("info", "Files exported to " + config.output.local.location);
 	}
 	if(config.output.mode == "http") {
-		app.use("/also.json", function(req, res) { res.json(infoData); });
 		app.listen(config.output.http.port);
 		util.say("info", "Ready - listening on port "+config.output.http.port+"!");
 	}

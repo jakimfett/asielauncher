@@ -21,7 +21,7 @@ exports.addFile = function(file, location) {
 	util.say("debug", "Adding file " + file + " <- " + location);
 
 	if(configOut.mode == "local") {
-		util.copyFileSync(file, configOut.local.location+"/"+location);
+		util.copyFileSync(location, configOut.local.location+"/"+file);
 	}
 	if(configOut.mode == "http") {
 		app.use("/" + file, function(req,res) { res.sendfile(location); });
@@ -126,10 +126,12 @@ function createZip(name, dirs) {
 }
 exports.createZip = createZip;
 
-exports.zip = function(dir, overwrite) {
-	var name = "./AsieLauncher/temp/zips/"+dir+".zip";
-	if(createZip(name, getPossibleDirectories(dir))) {
-		var zipData = {"filename": dir+".zip", "directory": dir == "root" ? "" : dir,
+exports.zip = function(dir, overwrite, id, location) {
+	location = location || "";
+ 	id = id || "null";
+	var name = "./AsieLauncher/temp/zips/"+id+"-"+dir+".zip";
+	if(createZip(name, getPossibleDirectories(location+dir))) {
+		var zipData = {"filename": id+"-"+dir+".zip", "directory": dir == "root" ? "" : dir,
 			"size": util.getSize(name),
 			"md5": util.md5(name), "overwrite": overwrite || true};
 		totalSize += zipData.size;

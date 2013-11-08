@@ -56,8 +56,14 @@ exports.run = function(cwd) {
 
 	// TODO: Make the file server use more than one server
 	var fileServer = require('./also-fileserver.js');
-	util.say("info", "Starting FileServer");
-	fileServer.run(config, serverInfo[0]);
+	util.say("info", "Preparing FileServer");
+	fileServer.init(config);
+
+	_.each(serverInfo, function(server) {
+		fileServer.prepare(config, server, server.id+"/");
+	});
+
+	fileServer.run(config);
 
 	if(config.heartbeat.enabled) {
 		util.say("info", "Starting HeartbeatServer");

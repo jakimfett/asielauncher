@@ -4,7 +4,7 @@ var Zip = require('adm-zip')
   , util = require('./util.js')
   , _ = require('underscore');
 
-exports.create = function(config, target, callback) {
+exports.create = function(config, target, urlPrefix, callback) {
 	util.say("info", "[Launcher] Generating launcher JAR...");
 	util.deleteFile("./AsieLauncher/temp/launcher.jar");
 	var archive = archiver("zip");
@@ -22,7 +22,7 @@ exports.create = function(config, target, callback) {
 		archive.append(fs.createReadStream("./AsieLauncher/launcherConfig/"+fn),
 				{name: "resources/"+fn });
 	});
-	archive.append(JSON.stringify({"serverUrl": config.launcher.serverUrl, "directoryName": config.launcher.directoryName}),
+	archive.append(JSON.stringify({"serverUrl": config.launcher.serverUrl + urlPrefix , "directoryName": config.launcher.directoryName}),
 			{name: "resources/config.json"});
 	archive.finalize(function() {
 		outputStream.on("close", function() {
