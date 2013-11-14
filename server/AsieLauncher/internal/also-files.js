@@ -73,8 +73,9 @@ exports.getDirectoryList = getDirectoryList;
 
 function getPossibleDirectories(name) {
 	var dirs = [];
-	if(name.indexOf(".") === 0 || name.indexOf("/") === 0) dirs = [name];
+	if(name.indexOf(".") === 0 || name.indexOf("/") === 0) dirs = [name, name+"-client"];
 	else {
+		// TODO: Figure out if we need this or want this.
 		_.each(config.lookupDirectories, function(_d) {
 			var d = _d;
 			if(!(/\/$/.test(d))) d = d + "/";
@@ -97,9 +98,9 @@ function getDirectoriesList(name, addLocation) {
 
 var totalSize = 0;
 
-exports.initialize = function(_config) {
+exports.initialize = function(_config, _modpackConfig) {
 	totalSize = 0;
-	config = _config.modpack;
+	config = _modpackConfig;
 	configOut = _config.output;
 }
 
