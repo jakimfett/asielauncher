@@ -24,7 +24,7 @@ public class AssetDownloader implements IProgressUpdater {
 		this.updater = updater;
 	}
 	public AssetDownloader(IProgressUpdater updater) {
-		this("https://s3.amazonaws.com/Minecraft.Resources/", updater);
+		this("http://resources.download.minecraft.net/", updater);
 	}
 	public AssetDownloader(String assetURL) {
 		this(assetURL, null);
