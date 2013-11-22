@@ -2,7 +2,12 @@ var fs = require("fs")
   , _ = require("underscore");
 
 var config = fs.existsSync("./also-config.json") ? require("../../also-config.json") : require("../config.json")
-  , LATEST_CONFIG = 5;
+  , LATEST_CONFIG = 6
+  , modpacks = {};
+
+function loadModpackConfig() { }
+function saveModpackConfig() { }
+function getModpack(modpack) { }
 
 var saveConfig = function() {
 	if(fs.existsSync("./AsieLauncher/config.json")) fs.unlinkSync("./AsieLauncher/config.json");
@@ -10,6 +15,21 @@ var saveConfig = function() {
 }
 
 var configUpdaters = {
+	5: function() {
+		// Split away modpack configurations
+		if(!fs.existsSync("./AsieLauncher/modpacks")) fs.mkdir("./AsieLauncher/modpacks");
+		config.modpack.mcVersion = config.launcher.minecraftVersion;
+		config.modpack.id = config.launcher.directoryName;
+		fs.writeFileSync("./AsieLauncher/modpacks/default.json", JSON.stringify(config.modpack, undefined, 2));
+		_.each(config.serverList, function(server) {
+			server.modpack = "default";
+		});
+		delete config.modpack;
+		delete config.launcher.minecraftVersion;
+		delete config.launcher.onlineMode; // Resort to using server.properties only
+		delete config.launcher.directoryName;
+		config.version = 6;
+	},
 	4: function() {
 		// Add server.id fields
 		var usedFirstID = false;
@@ -110,4 +130,7 @@ exports.set = function(c) {
 	config = c;
 	saveConfig();
 }
+exports.getModpack = getModpack;
 exports.save = saveConfig;
+
+loadModpackConfig();

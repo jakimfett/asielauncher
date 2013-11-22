@@ -56,6 +56,20 @@
 			"id": "ReisMinimap", "name": "Rei's Minimap",
 			"type": "Forge", "version": 2,
 			"url": "http://www.minecraftforum.net/topic/482147-162-jul08-reis-minimap-v34-01/"
+		},
+		"^\\[(\\d\\.\\d\\.\\d)\\]\\[[a-z]+\\]\\[forge\\]BetterSnow\\.zip$": {
+			"authors": ["acomputerdog"],
+			"description": "Better Snow is a Minecraft mod that improves snow.",
+			"id": "BetterSnow", "name": "Better Snow",
+			"type": "Forge", "version": 1,
+			"url": "TODO"
+		},
+		"^LostBooks (\\d\\.\\d) \\(bin\\) for MC (\\d\\.\\d\\.\\d)\\.zip$": {
+			"authors": ["toast"],
+			"description": "LostBooks is a Minecraft mod that adds randomly generated books to dungeon loot.",
+			"id": "LostBooks", "name": "Lost Books",
+			"type": "Forge", "version": 1,
+			"url": "TODO"
 		}
 	}
 }
