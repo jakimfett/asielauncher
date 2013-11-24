@@ -33,7 +33,7 @@ function getModInfo(filename) {
 	if(zip.getEntry("litemod.json")) {
 		try {
 			var data = JSON.parse(zip.readAsText("litemod.json"));
-		} catch(e) { util.say("error", "Error parsing "+name+"!"); return; }
+		} catch(e) { util.say("error", "Error parsing "+filename+"!"); return; }
 		util.say("debug", "Read LiteLoader mod: " + data.name + " ("+filename+")");
 		mods.push({
 			type: "LiteLoader",
@@ -47,7 +47,7 @@ function getModInfo(filename) {
 		try {
 			// Replace newlines with spaces (EnderStorage)
 			var data = JSON.parse(zip.readAsText("mcmod.info").replace(/(\r|\n)/g, " "));
-		} catch(e) { util.say("error", "Error parsing "+name+"!"); return; }
+		} catch(e) { util.say("error", "Error parsing "+filename+"!"); return; }
 		if(data.modinfoversion >= 2) {
 			data = data.modlist;
 		}

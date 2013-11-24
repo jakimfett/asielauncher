@@ -21,7 +21,7 @@ exports.addFile = function(file, location) {
 	util.say("debug", "Adding file " + file + " <- " + location);
 
 	if(configOut.mode == "local") {
-		util.copyFileSync(file, configOut.local.location+"/"+location);
+		util.copyFileSync(location, configOut.local.location+"/"+file);
 	}
 	if(configOut.mode == "http") {
 		app.use("/" + file, function(req,res) { res.sendfile(location); });

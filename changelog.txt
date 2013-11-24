@@ -1,9 +1,10 @@
 0.4.2-dev:
 [CLIENT]
+* Fixed asset downloading.
 [SERVER]
 + Heartbeats can now be ran independently of the file server.
 + The output location for AsieLauncher's local mode can now be changed.
-* WARNING! LOCAL MODE IS NOW SELECTED IN CONFIG
+* WARNING! LOCAL MODE IS NOW TO BE SELECTED IN CONFIG
 
 0.4.1:
 [CLIENT]
