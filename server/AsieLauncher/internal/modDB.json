@@ -65,6 +65,15 @@
 		},
 		"^OpenPeripheral-(\\d\\.\\d\\.\\d-snapshot-\\d+)-forge.*\\.jar$": {
 			"version": 1
+		},
+		"^Natura_.*_(\\d\\.\\d+\\.\\d+\\.?\\d*)\\.jar$": {
+			"version": 1
+		},
+		"^\\[CC\\d\\.\\d+\\]RedIO\\[v(\\d\\.\\d+)\\]\\.zip$": {
+		  "id": "RedIO", "name": "RedIO",
+		  "version": 1, "type": "Forge",
+		  "description": "RedIO adds a single block that can read and output a redstone signal by communicating with a computercraft computer over a wired network. Exposes the functions:  set(int), set(boolean), get(), analogGet()",
+		  "authors": ["Joseph 'Nuchaz' Sinclair"]
 		}
 	}
 }

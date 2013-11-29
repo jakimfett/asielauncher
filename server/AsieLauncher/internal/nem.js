@@ -3,7 +3,8 @@ var util = require("./util.js")
   , request = require("request")
   , fs = require("fs")
   , path = require("path")
-  , vp = require("./versionParser.js");
+  , vp = require("./versionParser.js")
+  , argv = require("optimist").argv;
 
 var supportedVersions = {
 	"1.4.5": "1.4.5",
@@ -52,7 +53,18 @@ function checkModUpdates(version, modDB, cb) {
 					util.say("info", "[NEM] An updated version of " + mod.name + " has been found! ("
 						+ mod.version + " -> " + nemMod.version + ")");
 				} else {
+					if(_.isString(nemMod.dev) && nemMod.dev.length > 0 && vp.compare(nemMod.version, nemMod.dev) > 0) {
+						nemMod.version = nemMod.dev;
+						var newVersion = vp.unify(nemMod.version);
+						if(vp.compare(oldVersion, newVersion) > 0) {
+							util.say("info", "[NEM] An updated DEV version of " + mod.name + " has been found! ("
+								+ mod.version + " -> " + nemMod.version + ")");
+						}
+					}
 					util.say("debug", "NEM check: " + mod.name + " " + mod.version + " -> " + nemMod.version);
+				}
+				if(argv.show_outdated && vp.compare(oldVersion, newVersion) < 0) {
+					util.say("error", "[NEM] NotEnoughMods' listing of " + mod.name + " is outdated! (NEM: " + nemMod.version + ", here: " + mod.version + ")");
 				}
 				//util.say("debug", oldVersion + " -> " + newVersion);
 			}
