@@ -1,4 +1,4 @@
-var VERSION = "0.4.2-dev3";
+var VERSION = "0.4.2";
 
 // Initialize libraries (quite a lot of them, too!)
 var _ = require('underscore')

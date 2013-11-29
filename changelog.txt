@@ -1,6 +1,9 @@
-0.4.2-dev:
+0.4.2:
 [CLIENT]
++ Added a Purge button, to wipe all AsieLauncher data. Use carefully.
++ The authentication now happens before the downloading and lets you try again.
 * Fixed asset downloading.
+* Fixed the password remember function.
 [SERVER]
 + Heartbeats can now be ran independently of the file server.
 + The output location for AsieLauncher's local mode can now be changed.
