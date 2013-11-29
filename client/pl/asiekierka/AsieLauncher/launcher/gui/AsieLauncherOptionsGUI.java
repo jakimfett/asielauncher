@@ -5,10 +5,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.*;
 
 import javax.swing.*;
@@ -26,15 +24,15 @@ public class AsieLauncherOptionsGUI extends JFrame {
 	private HashMap<JCheckBox, String> optionBoxIDs;
 	private JButton quitButton, logButton, purgeButton;
 	protected JCheckBox loginCheckbox;
-	public String filename;
-	public ArrayList<String> oldOptions;
-	public ArrayList<String> options;
+	public String filename, filenameJSON;
+	public ArrayList<String> oldOptions, options;
 	private JTextField ramAmount, otherArgs;
 	private AsieLauncherGUI lgui;
 	
 	public AsieLauncherOptionsGUI(AsieLauncherGUI parent, Map<String, JSONObject> optionMap, String fn) {
 		lgui = parent;
 		filename=fn;
+		filenameJSON = fn.replaceAll("txt", "json");
 		setTitle(Strings.OPTIONS);
 		setResizable(false);
 		setLocationRelativeTo(null);
@@ -132,7 +130,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		}
 		c.gridy++;
 		panel.add(quitButton, c);
-		loadSelectedOptions(filename);
+		loadSelectedOptions();
 		oldOptions = getOptions();
 		options = getOptions();
 		pack();
@@ -166,11 +164,19 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		options = getOptions();
 	}
 	
-	public void loadSelectedOptions(String filename) {
-		String line = "";
+	public void loadSelectedOptions() {
+		File fileJSON = new File(filenameJSON);
+		if(fileJSON.exists()) {
+			loadSelectedOptionsJSON();
+		}
 		File file = new File(filename);
-		if(!file.exists()) return;
-		// Reset all checkboxes
+		if(!file.exists()) return; // No JSON, no TXT
+		loadSelectedOptionsOld(file);
+	}
+	
+	private void loadSelectedOptionsOld(File file) {
+		String line = "";
+		// Outdated code!
 		for(JCheckBox box: optionBoxes.values()) {
 			box.setSelected(false);
 		}
@@ -198,24 +204,49 @@ public class AsieLauncherOptionsGUI extends JFrame {
 		return;
 	}
 	
-	public void saveSelectedOptions(String filename) {
-		BufferedWriter writer = null;
+	private void loadSelectedOptionsJSON() {
+		JSONObject json = Utils.readJSONFile(filenameJSON);
 		try {
-			writer = new BufferedWriter(new FileWriter(filename));
-			writer.write(("" + OPTIONS_VERSION) + '\n');
-			writer.write(ramAmount.getText() + '\n');
-			writer.write(otherArgs.getText() + '\n');
-			writer.write((loginCheckbox.isSelected() ? "true" : "false") + '\n');
-			for(JCheckBox box: optionBoxes.values()) {
-				if(box != null && box.isSelected()) writer.write(optionBoxIDs.get(box) + '\n');
+			int version = ((Long)json.get("version")).intValue();
+			switch(version) {
+				case 1:
+					ramAmount.setText((String)json.get("ramAmount"));
+					otherArgs.setText((String)json.get("jvmArguments"));
+					loginCheckbox.setSelected((Boolean)json.get("keepLoggedIn"));
+					JSONObject options = (JSONObject)json.get("options");
+					for(Object o: options.keySet()) {
+						String s = (String)o;
+						JCheckBox box = optionBoxes.get(s);
+						if(box != null) box.setSelected((Boolean)options.get(s));
+					}
+				default:
+					break;
 			}
-			writer.close();
+		} catch(NullPointerException e) {
+			return;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public void saveSelectedOptions() {
+		Utils.deleteIfExists(new File(filename));
+		JSONObject config = new JSONObject();
+		config.put("version", 1);
+		config.put("ramAmount", ramAmount.getText());
+		config.put("jvmArguments", otherArgs.getText());
+		config.put("keepLoggedIn", loginCheckbox.isSelected());
+		
+		JSONObject boxes = new JSONObject();
+		for(JCheckBox box: optionBoxes.values()) {
+			if(box != null) boxes.put(optionBoxIDs.get(box), box.isSelected());
+		}
+		config.put("options", boxes);
+		
+		try {
+			Utils.saveStringToFile(filenameJSON, config.toJSONString());
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			if(writer != null) try{writer.close();}catch(Exception ee){}
-			return;
 		}
-		return;
 	}
 }

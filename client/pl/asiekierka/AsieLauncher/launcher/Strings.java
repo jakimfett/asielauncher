@@ -1,7 +1,5 @@
 package pl.asiekierka.AsieLauncher.launcher;
 
-import javax.swing.Icon;
-
 public class Strings {
 	public static final String DOWNLOADING = "Downloading";
 	public static final String INSTALLING = "Installing";

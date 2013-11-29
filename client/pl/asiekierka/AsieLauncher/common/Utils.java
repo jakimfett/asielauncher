@@ -218,18 +218,6 @@ public class Utils {
     	}
     	return downloaded;
 	}
-	// From StackOverflow
-	public static void deleteFolderContents(File folder) {
-	    File[] files = folder.listFiles();
-	    if(files!=null) { //some JVMs return null for empty dirs
-	        for(File f: files) {
-	            if(f.isDirectory()) {
-	                deleteFolderContents(f);
-	            }
-	            f.delete();
-	        }
-	    }
-	}
 	
 	public static void close(Object o) {
 		try {
@@ -305,4 +293,8 @@ public class Utils {
 		  if (!f.delete())
 		    throw new FileNotFoundException("Failed to delete file: " + f);
 		}
+
+	public static void deleteIfExists(File file) {
+		if(file.exists()) file.delete();
+	}
 }

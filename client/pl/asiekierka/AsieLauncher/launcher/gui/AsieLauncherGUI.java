@@ -151,7 +151,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	    			   if(options.loginCheckbox.isSelected())
 	    				   launcher.setKeepPassword(true);
 	    			   Utils.saveStringToFile(launcher.directory + "nickname.txt", loginField.getText());
-	    			   if(hasInternet) options.saveSelectedOptions(options.filename);
+	    			   if(hasInternet) options.saveSelectedOptions();
 	    			   panel.add(progressBar);
 	    			   statusLabel.setText(Strings.START_UPDATE);
 	    			   repaint();
