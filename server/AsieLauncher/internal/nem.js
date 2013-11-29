@@ -69,6 +69,7 @@ function checkModUpdates(version, modDB, cb) {
 				//util.say("debug", oldVersion + " -> " + newVersion);
 			}
 		});
+		cb();
 	});
 }
 

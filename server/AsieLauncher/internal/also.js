@@ -1,4 +1,4 @@
-var VERSION = "0.4.3-dev";
+var VERSION = "0.4.2";
 
 // Initialize libraries (quite a lot of them, too!)
 var _ = require('underscore')
@@ -31,8 +31,6 @@ var loadServer = function(config, server) {
 	serverInfo.properties = fileParser.getServerProperties("./server.properties");
 	util.say("info", "- mods");
 	serverInfo.mods = fileParser.getModList(files, ["mods", "coremods", "lib", "jarPatches"]);
-	// Take the time to check the NEM list
-	nem.checkModUpdates(config.launcher.minecraftVersion, serverInfo.mods, function() { });
 	util.say("info", "- plugins");
 	serverInfo.plugins = fileParser.getPluginList(files, ["./plugins"]);
 	util.say("info", "Writing information to JSON files...");
@@ -69,4 +67,8 @@ exports.run = function(cwd) {
 
 	util.say("info", "Saving updated configuration");
 	configHandler.set(config);
+
+	util.say("info", "Starting prompt");
+	var prompt = require('./prompt.js');
+	prompt.init(config, serverInfo[0]);
 }
