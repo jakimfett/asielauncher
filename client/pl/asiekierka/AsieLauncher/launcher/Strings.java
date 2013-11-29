@@ -38,4 +38,5 @@ public class Strings {
 	public static final String PURGE = "Purge";
 	public static final String PURGE_WARNING = "This option will REMOVE ALL ASIELAUNCHER FILES!\n\nAre you sure?\n(USE ONLY IF YOU FOUND A BUG)";
 	public static final String RESTART_MESSAGE = "Please restart AsieLauncher.";
+	public static final String KEEP_LOGGED_IN = "Keep logged in";
 }

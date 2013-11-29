@@ -34,7 +34,7 @@ public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 7;
 	private ServerListManager serverlist;
 	public static final String VERSION_STRING = "0.4.3-dev";
-	public String WINDOW_NAME = "AsieLauncher";
+	public String WINDOW_NAME = Strings.TITLE;
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "default";
 	private ArrayList<FileDownloader> baseFiles;
@@ -246,7 +246,6 @@ public class AsieLauncher implements IProgressUpdater {
 			setStatus(Strings.AUTH_STATUS);
 			int result = auth.authenticate(username, password);
 			if(result != Authentication.OK) {
-				System.out.println("Result is: " + result);
 				setStatus(Strings.LOGIN_ERROR+": " + auth.getErrorMessage());
 				return false;
 			} else return true;

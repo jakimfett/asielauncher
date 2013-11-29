@@ -38,7 +38,7 @@ public class Repacker {
 		}
 	}
 	
-	public String merge(String jarFile, String[] patches, String outFile) throws ZipException, IOException {
+	private String merge(String jarFile, String[] patches, String outFile) throws ZipException, IOException {
 		fileMap = new HashMap<String, String>();
 		// Generate filemap.
 		try {

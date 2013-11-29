@@ -97,6 +97,34 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 		statusLabel.setText("["+statusProgress + "%] " + status);
 	}
 	
+	public void beginInstallation() {
+		   if(validateLaunch()) {
+			   quitButton.setEnabled(false);
+			   launchButton.setEnabled(false);
+			   loginLabel.setText(Strings.PROGRESS+":");
+		       loginLabel.setBounds(10, 162, 70, 15);
+			   panel.remove(loginField);
+			   String password = "";
+			   if(passwordField != null) {
+				   password = new String(passwordField.getPassword());
+				   panel.remove(passwordLabel);
+				   panel.remove(passwordField);
+			   }
+			   if(options.loginCheckbox.isSelected())
+				   launcher.setKeepPassword(true);
+			   Utils.saveStringToFile(launcher.directory + "nickname.txt", loginField.getText());
+			   if(hasInternet) options.saveSelectedOptions();
+			   panel.add(progressBar);
+			   statusLabel.setText(Strings.START_UPDATE);
+			   repaint();
+			   LauncherThread thread = new LauncherThread(AsieLauncherGUI.this, launcher, options, loginField.getText(), password, hasInternet && !controlDown);
+			   thread.start();
+		   } else {
+			   statusLabel.setText(Strings.INVALID_LOGIN);
+			   repaint();
+		   }
+	}
+	
 	public void initGUILogin() {
 	       quitButton = new JButton(Strings.QUIT);
 	       quitButton.setBounds(245, 189, 65, 25);
@@ -130,37 +158,14 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	    		   if(event.getKeyCode() == KeyEvent.VK_CONTROL) setControl(false);
 	    	   }
 	       });
+	      
 	       launchButton = new JButton(Strings.LAUNCH_UPDATE);
 	       if(!hasInternet) launchButton.setText(Strings.LAUNCH_ONLY);
 	       launchButton.setBounds(90, 189, 149, 25);
 	       launchButton.addActionListener(new ActionListener() {
 	    	   @Override
 	           public void actionPerformed(ActionEvent event) {
-	    		   if(validateLaunch()) {
-	    			   quitButton.setEnabled(false);
-	    			   launchButton.setEnabled(false);
-	    			   loginLabel.setText(Strings.PROGRESS+":");
-	    		       loginLabel.setBounds(10, 162, 70, 15);
-	    			   panel.remove(loginField);
-	    			   String password = "";
-	    			   if(passwordField != null) {
-	    				   password = new String(passwordField.getPassword());
-	    				   panel.remove(passwordLabel);
-	    				   panel.remove(passwordField);
-	    			   }
-	    			   if(options.loginCheckbox.isSelected())
-	    				   launcher.setKeepPassword(true);
-	    			   Utils.saveStringToFile(launcher.directory + "nickname.txt", loginField.getText());
-	    			   if(hasInternet) options.saveSelectedOptions();
-	    			   panel.add(progressBar);
-	    			   statusLabel.setText(Strings.START_UPDATE);
-	    			   repaint();
-	    			   LauncherThread thread = new LauncherThread(AsieLauncherGUI.this, launcher, options, loginField.getText(), password, hasInternet && !controlDown);
-	    			   thread.start();
-	    		   } else {
-	    			   statusLabel.setText(Strings.INVALID_LOGIN);
-	    			   repaint();
-	    		   }
+	    		   beginInstallation();
 	           }
 	       });
 	       

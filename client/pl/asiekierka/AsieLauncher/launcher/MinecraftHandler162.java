@@ -36,7 +36,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		return Utils.getPath(l.baseDir + "versions/" + l.mcVersion + "/minecraft.jar");
 	}
 	
-	public String getNativesLocation(AsieLauncher l) {
+	private String getNativesLocation(AsieLauncher l) {
 		File dir = new File(l.baseDir + "versions/" + l.mcVersion + "/natives/");
 		if(!dir.exists()) dir.mkdirs();
 		return dir.getAbsolutePath();
@@ -70,7 +70,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
         }
     }
     
-    public void scanLiteLoader(String modDir, String libraryDir, String version) {
+    private void scanLiteLoader(String modDir, String libraryDir, String version) {
         try {
                 File[] loaderFiles = new File(modDir).listFiles();
                 if(loaderFiles == null) return;
@@ -87,7 +87,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
         } catch(Exception e) { e.printStackTrace(); }
 }
 	
-	public boolean downloadLibraries(String patchDir, String libraryDir) {
+	private boolean downloadLibraries(String patchDir, String libraryDir) {
 		ArrayList<String> addedLibraries = new ArrayList<String>();
 		// Go through library files
 		File jarPatchesDirectory = new File(patchDir, "lib");
@@ -182,7 +182,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		} else return true;
 	}
 	
-	public boolean loadJSON(String patchDir, String gameDir, String jsonDir, String version) {
+	private boolean loadJSON(String patchDir, String gameDir, String jsonDir, String version) {
 		if(launchInfo != null) return true; // Already been here
 		if(updater != null) {
 			updater.update(1, 2);
@@ -260,7 +260,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		return true;
 	}
 	
-	public boolean checkMinecraft(AsieLauncher l) {
+	private boolean checkMinecraft(AsieLauncher l) {
 		assetsDir = l.baseDir+"assets/";
 		gameVersion = l.mcVersion;
 		nativesDir = getNativesLocation(l);
@@ -303,7 +303,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		if(l.updater != null) l.updater.setStatus(status);
 	}
 	
-	public ArrayList<String> getMCArguments(AsieLauncher l, String path, String username, String sessionID, String jvmArgs) {
+	private ArrayList<String> getMCArguments(AsieLauncher l, String path, String username, String sessionID, String jvmArgs) {
 		ArrayList<String> args = new ArrayList<String>();
 		args.addAll(Arrays.asList(jvmArgs.split(" ")));
 		args.add("-cp"); args.add(generateClasspath(l));

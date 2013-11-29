@@ -98,7 +98,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 	        	setVisible(false);
 	        }
 	    });
-	    loginCheckbox = new JCheckBox("Keep logged in");
+	    loginCheckbox = new JCheckBox(Strings.KEEP_LOGGED_IN);
 	    // Warning: The part below is uuuuugly.
 	    // Don't tell me I didn't warn you.
 		c.fill = GridBagConstraints.HORIZONTAL;

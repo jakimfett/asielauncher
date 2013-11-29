@@ -47,7 +47,7 @@ public class MinecraftHandler152 implements MinecraftHandler {
 		if(l.updater != null) l.updater.setStatus(status);
 	}
 	
-	public ArrayList<String> getMCArguments(AsieLauncher l, String path, String classpath, String username, String sessionID, String jvmArgs) {
+	private ArrayList<String> getMCArguments(AsieLauncher l, String path, String classpath, String username, String sessionID, String jvmArgs) {
 		ArrayList<String> args = new ArrayList<String>();
 		args.addAll(Arrays.asList(jvmArgs.split(" ")));
 		args.add("-cp"); args.add(classpath);

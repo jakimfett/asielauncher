@@ -85,7 +85,7 @@ public class Utils {
 	    pipe(process.getInputStream(), System.out);
 	}
 
-	public static void pipe(final InputStream src, final PrintStream dest) {
+	private static void pipe(final InputStream src, final PrintStream dest) {
 	    new Thread(new Runnable() {
 	        public void run() {
 	            try {
