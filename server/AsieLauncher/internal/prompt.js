@@ -12,11 +12,15 @@ rl.setPrompt("> ");
 
 var commands = {}
   , config = {}
-  , serverInfo = {};
+  , serverInfo = {}
+  , heartbeat = null
+  , fileServer = null;
 
-exports.init = function(_config, _serverInfo) {
+exports.init = function(_config, _serverInfo, _heartbeat, _fileServer) {
 	config = _config;
 	serverInfo = _serverInfo;
+	heartbeat = _heartbeat;
+	fileServer = _fileServer;
 }
 
 commands["check-updates"] = {
@@ -37,6 +41,16 @@ commands["help"] = {
 	}
 }
 
+commands["stop"] = {
+	"description": "Gracefully stop the server.",
+	"function": function(params, cb) {
+		rl.close();
+		heartbeat.close();
+		fileServer.close();
+		process.exit(0);
+	}
+}
+
 rl.prompt();
 rl.on("line", function(line) {
 	rl.pause();
@@ -47,7 +61,7 @@ rl.on("line", function(line) {
 			setTimeout(function() { rl.prompt(); }, 50);
 		});
 	} else {
-		util.say("error", "Command not found: " + cmdname + "!");
+		if(cmdname.length > 0) util.say("error", "Command not found: " + cmdname + "!");
 		rl.prompt();
 	}
 });

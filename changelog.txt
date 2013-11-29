@@ -3,6 +3,8 @@
 * Migrated options format to JSON.
   * Fixed default options not changing on older clients.
 [SERVER]
++ Add prompt!
+  / Only has a few commands. Use "help".
 + Added mod update checking with NotEnoughMods
   / Works on Minecraft 1.4.5-1.7.2
   / May be a bit rough around the edges.

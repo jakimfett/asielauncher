@@ -3,10 +3,16 @@ var _ = require('underscore')
   , request = require('request')
   , util = require('./util.js');
 
+var interval = null;
+
 var bannedUUIDs = [ // Those are UUIDs I accidentally distributed to people.
 	"2edaba4e-77ee-48cd-a65e-5b7869446fc5", // rc2
 	"0c645216-de7c-4bed-944b-71eec036bfbe" // beta7
 ];
+
+exports.close = function() {
+	if(interval != null) clearInterval(interval);
+}
 
 exports.create = function(config, serverInfo) {
 	var heartbeat = {};
@@ -51,7 +57,7 @@ exports.create = function(config, serverInfo) {
 			sendHeartbeat(generateHeartbeat(config));
 		}
 		sendHeartbeat(initialHeartbeat, "/init", function(){
-			setInterval(hbFunc, 90*1000); // Every 90 seconds should be enough.
+			var interval = setInterval(hbFunc, 90*1000); // Every 90 seconds should be enough.
 			hbFunc();
 		});
 	}

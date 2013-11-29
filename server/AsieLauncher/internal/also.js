@@ -55,7 +55,6 @@ exports.run = function(cwd) {
 		serverInfo.push(loadServer(config, server));
 	});
 
-	// TODO: Make the file server use more than one server
 	var fileServer = require('./also-fileserver.js');
 	util.say("info", "Starting FileServer");
 	fileServer.run(config, serverInfo[0]);
@@ -70,5 +69,5 @@ exports.run = function(cwd) {
 
 	util.say("info", "Starting prompt");
 	var prompt = require('./prompt.js');
-	prompt.init(config, serverInfo[0]);
+	prompt.init(config, serverInfo[0], heartbeat, fileServer);
 }

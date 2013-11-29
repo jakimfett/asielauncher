@@ -17,6 +17,7 @@ var express = require('express')
   , launcher = require('./also-launcher.js');
 
 var app = express()
+  , httpServer = null
   , infoData = {};
 
 function initializeConfig(config) {
@@ -42,6 +43,10 @@ function initializeConfig(config) {
 function addLocalFolderRoot(zip, localPath, zipPath) {
 	util.say("debug", "Resolving " + localPath + " to " + path.resolve(localPath) + " ("+zipPath+")");
 	zip.addLocalFolder(path.resolve(localPath), zipPath);
+}
+
+exports.close = function() {
+	httpServer.close();
 }
 
 exports.run = function(config, serverInfo) {
@@ -117,7 +122,7 @@ exports.run = function(config, serverInfo) {
 	}
 	if(config.output.mode == "http") {
 		app.use("/also.json", function(req, res) { res.json(infoData); });
-		app.listen(config.output.http.port);
+		httpServer = app.listen(config.output.http.port);
 		util.say("info", "Ready - listening on port "+config.output.http.port+"!");
 	}
 }
