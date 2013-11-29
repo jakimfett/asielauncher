@@ -29,7 +29,7 @@ exports.create = function(config, serverInfo) {
 		prefix = prefix || "";
 		cb = cb || function(){};
 		util.say("debug", "Sending heartbeat "+prefix);
-		util.say("debug", JSON.stringify(data));
+		//util.say("debug", JSON.stringify(data));
 		data.time = util.unix(new Date());
 		request.post(config.heartbeat.url + prefix, {"form": data}, cb);
 	}

@@ -1,4 +1,4 @@
-var VERSION = "0.4.2";
+var VERSION = "0.4.3-dev";
 
 // Initialize libraries (quite a lot of them, too!)
 var _ = require('underscore')
@@ -8,7 +8,8 @@ var _ = require('underscore')
   , argv = require('optimist').argv
   , fileParser = require('./fileParser.js')
   , configHandler = null
-  , heartbeat = require('./also-heartbeat.js');
+  , heartbeat = require('./also-heartbeat.js')
+  , nem = require('./nem.js');
 
 var DEBUG = argv.d || argv.debug || false;
 
@@ -30,6 +31,8 @@ var loadServer = function(config, server) {
 	serverInfo.properties = fileParser.getServerProperties("./server.properties");
 	util.say("info", "- mods");
 	serverInfo.mods = fileParser.getModList(files, ["mods", "coremods", "lib", "jarPatches"]);
+	// Take the time to check the NEM list
+	nem.checkModUpdates(config.launcher.minecraftVersion, serverInfo.mods, function() { });
 	util.say("info", "- plugins");
 	serverInfo.plugins = fileParser.getPluginList(files, ["./plugins"]);
 	util.say("info", "Writing information to JSON files...");
