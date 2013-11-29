@@ -5,7 +5,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Random;
 import java.util.UUID;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -16,7 +15,7 @@ import org.json.simple.parser.*;
 import pl.asiekierka.AsieLauncher.common.Utils;
 
 public class AuthenticationYggdrasil extends Authentication {
-	// Special thanks to the MinecraftCoalition.
+	// Special thanks to the MinecraftCoalition. (wiki.vg)
 	
 	private static final String SERVER = "https://authserver.mojang.com";
 	private String filename, directory;
@@ -46,7 +45,12 @@ public class AuthenticationYggdrasil extends Authentication {
 	
 	private String get(String name) { return info.containsKey(name) ? (String)info.get(name) : null; }
 
+	@SuppressWarnings("unchecked")
 	public void setKeepPassword(boolean l) {
+		if(keepLoggedIn == true && l == false) {
+			sessionID = null;
+			info.put("sessionID", null);
+		}
 		keepLoggedIn = l;
 	}
 	
@@ -81,7 +85,6 @@ public class AuthenticationYggdrasil extends Authentication {
 			dos.writeBytes(payload.toJSONString());
 			dos.flush();
 			dos.close();
-			System.out.println("Sent: "+payload.toJSONString());
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			return (JSONObject)new JSONParser().parse(readIn(in));
 		}
@@ -124,7 +127,7 @@ public class AuthenticationYggdrasil extends Authentication {
 		JSONObject payload = new JSONObject();
 		payload.put("accessToken", sessionID);
 		payload.put("clientToken", get("clientToken"));
-		payload.put("selectedProfile", null);
+		//payload.put("selectedProfile", null);
 		JSONObject answer = sendJSONPayload("/refresh", payload);
 		if(handlingError(answer) != OK) {
 			sessionID = null;

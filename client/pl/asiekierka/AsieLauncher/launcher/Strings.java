@@ -1,5 +1,7 @@
 package pl.asiekierka.AsieLauncher.launcher;
 
+import javax.swing.Icon;
+
 public class Strings {
 	public static final String DOWNLOADING = "Downloading";
 	public static final String INSTALLING = "Installing";
@@ -35,4 +37,7 @@ public class Strings {
 	public static final String WRONG_MINECRAFT_VERSION = "This version of Minecraft is not supported by the launcher!";
 	public static final String ASSET_CHECKING = "Checking for assets...";
 	public static final String JSON_CHECKING = "Verifying Minecraft files...";
+	public static final String PURGE = "Purge";
+	public static final String PURGE_WARNING = "This option will REMOVE ALL ASIELAUNCHER FILES!\n\nAre you sure?\n(USE ONLY IF YOU FOUND A BUG)";
+	public static final String RESTART_MESSAGE = "Please restart AsieLauncher.";
 }

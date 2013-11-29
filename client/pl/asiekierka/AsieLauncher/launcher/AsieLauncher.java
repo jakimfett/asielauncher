@@ -31,9 +31,9 @@ import pl.asiekierka.AsieLauncher.download.FileParserJSON;
 
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
-	public static final int VERSION = 6;
+	public static final int VERSION = 7;
 	private ServerListManager serverlist;
-	public static final String VERSION_STRING = "0.4.2-dev";
+	public static final String VERSION_STRING = "0.4.2";
 	public String WINDOW_NAME = "AsieLauncher";
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "default";
@@ -240,6 +240,19 @@ public class AsieLauncher implements IProgressUpdater {
 		ArrayList<String> oldOptions = new ArrayList<String>();
 		return install(options, oldOptions, dry);
 	}
+	
+	public boolean authenticate(String username, String password) {
+		if(auth != null) {
+			setStatus(Strings.AUTH_STATUS);
+			int result = auth.authenticate(username, password);
+			if(result != Authentication.OK) {
+				System.out.println("Result is: " + result);
+				setStatus(Strings.LOGIN_ERROR+": " + auth.getErrorMessage());
+				return false;
+			} else return true;
+		} else return true; // No authentication core set, offline mode.
+	}
+	
 	public boolean install(ArrayList<String> options, ArrayList<String> oldOptions, boolean dry) {
 		ArrayList<FileDownloader> installFiles = getFileList(file, options);
 		ArrayList<FileDownloader> oldInstallFiles = null;
@@ -327,16 +340,8 @@ public class AsieLauncher implements IProgressUpdater {
 		String sessionID = "null";
 		if(updater != null) updater.update(100,100);
 		if(auth != null) {
-			setStatus(Strings.AUTH_STATUS);
-			int result = auth.authenticate(username, password);
-			if(result != Authentication.OK) {
-				System.out.println("Result is: " + result);
-				setStatus(Strings.LOGIN_ERROR+": " + auth.getErrorMessage());
-				return;
-			} else {
-				username = auth.getUsername();
-				sessionID = auth.getSessionToken();
-			}
+			username = auth.getUsername();
+			sessionID = auth.getSessionToken();
 		}
 		launchedMinecraft = mc.launch(directory, username, sessionID, jvmArgs, this);
 	}

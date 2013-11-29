@@ -10,13 +10,12 @@ import javax.swing.*;
 import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
 import pl.asiekierka.AsieLauncher.common.Utils;
 import pl.asiekierka.AsieLauncher.launcher.AsieLauncher;
-import pl.asiekierka.AsieLauncher.launcher.LauncherThread;
 import pl.asiekierka.AsieLauncher.launcher.Strings;
 
 public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	private static final long serialVersionUID = 550781190397000747L;
 	public boolean isRunning;
-	private AsieLauncher launcher;
+	protected AsieLauncher launcher;
 	private JPanel panel;
 	private JButton quitButton, launchButton, optionsButton;
 	private JLabel statusLabel, loginLabel, passwordLabel;
@@ -26,7 +25,6 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	private Image background;
 	private AsieLauncherOptionsGUI options;
 	public boolean hasInternet = true;
-	private double scaleFactor;
 	private boolean controlDown = false;
 	
 	public boolean canKeepPassword() {
@@ -44,7 +42,6 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	}
 	
 	public AsieLauncherGUI() {
-		scaleFactor = Utils.getScaleFactor();
 		launcher = new AsieLauncher();
 		launcher.setUpdater((IProgressUpdater)this);
 		isRunning = true;
@@ -60,7 +57,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 		boolean useJPG = hasFile("/resources/background@2x.jpg") || hasFile("/resources/background.jpg");
 		boolean usePNG = hasFile("/resources/background@2x.png") || hasFile("/resources/background.png");
 		if(useJPG || usePNG) {
-			if(!has2x || scaleFactor <= 1.0) {
+			if(!has2x || Utils.getScaleFactor() <= 1.0) {
 				background = getToolkit().getImage(getClass().getResource("/resources/background."
 						+ (useJPG ? "jpg" : "png")));
 			} else {
@@ -158,7 +155,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	    			   panel.add(progressBar);
 	    			   statusLabel.setText(Strings.START_UPDATE);
 	    			   repaint();
-	    			   LauncherThread thread = new LauncherThread(launcher, options, loginField.getText(), password, hasInternet && !controlDown);
+	    			   LauncherThread thread = new LauncherThread(AsieLauncherGUI.this, launcher, options, loginField.getText(), password, hasInternet && !controlDown);
 	    			   thread.start();
 	    		   } else {
 	    			   statusLabel.setText(Strings.INVALID_LOGIN);
@@ -169,24 +166,8 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	       
 	       statusLabel = new JLabel(Strings.READY + " ("+Strings.VERSION+": "+AsieLauncher.VERSION_STRING+")");
 	       statusLabel.setBounds(6, 219, 300, 15);
-	       
-	       loginLabel = new JLabel(Strings.LOGIN+":");
-	       loginField = new JTextField();
-	       loginField.setText(Utils.loadStringFromFile(launcher.directory + "nickname.txt"));
-	       
-	       if(launcher.askForPassword()) {
-	    	   passwordLabel = new JLabel(Strings.PASSWORD+":");
-	    	   passwordField = new JPasswordField();
-		       passwordLabel.setBounds(10, 160, 70, 15);
-		       passwordField.setBounds(80, 156, 231, 24); 
-		       loginLabel.setBounds(10, 134, 50, 15);
-		       loginField.setBounds(80, 130, 231, 24); 
-		       panel.add(passwordLabel);
-		       panel.add(passwordField);
-	       } else {
-		       loginLabel.setBounds(10, 160, 50, 15);
-		       loginField.setBounds(60, 156, 251, 24); 
-	       }
+
+	       reinstateLoginBox();
 	       
 	       progressBar = new JProgressBar();
 	       progressBar.setBounds(86, 160, 224, 20);
@@ -195,8 +176,6 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 	       panel.add(optionsButton);
 	       panel.add(quitButton);
 	       panel.add(statusLabel);
-	       panel.add(loginLabel);
-	       panel.add(loginField);
 		   repaint();
 	}
 	public String[] generateLogs() {
@@ -212,10 +191,39 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
 		if(!launcher.isSupported()) {
 			JOptionPane.showMessageDialog(this, Strings.WRONG_MINECRAFT_VERSION);
 		}
+		if(options.loginCheckbox.isSelected())
+			launcher.setKeepPassword(true);
 		initGUILogin();
 		if(!launcher.compatibleClientRevision()) {
 			JOptionPane.showMessageDialog(this, Strings.WRONG_CLIENT_REVISION);
 		}
 		return true;
+	}
+
+	public void reinstateLoginBox() {
+       loginLabel = new JLabel(Strings.LOGIN+":");
+       loginField = new JTextField();
+       loginField.setText(Utils.loadStringFromFile(launcher.directory + "nickname.txt"));
+       
+       if(launcher.askForPassword()) {
+    	   passwordLabel = new JLabel(Strings.PASSWORD+":");
+    	   passwordField = new JPasswordField();
+	       passwordLabel.setBounds(10, 160, 70, 15);
+	       passwordField.setBounds(80, 156, 231, 24); 
+	       loginLabel.setBounds(10, 134, 50, 15);
+	       loginField.setBounds(80, 130, 231, 24); 
+	       panel.add(passwordLabel);
+	       panel.add(passwordField);
+       } else {
+	       loginLabel.setBounds(10, 160, 50, 15);
+	       loginField.setBounds(60, 156, 251, 24); 
+       }
+       
+       panel.add(loginLabel);
+       panel.add(loginField);
+       if(progressBar != null) panel.remove(progressBar);
+	   quitButton.setEnabled(true);
+	   launchButton.setEnabled(true);
+       repaint();
 	}
 }

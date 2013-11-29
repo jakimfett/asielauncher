@@ -15,6 +15,7 @@ import javax.swing.*;
 
 import org.json.simple.*;
 
+import pl.asiekierka.AsieLauncher.common.Utils;
 import pl.asiekierka.AsieLauncher.launcher.Strings;
 
 public class AsieLauncherOptionsGUI extends JFrame {
@@ -23,7 +24,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 	private JPanel panel;
 	private HashMap<String, JCheckBox> optionBoxes;
 	private HashMap<JCheckBox, String> optionBoxIDs;
-	private JButton quitButton, logButton;
+	private JButton quitButton, logButton, purgeButton;
 	protected JCheckBox loginCheckbox;
 	public String filename;
 	public ArrayList<String> oldOptions;
@@ -73,6 +74,24 @@ public class AsieLauncherOptionsGUI extends JFrame {
 				logGUI.showLog(lgui.generateLogs());
 			}
 		});
+		purgeButton = new JButton(Strings.PURGE);
+		purgeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				int result = JOptionPane.showConfirmDialog(AsieLauncherOptionsGUI.this, Strings.PURGE_WARNING);
+				if(result == 0) {
+					// Kill it.
+					try {
+						Utils.deleteDirectory(new File(lgui.launcher.baseDir));
+					} catch(Exception e) {
+						JOptionPane.showMessageDialog(AsieLauncherOptionsGUI.this, e.getMessage());
+						System.exit(1);
+					}
+					JOptionPane.showMessageDialog(AsieLauncherOptionsGUI.this, Strings.RESTART_MESSAGE);
+					System.exit(0);
+				}
+			}
+		});
 		quitButton = new JButton(Strings.OK);
 	    quitButton.addActionListener(new ActionListener() {
 	    	@Override
@@ -95,9 +114,11 @@ public class AsieLauncherOptionsGUI extends JFrame {
 			c.gridy++;
 		}
 	    panel.add(logButton, c);
+	    c.gridy++;
+	    panel.add(purgeButton, c);
 	    c.anchor = GridBagConstraints.LINE_END;
 	    c.gridx++;
-	    c.gridy-=2;
+	    c.gridy-=3;
 	    if(lgui.canKeepPassword()) {
 	    	c.gridy--;
 	    }
@@ -109,6 +130,7 @@ public class AsieLauncherOptionsGUI extends JFrame {
 			panel.add(loginCheckbox, c);
 			c.gridy++;
 		}
+		c.gridy++;
 		panel.add(quitButton, c);
 		loadSelectedOptions(filename);
 		oldOptions = getOptions();
