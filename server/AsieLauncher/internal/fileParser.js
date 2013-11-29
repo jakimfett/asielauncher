@@ -27,6 +27,21 @@ var runList = function(fileHandler, directories, extensions, fn) {
 	});
 }
 
+function extendModInfo(filename, info) {
+	var filename = path.basename(filename);
+	_.each(modDB.filenames, function(template, regexStr) {
+		var regex = new RegExp(regexStr, 'i');
+		if(regex.test(filename)) {
+			var matches = filename.match(regex);
+			_.each(template, function(v, k) {
+				info[k] = _.isNumber(v) ? matches[v] : v;
+			});
+			return info;
+		}
+	});
+	return info;
+}
+
 function getModInfo(filename) {
 	var mods = [];
 	var zip = new Zip(filename);
@@ -35,14 +50,14 @@ function getModInfo(filename) {
 			var data = JSON.parse(zip.readAsText("litemod.json"));
 		} catch(e) { util.say("error", "Error parsing "+filename+"!"); return; }
 		util.say("debug", "Read LiteLoader mod: " + data.name + " ("+filename+")");
-		mods.push({
+		mods.push(extendModInfo(filename, {
 			type: "LiteLoader",
 			id: data.name,
 			name: getName(data.name),
 			authors: [data.author || "Unknown"],
 			description: data.description || "",
 			version: data.version
-		});
+		}));
 	} else if(zip.getEntry("mcmod.info")) {
 		try {
 			// Replace newlines with spaces (EnderStorage)
@@ -54,7 +69,7 @@ function getModInfo(filename) {
 		_.each(data, function(mod) {
 			if(!mod) return;
 			util.say("debug", "Read Forge mod: " + mod.name + " ("+filename+")");
-			mods.push({
+			mods.push(extendModInfo(filename, {
 				type: "Forge",
 				id: mod.modid,
 				name: getName(mod.name),
@@ -62,20 +77,11 @@ function getModInfo(filename) {
 				description: mod.description || "",
 				authors: mod.authors || [mod.author || "Unknown"],
 				url: mod.url || ""
-			});
+			}));
 		});
 	} else {
-		var filename = path.basename(filename);
-		_.each(modDB.filenames, function(template, regexStr) {
-			var regex = new RegExp(regexStr, 'i');
-			if(regex.test(filename)) {
-				var matches = filename.match(regex);
-				_.each(template, function(v, k) {
-					template[k] = _.isNumber(v) ? matches[v] : v;
-				});
-				mods.push(template);
-			}
-		});
+		var result = extendModInfo(filename, {});
+		if(_.keys(result).length > 0) mods.push(result);
 	}
 	return mods;
 }

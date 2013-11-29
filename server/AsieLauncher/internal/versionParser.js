@@ -45,6 +45,7 @@ function unifyVersion(version) {
 			currentPart += (char.charCodeAt(0) - 97) % 26;
 		}
 	});
+	if(mode != "none") versionData.push(currentPart);
 	// Remove clearly irrational parts
 	var newVersionData = _.filter(versionData, function(data) {
 		return (data <= 1000000);

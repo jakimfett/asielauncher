@@ -54,6 +54,7 @@ function checkModUpdates(version, modDB, cb) {
 				} else {
 					util.say("debug", "NEM check: " + mod.name + " " + mod.version + " -> " + nemMod.version);
 				}
+				//util.say("debug", oldVersion + " -> " + newVersion);
 			}
 		});
 	});

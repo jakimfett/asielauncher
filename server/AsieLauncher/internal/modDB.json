@@ -56,6 +56,15 @@
 			"id": "ReisMinimap", "name": "Rei's Minimap",
 			"type": "Forge", "version": 2,
 			"url": "http://www.minecraftforum.net/topic/482147-162-jul08-reis-minimap-v34-01/"
+		},
+		"^EnderIO-(\\d\\.\\d\\.\\d)-(\\d*\\.\\d*\\.\\d*\\.\\d*)\\.jar$": {
+			"version": 2
+		},
+		"^Artifice-(\\d\\.\\d\\.\\d-\\d+)\\.jar$": {
+			"version": 1
+		},
+		"^OpenPeripheral-(\\d\\.\\d\\.\\d-snapshot-\\d+)-forge.*\\.jar$": {
+			"version": 1
 		}
 	}
 }
