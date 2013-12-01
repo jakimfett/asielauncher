@@ -41,6 +41,7 @@ function checkModUpdates(version, modDB, cb) {
 			nemList[nemMod.modid || nemMod.name] = nemMod;
 		});
 		var nemMods = _.keys(nemList);
+		var result = {};
 		// Check per mod
 		_.each(modDB, function(mod) {
 			if(_.contains(nemMods, mod.id)) {
@@ -49,19 +50,29 @@ function checkModUpdates(version, modDB, cb) {
 				var oldVersion = vp.unify(mod.version);
 				var newVersion = vp.unify(nemMod.version);
 				if(oldVersion == newVersion) return; // The version is the same
+				util.say("debug", "NEM check: " + mod.name + " " + mod.version + " -> " + nemMod.version);
 				if(vp.compare(oldVersion, newVersion) > 0) {
-					util.say("info", "[NEM] An updated version of " + mod.name + " has been found! ("
-						+ mod.version + " -> " + nemMod.version + ")");
+					result[mod.id] = {
+						"current": mod.version,
+						"name": mod.name,
+						"new": nemMod.version,
+						"type": "regular",
+						"source": "nem"
+					}
 				} else {
 					if(_.isString(nemMod.dev) && nemMod.dev.length > 0 && vp.compare(nemMod.version, nemMod.dev) > 0) {
 						nemMod.version = nemMod.dev;
 						var newVersion = vp.unify(nemMod.version);
 						if(vp.compare(oldVersion, newVersion) > 0) {
-							util.say("info", "[NEM] An updated DEV version of " + mod.name + " has been found! ("
-								+ mod.version + " -> " + nemMod.version + ")");
+							result[mod.id] = {
+								"current": mod.version,
+								"name": mod.name,
+								"new": nemMod.version,
+								"type": "dev",
+								"source": "nem"
+							}
 						}
 					}
-					util.say("debug", "NEM check: " + mod.name + " " + mod.version + " -> " + nemMod.version);
 				}
 				if(argv.show_outdated && vp.compare(oldVersion, newVersion) < 0) {
 					util.say("error", "[NEM] NotEnoughMods' listing of " + mod.name + " is outdated! (NEM: " + nemMod.version + ", here: " + mod.version + ")");
@@ -69,7 +80,7 @@ function checkModUpdates(version, modDB, cb) {
 				//util.say("debug", oldVersion + " -> " + newVersion);
 			}
 		});
-		cb();
+		cb(result);
 	});
 }
 

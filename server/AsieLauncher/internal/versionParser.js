@@ -4,6 +4,14 @@ var _ = require("underscore")
 function isNumeric(c) { return c >= '0' && c <= '9'; }
 function isCharacter(c) { return c >= 'a' && c <= 'z'; }
 
+function toNumber(s) {
+	var i = 0;
+	_.each(s.split(""), function(char) {
+		i = (i*26) + char.charCodeAt(0);
+	});
+	return i;
+}
+
 function compareVersion(oldVersion, newVersion) {
 	var i = 0;
 	if(_.isString(oldVersion)) oldVersion = unifyVersion(oldVersion);
@@ -48,6 +56,8 @@ function unifyVersion(version) {
 	if(mode != "none") versionData.push(currentPart);
 	// Remove clearly irrational parts
 	var newVersionData = _.filter(versionData, function(data) {
+		// AE workaround
+		if(data == toNumber("finale")) return data;
 		return (data <= 1000000);
 	});
 	return newVersionData;
