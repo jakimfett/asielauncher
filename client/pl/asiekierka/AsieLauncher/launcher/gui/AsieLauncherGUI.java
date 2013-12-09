@@ -209,7 +209,13 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
        loginLabel = new JLabel(Strings.LOGIN+":");
        loginField = new JTextField();
        loginField.setText(Utils.loadStringFromFile(launcher.directory + "nickname.txt"));
-       
+       loginField.addActionListener(new ActionListener() {
+    	   @Override
+    	   public void actionPerformed(ActionEvent event) {
+    		   
+    	   }
+       });
+
        if(launcher.askForPassword()) {
     	   passwordLabel = new JLabel(Strings.PASSWORD+":");
     	   passwordField = new JPasswordField();

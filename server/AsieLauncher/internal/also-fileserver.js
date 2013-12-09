@@ -1,4 +1,4 @@
-var JSON_REVISION = 7;
+var JSON_REVISION = 8;
 
 // Initialize libraries (quite a lot of them, too!)
 var express = require('express')
