@@ -119,7 +119,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				filename = data[1] + "-" + data[2] + "-" + addon + ".jar";
 			}
 			String filePath = libraryDir + filename; // Don't move that above natives code.
-			String urlPrefix = "http://s3.amazonaws.com/Minecraft.Download/libraries/";
+			String urlPrefix = "https://libraries.minecraft.net/";
 			if(jsonLibrary.containsKey("url"))
 				urlPrefix = (String)jsonLibrary.get("url");
 			if(!(new File(filePath).exists())) {

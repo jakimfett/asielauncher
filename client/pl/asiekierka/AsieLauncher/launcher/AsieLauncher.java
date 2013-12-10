@@ -31,9 +31,9 @@ import pl.asiekierka.AsieLauncher.download.FileParserJSON;
 
 @SuppressWarnings("unused")
 public class AsieLauncher implements IProgressUpdater {
-	public static final int VERSION = 7;
+	public static final int VERSION = 8;
 	private ServerListManager serverlist;
-	public static final String VERSION_STRING = "0.4.3-dev";
+	public static final String VERSION_STRING = "0.4.3a";
 	public String WINDOW_NAME = Strings.TITLE;
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "default";
