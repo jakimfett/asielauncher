@@ -6,25 +6,27 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.json.simple.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
+import pl.asiekierka.AsieLauncher.common.Utils;
 import pl.asiekierka.AsieLauncher.launcher.Strings;
 
 public class AssetDownloader implements IProgressUpdater {
 
-	private String assetURL;
+	private String indexName;
 	private IProgressUpdater updater;
 	private int realTotal, currTotal;
 	
 	public AssetDownloader(String assetURL, IProgressUpdater updater) {
-		this.assetURL = assetURL;
+		this.indexName = assetURL;
 		this.updater = updater;
 	}
 	public AssetDownloader(IProgressUpdater updater) {
-		this("http://resources.download.minecraft.net/", updater);
+		this("legacy", updater);
 	}
 	public AssetDownloader(String assetURL) {
 		this(assetURL, null);
@@ -38,40 +40,20 @@ public class AssetDownloader implements IProgressUpdater {
 			updater.update(0, 2);
 			updater.setStatus(Strings.ASSET_CHECKING);
 		}
-		// HACK: Compare by filesize only.
-		// I know it's the dumbest way to do it, but it's sufficient for assets and
-		// I can't bother reading through the ETag docs or parsing dates. Heh.
-		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(new URL(assetURL).openStream());
-			// Welcome to DOM. The land of torture.
-			NodeList files = doc.getElementsByTagName("Contents");
-			ArrayList<FileDownloader> filelist = new ArrayList<FileDownloader>(files.getLength());
-			for(int i=0; i<files.getLength(); i++) {
-				Node file = files.item(i);
-				NodeList fileNodes = file.getChildNodes();
-				String filename = null;
-				int filesize = -1;
-				for(int j=0; j<fileNodes.getLength(); j++) {
-					Node fileInformation = fileNodes.item(j);
-					if(fileInformation.getTextContent() == null) continue;
-					if(fileInformation.getNodeName().equals("Key")) {
-						filename = fileInformation.getTextContent();
-					} else if(fileInformation.getNodeName().equals("Size")) {
-						filesize = new Integer(fileInformation.getTextContent());
-					}
-				}
-				if(filename == null || filesize == -1) continue; // Invalid data.
-				if(filename.endsWith("/")) continue; // Is secretly a directory.
-				filelist.add(new FileDownloaderHTTP(assetURL + filename, directory + filename, "", filesize, true));
-				realTotal += filesize;
-			}
-			return filelist;
-		} catch(Exception e) {
-			e.printStackTrace();
-			return null;
+		JSONObject obj = Utils.readJSONUrlFile("http://s3.amazonaws.com/Minecraft.Download/indexes/"+indexName+".json");
+		JSONObject objects = (JSONObject)obj.get("objects");
+		ArrayList<FileDownloader> filelist = new ArrayList<FileDownloader>();
+		for(Object o: objects.keySet()) {
+			String filename = (String)o;
+			JSONObject data = (JSONObject)objects.get(filename);
+			int filesize = ((Long)data.get("size")).intValue();
+			String filehash = (String)data.get("hash");
+			if(filename.endsWith("/")) continue; // Is secretly a directory.
+			String downloadURL = "http://resources.download.minecraft.net/"+filehash.substring(0, 2)+"/"+filehash;
+			filelist.add(new FileDownloaderHTTP(downloadURL, directory + filename, "", filesize, true));
+			realTotal += filesize;
 		}
+		return filelist;
 	}
 	
 	public boolean download(String directory) {

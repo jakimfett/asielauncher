@@ -273,7 +273,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	
 	@Override
 	public boolean download(AsieLauncher l) {
-		assetDownloader = new AssetDownloader(updater);
+		assetDownloader = new AssetDownloader("legacy", updater);
 		assetsDir = l.baseDir+"assets/";
 		if(!assetDownloader.download(assetsDir)) return false;
 		if(!checkMinecraft(l)) return false;

@@ -33,7 +33,7 @@ import pl.asiekierka.AsieLauncher.download.FileParserJSON;
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 8;
 	private ServerListManager serverlist;
-	public static final String VERSION_STRING = "0.4.3a";
+	public static final String VERSION_STRING = "0.4.4";
 	public String WINDOW_NAME = Strings.TITLE;
 	public String URL = "http://127.0.0.1:8080/";
 	private String PREFIX = "default";
