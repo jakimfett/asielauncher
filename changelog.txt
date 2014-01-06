@@ -1,3 +1,13 @@
+0.4.5:
+[CLIENT]
+* Fix "Launch only" not working.
+[SERVER]
+* Fix check-updates failing in a few cases.
+
+0.4.4:
+[CLIENT]
+* Hack-fix asset support for 1.6.4 and maybe 1.7.2. (Not 1.7.4!)
+
 0.4.3-dev:
 [CLIENT]
 * Migrated options format to JSON.
