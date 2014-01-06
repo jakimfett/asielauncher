@@ -1,15 +1,8 @@
 package pl.asiekierka.AsieLauncher.download;
 
-import java.net.URL;
 import java.util.ArrayList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.json.simple.JSONObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import pl.asiekierka.AsieLauncher.common.IProgressUpdater;
 import pl.asiekierka.AsieLauncher.common.Utils;

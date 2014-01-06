@@ -94,6 +94,7 @@ public class Utils {
 	                    dest.write(buffer, 0, n);
 	                }
 	            } catch (IOException e) { // just exit
+	            	e.printStackTrace();
 	            }
 	        }
 	    }).start();

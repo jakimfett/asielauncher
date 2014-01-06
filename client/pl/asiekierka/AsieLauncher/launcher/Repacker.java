@@ -47,6 +47,7 @@ public class Repacker {
 			}
 		} catch(ZipException e) {
 			new File(jarFile).delete();
+			e.printStackTrace();
 			return "Corrupted file - restart AsieLauncher!";
 		}
 		for(String p: patches) {

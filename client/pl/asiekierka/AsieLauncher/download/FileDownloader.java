@@ -54,14 +54,14 @@ public abstract class FileDownloader {
 					String fileMD5 = Utils.md5(file);
 					if(fileMD5.equalsIgnoreCase(md5)) {
 						return true;
-					}
+					} else System.out.println("Incorrect hash!");
 				} else {
 					// Check filesize instead. Should work on most occasions.
 					Long fileFilesizeLong = (Long)(file.length());
 					int fileFilesize = fileFilesizeLong.intValue();
 					if(this.filesize == fileFilesize) {
 						return true;
-					}
+					} else System.out.println("Incorrect filesize!");
 				}
 			} catch(Exception e) { /* Can be ignored. */ }
 		}
