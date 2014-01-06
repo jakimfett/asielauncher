@@ -30,7 +30,7 @@ function unifyVersion(version) {
 	var mode = "none";
 	var versionData = [];
 	var currentPart = 0;
-	var chars = version.split("");
+	var chars = String(version).split("");
 	_.each(chars, function(char) {
 		char = char.toLowerCase(); // unify
 		var oldMode = mode;
