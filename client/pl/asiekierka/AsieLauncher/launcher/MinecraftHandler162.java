@@ -36,6 +36,16 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		return Utils.getPath(l.baseDir + "versions/" + l.mcVersion + "/minecraft.jar");
 	}
 	
+	public String getStartJarLocation(AsieLauncher l) {
+		File f = new File(l.directory + "bin/minecraft.jar");
+		try {
+			if(f.exists()) return f.getCanonicalPath();
+			else return getJarLocation(l);
+		} catch(Exception e) {
+			return getJarLocation(l);
+		}
+	}
+	
 	private String getNativesLocation(AsieLauncher l) {
 		File dir = new File(l.baseDir + "versions/" + l.mcVersion + "/natives/");
 		if(!dir.exists()) dir.mkdirs();
@@ -284,7 +294,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		String classpathSeparator = ":";
 		if(Utils.getSystemName().equals("windows")) classpathSeparator = ";";
 		StringBuilder sb = new StringBuilder();
-		sb.append(getJarLocation(l)); // Minecraft.jar
+		sb.append(getStartJarLocation(l)); // Minecraft.jar
 		if(libraries != null) {
 			for(String s : libraries) { // Libraries
 				sb.append(classpathSeparator);
