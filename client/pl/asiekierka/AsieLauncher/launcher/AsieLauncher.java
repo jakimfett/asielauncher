@@ -149,12 +149,12 @@ public class AsieLauncher implements IProgressUpdater {
 				if(getFileRevision(file) >= 6) {
 					WINDOW_NAME = (String)file.get("windowName");
 				} else WINDOW_NAME = "";
-			} else mcVersion = "1.6.2";
+			} else mcVersion = "1.7.2";
 			if(Utils.versionToInt(this.mcVersion) <= Utils.versionToInt("1.5.2")) {
 				mc = new MinecraftHandler152();
 				if(onlineMode) auth = new AuthenticationMojangLegacy();
 			} else {
-				mc = new MinecraftHandler162();
+				mc = new MinecraftHandler172();
 				if(onlineMode) auth = new AuthenticationYggdrasil(directory, false);
 			}
 			if(file.containsKey("jvmArguments")) {
