@@ -16,7 +16,7 @@ import pl.asiekierka.AsieLauncher.common.JavaLauncher;
 import pl.asiekierka.AsieLauncher.common.Utils;
 import pl.asiekierka.AsieLauncher.download.AssetDownloader;
 
-public class MinecraftHandler162 implements MinecraftHandler {
+public class MinecraftHandler172 implements MinecraftHandler {
 	private AssetDownloader assetDownloader;
 	private IProgressUpdater updater;
 	private String assetsDir;
@@ -26,7 +26,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	private String mainClass, nativesDir;
 	private boolean hasForge = false;
 	
-	public MinecraftHandler162() {
+	public MinecraftHandler172() {
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -349,12 +349,12 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	}
 	
 	@Override
-	public boolean launch(String path, String username, String sessionID, String jvmArgs, AsieLauncher l) {
+	public boolean launch(String path, String username, String sessionID, String UUID, String jvmArgs, AsieLauncher l) {
 		if(!checkMinecraft(l)) return false;
 		if(sessionID == null || sessionID.length() == 0) sessionID = "null";
 		// Launch Minecraft.
 		setStatus(l, Strings.LAUNCHING);
-		return JavaLauncher.launch(path, getMCArguments(l, path, username, sessionID, jvmArgs));
+		return JavaLauncher.launch(path, getMCArguments(l, path, username, sessionID, UUID, jvmArgs));
 	}
 
 	public IProgressUpdater getUpdater() {
