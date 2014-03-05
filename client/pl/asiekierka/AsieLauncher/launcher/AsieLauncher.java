@@ -341,7 +341,8 @@ public class AsieLauncher implements IProgressUpdater {
 		if(auth != null) {
 			username = auth.getUsername();
 			sessionID = auth.getSessionToken();
+			UUID = auth.getUUID();
 		}
-		launchedMinecraft = mc.launch(directory, username, sessionID, jvmArgs, this);
+		launchedMinecraft = mc.launch(directory, username, sessionID, UUID, jvmArgs, this);
 	}
 }
