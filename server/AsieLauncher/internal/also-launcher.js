@@ -11,6 +11,7 @@ exports.create = function(config, target, callback) {
 	var launcher = new Zip("./AsieLauncher/temp/AsieLauncher-latest.jar");
 	var outputStream = fs.createWriteStream(target);
 	archive.pipe(outputStream);
+	archive.on('error', function(err) {throw err;});
 	_.each(launcher.getEntries(), function(entry) {
 		if(!(/\/$/.test(entry.entryName))) {
 			util.say("debug", "Packing " + entry.entryName);
@@ -24,11 +25,9 @@ exports.create = function(config, target, callback) {
 	});
 	archive.append(JSON.stringify({"serverUrl": config.launcher.serverUrl, "directoryName": config.launcher.directoryName}),
 			{name: "resources/config.json"});
-	archive.finalize(function() {
-		outputStream.on("close", function() {
-			util.say("info", "[Launcher] Launcher ready!");
-			callback(target);
-		});
+	archive.finalize();
+	outputStream.on("close", function() {
+		util.say("info", "[Launcher] Launcher ready!");
+		callback(target);
 	});
 }
-

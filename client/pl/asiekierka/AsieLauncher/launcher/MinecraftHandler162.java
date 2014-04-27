@@ -313,7 +313,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		if(l.updater != null) l.updater.setStatus(status);
 	}
 	
-	private ArrayList<String> getMCArguments(AsieLauncher l, String path, String username, String sessionID, String jvmArgs) {
+	private ArrayList<String> getMCArguments(AsieLauncher l, String path, String username, String sessionID, String UUID, String jvmArgs) {
 		ArrayList<String> args = new ArrayList<String>();
 		args.addAll(Arrays.asList(jvmArgs.split(" ")));
 		args.add("-cp"); args.add(generateClasspath(l));
@@ -323,7 +323,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		args.add(mainClass);
 		// Parse gameArguments
 		gameArguments = gameArguments.replaceAll("\\$\\{auth_player_name\\}", username)
-				                     .replaceAll("\\$\\{auth_session\\}", sessionID)
+				                     .replaceAll("\\$\\{auth_session\\}", "token:" + sessionID + ":" + UUID) //1.6.x auth_session is token:<AccessToken>:<PlayerUUID>
 				                     .replaceAll("\\$\\{version_name\\}", gameVersion);
 		if(l.mcVersion.equalsIgnoreCase("1.6.2")) { // 1.6.2 cascadedTweaks fix for old launchwrapper
 			if(gameArguments.indexOf("--cascadedTweaks") >= 0 // If we have more tweaks
@@ -349,12 +349,12 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	}
 	
 	@Override
-	public boolean launch(String path, String username, String sessionID, String jvmArgs, AsieLauncher l) {
+	public boolean launch(String path, String username, String sessionID, String UUID, String jvmArgs, AsieLauncher l) {
 		if(!checkMinecraft(l)) return false;
 		if(sessionID == null || sessionID.length() == 0) sessionID = "null";
 		// Launch Minecraft.
 		setStatus(l, Strings.LAUNCHING);
-		return JavaLauncher.launch(path, getMCArguments(l, path, username, sessionID, jvmArgs));
+		return JavaLauncher.launch(path, getMCArguments(l, path, username, sessionID, UUID, jvmArgs));
 	}
 
 	public IProgressUpdater getUpdater() {

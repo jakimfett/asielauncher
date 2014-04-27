@@ -323,9 +323,9 @@ public class MinecraftHandler172 implements MinecraftHandler {
 		args.add(mainClass);
 		// Parse gameArguments
 		gameArguments = gameArguments.replaceAll("\\$\\{auth_player_name\\}", username)
-				                     .replaceAll("\\$\\{auth_session\\}", sessionID)
+				                     .replaceAll("\\$\\{auth_access_token\\}", sessionID)
 				                     .replaceAll("\\$\\{version_name\\}", gameVersion)
-				                     .replaceAll("\\$\\{auth_uuid}\\}", UUID);
+				                     .replaceAll("\\$\\{auth_uuid\\}", UUID);
 		if(l.mcVersion.equalsIgnoreCase("1.6.2")) { // 1.6.2 cascadedTweaks fix for old launchwrapper
 			if(gameArguments.indexOf("--cascadedTweaks") >= 0 // If we have more tweaks
 					&& gameArguments.indexOf("--tweakClass cpw.mods.fml.common.launcher.FMLTweaker") >= 0) {

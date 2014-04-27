@@ -1,7 +1,7 @@
 package pl.asiekierka.AsieLauncher.auth;
 
 public abstract class Authentication {
-	protected String realUsername, sessionID, error;
+	protected String realUsername, sessionID, error, _UUID;
 	
 	public static final int OK = 0;
 	public static final int GENERAL_ERROR = 1;
@@ -18,4 +18,5 @@ public abstract class Authentication {
 	public String getUsername() { return realUsername; }
 	public String getSessionToken() { return sessionID; }
 	public String getErrorMessage() { return error; }
+    public String getUUID() {return _UUID;}
 }

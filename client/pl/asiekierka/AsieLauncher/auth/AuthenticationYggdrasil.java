@@ -147,7 +147,8 @@ public class AuthenticationYggdrasil extends Authentication {
 	public String getSessionToken() {
 		if(!info.containsKey("selectedProfile")) return null;
 		JSONObject profile = (JSONObject)info.get("selectedProfile");
-		return "token:"+sessionID+":"+(String)profile.get("id");
+		//return "token:"+sessionID+":"+(String)profile.get("id");
+        return sessionID;
 	}
 	
 	@Override
@@ -172,6 +173,7 @@ public class AuthenticationYggdrasil extends Authentication {
 		JSONObject profile = (JSONObject)answer.get("selectedProfile");
 		realUsername = (String)profile.get("name");
 		sessionID = (String)answer.get("accessToken");
+        _UUID = (String)profile.get("id");
 		info.put("selectedProfile", profile);
 		if(keepLoggedIn) {
 			info.put("sessionID", sessionID);

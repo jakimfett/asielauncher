@@ -66,7 +66,7 @@ public class MinecraftHandler152 implements MinecraftHandler {
 	public void setUpdater(IProgressUpdater updater) { }
 	
 	@Override
-	public boolean launch(String path, String username, String sessionID, String jvmArgs, AsieLauncher l) {
+	public boolean launch(String path, String username, String sessionID, String UUID, String jvmArgs, AsieLauncher l) {
 		if(sessionID.length() == 0) sessionID = "null";
 		// Launch Minecraft.
 		String separator = System.getProperty("file.separator");
