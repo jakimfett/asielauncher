@@ -232,6 +232,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater {
        
        panel.add(loginLabel);
        panel.add(loginField);
+       this.getRootPane().setDefaultButton(launchButton); //Pressing Enter will press the Launch Button
        if(progressBar != null) panel.remove(progressBar);
 	   quitButton.setEnabled(true);
 	   launchButton.setEnabled(true);
