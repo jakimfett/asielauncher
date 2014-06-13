@@ -1,4 +1,5 @@
 #!/bin/sh
+mkdir release
 rm -rf release/*.zip
 # Client
 cd release
