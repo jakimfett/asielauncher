@@ -70,7 +70,8 @@
     "serverUrl": "http://127.0.0.1:8080/",
     "directoryName": "FluttercraftMC"
   },
-  "updatesURL": "http://asie.pl/launcher",
+  "updatesURLSelector": "Acceptable values are 'release', 'stable', and 'development'",
+  "updatesURL": "http://update.asielauncher.com/release/",
   "heartbeat": {
     "url": "http://api.asielauncher.com/api.php",
     "enabled": true,
