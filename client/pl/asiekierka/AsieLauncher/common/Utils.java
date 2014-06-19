@@ -133,6 +133,7 @@ public class Utils {
 	        String currentEntry = entry.getName();
 	        files.add(currentEntry);
 	    }
+	    zip.close();
 	    return files.toArray(new String[files.size()]);
 	}
 	
@@ -280,6 +281,7 @@ public class Utils {
 	            while ((currentByte = is.read(data, 0, BUFFER)) != -1) {
 	                dest.write(data, 0, currentByte);
 	            }
+	            zip.close();
 	            close(dest);
 	            close(is);
 	        }
