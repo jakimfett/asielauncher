@@ -1,0 +1,28 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'client.pl.asiekierka.AsieLauncher.launcher.Main.java'
+
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.github.jponge:lzma-java:1.3'
+    compile 'com.googlecode.json-simple:json-simple:1.1.1'
+}
+
+jar {
+    baseName = 'AsieLauncher'
+    version = 'latest'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'client'
+        }
+    }
+}
