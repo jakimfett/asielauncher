@@ -2,6 +2,7 @@
 mkdir release
 rm -rf release/*.zip
 # Client
+cp ./build/libs/*jar ./release
 cd release
 mkdir al
 cd al
