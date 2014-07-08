@@ -1,8 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'application'
-
-mainClassName = 'client.pl.asiekierka.AsieLauncher.launcher.Main.java'
-
 
 repositories {
     mavenLocal()
@@ -23,6 +19,7 @@ sourceSets {
     main {
         java {
             srcDir 'client'
+            libsDirName = 'libraries'
         }
     }
 }
