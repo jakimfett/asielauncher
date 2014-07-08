@@ -14,3 +14,8 @@ server/AsieLauncher/temp/*
 server/*List.json
 server/mods/*
 .DS_Store
+nbproject/
+.gradle/
+build.xml
+build/
+manifest.mf
