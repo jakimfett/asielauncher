@@ -21,19 +21,16 @@ public class RsrcURLStreamHandler extends URLStreamHandler
   protected void parseURL(URL url, String spec, int start, int limit)
   {
     String file;
-    String file;
     if (spec.startsWith("rsrc:")) {
       file = spec.substring(5);
     }
     else
     {
-      String file;
       if (url.getFile().equals("./")) {
         file = spec;
       }
       else
       {
-        String file;
         if (url.getFile().endsWith("/"))
           file = url.getFile() + spec;
         else
