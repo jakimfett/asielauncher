@@ -8,6 +8,8 @@ mkdir al
 cd al
 unzip ../AsieLauncher-latest.jar
 rm ../AsieLauncher-latest.jar
+cp ../../libraries/json* ./
+cp ../../libraries/lzma* ./
 rm -rf resources
 zip -0 -r ../AsieLauncher-latest.jar .
 cd ..
