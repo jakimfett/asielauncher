@@ -86,18 +86,6 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater
             panel = new JPanel();
         }
         
-        Action loginUpdate = new AbstractAction("Accept"){
-
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                beginInstallation();
-            }
-            
-        };
-        
-        launchButton = new JButton(loginUpdate);
-        
         getContentPane().setSize(320, 240);
         getContentPane().setPreferredSize(new Dimension(320, 240));
         getContentPane().setMaximumSize(new Dimension(320, 240));
