@@ -99,6 +99,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater
         return !launcher.isActive();
     }
 
+    @Override
     public boolean isActive()
     {
         return launcher.isActive();
@@ -109,6 +110,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater
         return (loginField.getText().length() > 1);
     }
 
+    @Override
     public void update(int progress, int finish)
     {
         progressBar.setMaximum(finish);
@@ -118,6 +120,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater
 
     private String cStatus;
 
+    @Override
     public void setStatus(String status)
     {
         cStatus = status;
@@ -236,6 +239,8 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater
 
         progressBar = new JProgressBar();
         progressBar.setBounds(86, 160, 224, 20);
+        
+        this.getRootPane().setDefaultButton(launchButton); 
 
         panel.add(launchButton);
         panel.add(optionsButton);
