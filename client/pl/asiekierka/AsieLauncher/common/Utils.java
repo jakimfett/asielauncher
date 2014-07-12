@@ -253,6 +253,7 @@ public class Utils {
 	    // Process each entry
 	    while (zipFileEntries.hasMoreElements())
 	    {
+                System.out.println("More entries? "+zipFileEntries.hasMoreElements());
 	        // grab a zip file entry
 	        ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
 	        String currentEntry = entry.getName();
