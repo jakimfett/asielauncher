@@ -30,7 +30,7 @@ public class FileDownloaderZip extends FileDownloaderHTTP
         try
         {
             Utils.extract(this.getLocation(), unpackLocation, this.isOverwrite());
-        } catch (Exception e)
+        } catch (IOException e)
         {
             e.printStackTrace();
             return false;
