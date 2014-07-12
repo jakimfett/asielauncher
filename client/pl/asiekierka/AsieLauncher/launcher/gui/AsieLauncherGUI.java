@@ -201,6 +201,9 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater
                 if (event.getKeyCode() == KeyEvent.VK_CONTROL)
                 {
                     setControl(true);
+                } else if (event.getKeyCode() == KeyEvent.VK_ENTER)
+                {
+                    System.out.println("'ENTER' key was pressed");
                 }
             }
 
