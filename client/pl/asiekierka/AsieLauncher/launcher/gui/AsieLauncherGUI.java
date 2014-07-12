@@ -27,7 +27,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater
     private AsieLauncherOptionsGUI options;
     public boolean hasInternet = true;
     private boolean controlDown = false;
-
+    
     public boolean canKeepPassword()
     {
         return launcher.canKeepPassword();
@@ -85,6 +85,19 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater
         {
             panel = new JPanel();
         }
+        
+        Action loginUpdate = new AbstractAction("Accept"){
+
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                beginInstallation();
+            }
+            
+        };
+        
+        launchButton = new JButton(loginUpdate);
+        
         getContentPane().setSize(320, 240);
         getContentPane().setPreferredSize(new Dimension(320, 240));
         getContentPane().setMaximumSize(new Dimension(320, 240));
@@ -231,7 +244,7 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater
                 beginInstallation();
             }
         });
-
+        
         statusLabel = new JLabel(Strings.READY + " (" + Strings.VERSION + ": " + AsieLauncher.VERSION_STRING + ")");
         statusLabel.setBounds(6, 219, 300, 15);
 
