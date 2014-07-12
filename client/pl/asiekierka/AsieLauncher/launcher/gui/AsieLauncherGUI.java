@@ -228,37 +228,6 @@ public class AsieLauncherGUI extends JFrame implements IProgressUpdater
                 beginInstallation();
             }
         });
-        
-        loginField.addKeyListener(new KeyListener() {
-
-            @Override
-            public void keyPressed(KeyEvent event)
-            {
-                if (event.getKeyCode() == KeyEvent.VK_ENTER)
-                {
-                    System.out.println("'ENTER' key was pressed");
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent event)
-            {
-                if (event.getKeyCode() == KeyEvent.VK_ENTER)
-                {
-                    System.out.println("'ENTER' key was released");
-                }
-            }
-
-            @Override
-            public void keyTyped(KeyEvent event)
-            {
-                if (event.getKeyCode() == KeyEvent.VK_ENTER)
-                {
-                    System.out.println("'ENTER' key was typed");
-                }
-            }
-
-        });
 
         statusLabel = new JLabel(Strings.READY + " (" + Strings.VERSION + ": " + AsieLauncher.VERSION_STRING + ")");
         statusLabel.setBounds(6, 219, 300, 15);
