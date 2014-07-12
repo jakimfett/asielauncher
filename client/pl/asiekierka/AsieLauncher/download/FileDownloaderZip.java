@@ -29,9 +29,6 @@ public class FileDownloaderZip extends FileDownloaderHTTP
         updater.setStatus(Strings.UNPACKING + " " + this.getFilename() + "...");
         try
         {
-            System.out.println("Location: " + this.getLocation());
-            System.out.println("Destination: " + unpackLocation);
-            System.out.println("Overwrite? " + this.isOverwrite());
             Utils.extract(this.getLocation(), unpackLocation, this.isOverwrite());
         } catch (Exception e)
         {

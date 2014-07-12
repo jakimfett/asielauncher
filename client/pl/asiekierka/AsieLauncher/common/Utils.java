@@ -378,7 +378,6 @@ public class Utils
         // Process each entry
         while (zipFileEntries.hasMoreElements())
         {
-            System.out.println("More entries? " + zipFileEntries.hasMoreElements());
             // grab a zip file entry
             ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
             String currentEntry = entry.getName();
@@ -411,7 +410,6 @@ public class Utils
                 {
                     dest.write(data, 0, currentByte);
                 }
-
                 close(dest);
                 close(is);
             }
