@@ -17,18 +17,20 @@ import pl.asiekierka.AsieLauncher.common.Utils;
 import pl.asiekierka.AsieLauncher.download.AssetDownloader;
 
 public class MinecraftHandler162 implements MinecraftHandler {
-	private AssetDownloader assetDownloader;
-	private IProgressUpdater updater;
-	private String assetsDir;
-	private JSONObject launchInfo;
-	private String gameArguments, gameVersion;
-	private ArrayList<String> libraries;
-	private String mainClass, nativesDir;
-	private boolean hasForge = false;
+	protected AssetDownloader assetDownloader;
+	protected IProgressUpdater updater;
+	protected String assetsDir;
+	protected JSONObject launchInfo;
+	protected String gameArguments, gameVersion;
+	protected ArrayList<String> libraries;
+	protected String mainClass, nativesDir;
+	protected boolean hasForge = false;
 	
 	public MinecraftHandler162() {
 		// TODO Auto-generated constructor stub
 	}
+	
+	public String getIndexName() { return "legacy"; }
 	
 	public String getJarLocation(AsieLauncher l) {
 		File dir = new File(l.baseDir + "versions/" + l.mcVersion + "/");
@@ -46,7 +48,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		}
 	}
 	
-	private String getNativesLocation(AsieLauncher l) {
+	protected String getNativesLocation(AsieLauncher l) {
 		File dir = new File(l.baseDir + "versions/" + l.mcVersion + "/natives/");
 		if(!dir.exists()) dir.mkdirs();
 		return dir.getAbsolutePath();
@@ -70,7 +72,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		else gameArguments += " --tweakClass "+s;
 	}
 	
-    private void addTweak162(String s) {
+    protected void addTweak162(String s) {
         if(gameArguments.indexOf("tweakClass") >= 0 || hasForge) {
                 gameArguments += " --cascadedTweaks "+s;
         } else {
@@ -80,7 +82,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
         }
     }
     
-    private void scanLiteLoader(String modDir, String libraryDir, String version) {
+    protected void scanLiteLoader(String modDir, String libraryDir, String version) {
         try {
                 File[] loaderFiles = new File(modDir).listFiles();
                 if(loaderFiles == null) return;
@@ -97,7 +99,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
         } catch(Exception e) { e.printStackTrace(); }
 }
 	
-	private boolean downloadLibraries(String patchDir, String libraryDir) {
+	protected boolean downloadLibraries(String patchDir, String libraryDir) {
 		ArrayList<String> addedLibraries = new ArrayList<String>();
 		// Go through library files
 		File jarPatchesDirectory = new File(patchDir, "lib");
@@ -149,7 +151,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 				}
 				if(!found) downloadLibrary(urlPrefix, data[0], data[1], data[2], addon, libraryDir, false);
 			}
-			if(jsonLibrary.containsKey("natives")) {
+			if(jsonLibrary.containsKey("natives") && !(filePath.indexOf("twitch") >= 0)) {
 				// This is a /native/ file, so extract it
 				try {
 					Utils.extract(filePath, nativesDir, true);
@@ -177,6 +179,12 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		String filename = name + "-" + version + ".jar";
 		if(addon != null && addon.length() > 0)
 			filename = name + "-" + version + "-" + addon + ".jar";
+		
+		// HACK! - 1.7.x do not download Twitch as it breaks
+		if(filename.indexOf("twitch") >= 0 && filename.indexOf("platform") >= 0)
+			return true;
+		// END HACK!
+		
 		String filePath = libraryDir + filename;
 		if(libraries.contains(filePath)) return true; // Already downloaded
  		String urlPath = urlPrefix + (urlPrefix.endsWith("/")?"":"/") + className.replace('.', '/') + "/"
@@ -192,7 +200,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		} else return true;
 	}
 	
-	private boolean loadJSON(String patchDir, String gameDir, String jsonDir, String version) {
+	protected boolean loadJSON(String patchDir, String gameDir, String jsonDir, String version) {
 		if(launchInfo != null) return true; // Already been here
 		if(updater != null) {
 			updater.update(1, 2);
@@ -270,7 +278,7 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		return true;
 	}
 	
-	private boolean checkMinecraft(AsieLauncher l) {
+	protected boolean checkMinecraft(AsieLauncher l) {
 		assetsDir = l.baseDir+"assets/";
 		gameVersion = l.mcVersion;
 		nativesDir = getNativesLocation(l);
@@ -283,14 +291,14 @@ public class MinecraftHandler162 implements MinecraftHandler {
 	
 	@Override
 	public boolean download(AsieLauncher l) {
-		assetDownloader = new AssetDownloader("legacy", updater);
+		assetDownloader = new AssetDownloader(getIndexName(), updater);
 		assetsDir = l.baseDir+"assets/";
 		if(!assetDownloader.download(assetsDir)) return false;
 		if(!checkMinecraft(l)) return false;
 		return true;
 	}
 	
-	private String generateClasspath(AsieLauncher l) {
+	protected String generateClasspath(AsieLauncher l) {
 		String classpathSeparator = ":";
 		if(Utils.getSystemName().equals("windows")) classpathSeparator = ";";
 		StringBuilder sb = new StringBuilder();
@@ -309,11 +317,11 @@ public class MinecraftHandler162 implements MinecraftHandler {
 		return false; // We only launch via Java thread for now.
 	}
 	
-	private void setStatus(AsieLauncher l, String status) {
+	protected void setStatus(AsieLauncher l, String status) {
 		if(l.updater != null) l.updater.setStatus(status);
 	}
 	
-	private ArrayList<String> getMCArguments(AsieLauncher l, String path, String username, String sessionID, String UUID, String jvmArgs) {
+	protected ArrayList<String> getMCArguments(AsieLauncher l, String path, String username, String sessionID, String UUID, String jvmArgs) {
 		ArrayList<String> args = new ArrayList<String>();
 		args.addAll(Arrays.asList(jvmArgs.split(" ")));
 		args.add("-cp"); args.add(generateClasspath(l));

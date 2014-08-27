@@ -16,10 +16,13 @@ import pl.asiekierka.AsieLauncher.common.JavaLauncher;
 import pl.asiekierka.AsieLauncher.common.Utils;
 import pl.asiekierka.AsieLauncher.download.AssetDownloader;
 
-public class MinecraftHandler172 extends MinecraftHandler162 {
-	public MinecraftHandler172() {
+public class MinecraftHandler1710 extends MinecraftHandler172 {
+	public MinecraftHandler1710() {
 		// TODO Auto-generated constructor stub
 	}
+	
+	@Override
+	public String getIndexName() { return "1.7.10"; }
 	
 	protected ArrayList<String> getMCArguments(AsieLauncher l, String path, String username, String sessionID, String UUID, String jvmArgs) {
 		ArrayList<String> args = new ArrayList<String>();
@@ -34,14 +37,18 @@ public class MinecraftHandler172 extends MinecraftHandler162 {
 				                     .replaceAll("\\$\\{auth_access_token\\}", sessionID)
 				                     .replaceAll("\\$\\{version_name\\}", gameVersion)
 				                     .replaceAll("\\$\\{auth_uuid\\}", UUID)
+				                     .replaceAll("\\$\\{user_properties\\}", "{}")
+				                     .replaceAll("\\$\\{user_type\\}", "mojang")
 									 .replaceAll("--cascadedTweaks", "--tweakClass");
 		// Workaround for broken Windows path handling
 		String[] gameArgArray = gameArguments.split(" ");
 		for(int i = 0; i < gameArgArray.length; i++) {
 			if(gameArgArray[i].equals("${game_directory}"))
 				gameArgArray[i] = Utils.getPath(new File(path).getAbsolutePath());
-			else if(gameArgArray[i].equals("${game_assets}"))
-				gameArgArray[i] = Utils.getPath(assetsDir);
+			else if(gameArgArray[i].equals("${assets_root}"))
+				gameArgArray[i] = Utils.getPath(l.baseDir + "assets");
+			else if(gameArgArray[i].equals("${assets_index_name}"))
+				gameArgArray[i] = getIndexName();
 		}
 		args.addAll(Arrays.asList(gameArgArray));
 		Utils.logger.log(Level.INFO, "Launching with arguments: " + args.toString());
