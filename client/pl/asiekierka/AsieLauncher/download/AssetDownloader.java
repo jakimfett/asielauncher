@@ -1,5 +1,6 @@
 package pl.asiekierka.AsieLauncher.download;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.json.simple.JSONObject;
@@ -33,7 +34,17 @@ public class AssetDownloader implements IProgressUpdater {
 			updater.update(0, 2);
 			updater.setStatus(Strings.ASSET_CHECKING);
 		}
+		
+		if(!(new File(directory + "indexes").exists())) {
+			new File(directory + "indexes").mkdirs();
+		} 
+		if(!(new File(directory + "objects").exists())) {
+			new File(directory + "objects").mkdirs();
+		} 
+		
 		JSONObject obj = Utils.readJSONUrlFile("http://s3.amazonaws.com/Minecraft.Download/indexes/"+indexName+".json");
+		Utils.saveStringToFile(directory + "indexes/" + indexName + ".json", obj.toJSONString());
+		
 		JSONObject objects = (JSONObject)obj.get("objects");
 		ArrayList<FileDownloader> filelist = new ArrayList<FileDownloader>();
 		for(Object o: objects.keySet()) {
@@ -43,7 +54,11 @@ public class AssetDownloader implements IProgressUpdater {
 			String filehash = (String)data.get("hash");
 			if(filename.endsWith("/")) continue; // Is secretly a directory.
 			String downloadURL = "http://resources.download.minecraft.net/"+filehash.substring(0, 2)+"/"+filehash;
-			filelist.add(new FileDownloaderHTTP(downloadURL, directory + filename, "", filesize, true));
+			if(indexName.equals("legacy")) {
+				filelist.add(new FileDownloaderHTTP(downloadURL, directory + filename, "", filesize, true));
+			} else {
+				filelist.add(new FileDownloaderHTTP(downloadURL, directory + "objects/" + filehash.substring(0, 2)+"/"+filehash, "", filesize, true));
+			}
 			realTotal += filesize;
 		}
 		return filelist;

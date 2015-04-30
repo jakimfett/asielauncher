@@ -1,11 +1,20 @@
 #!/bin/sh
+mkdir release
 rm -rf release/*.zip
 # Client
+cp ./build/libs/*jar ./release
 cd release
 mkdir al
 cd al
 unzip ../AsieLauncher-latest.jar
 rm ../AsieLauncher-latest.jar
+cp ../../libraries/json* ./
+cp ../../libraries/lzma* ./
+echo Manifest-Version: 1.0 > META-INF/MANIFEST.MF
+echo Rsrc-Class-Path: ./ json-simple-1.1.1.jar lzma-0.0.1.jar >> META-INF/MANIFEST.MF
+echo Class-Path: . >> META-INF/MANIFEST.MF
+echo Rsrc-Main-Class: pl.asiekierka.AsieLauncher.launcher.Main >> META-INF/MANIFEST.MF
+echo Main-Class: org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader >> META-INF/MANIFEST.MF
 rm -rf resources
 zip -0 -r ../AsieLauncher-latest.jar .
 cd ..

@@ -33,7 +33,7 @@ import pl.asiekierka.AsieLauncher.download.FileParserJSON;
 public class AsieLauncher implements IProgressUpdater {
 	public static final int VERSION = 8;
 	private ServerListManager serverlist;
-	public static final String VERSION_STRING = "0.4.5";
+	public static final String VERSION_STRING = "0.4.7";
 	public String WINDOW_NAME = Strings.TITLE;
 	public String URL = "http://asie.pl:5000/";
 	private String PREFIX = "default";
@@ -49,18 +49,18 @@ public class AsieLauncher implements IProgressUpdater {
 	private Authentication auth;
 	public String mcVersion;
 	public String defaultJvmArgs;
-	
+
 	public boolean canKeepPassword() {
 		return (auth instanceof AuthenticationYggdrasil);
 	}
-	
+
 	public void setKeepPassword(boolean l) {
 		if(auth instanceof AuthenticationYggdrasil) {
 			AuthenticationYggdrasil auth = (AuthenticationYggdrasil)this.auth;
 			auth.setKeepPassword(l);
 		}
 	}
-	
+
 	public String getLoadDir() {
 		return loadDir;
 	}
@@ -74,20 +74,20 @@ public class AsieLauncher implements IProgressUpdater {
 	}
 
 	public boolean isOnlineMode() { return (auth != null); }
-	
+
 	public int getFileRevision(JSONObject source) {
 		Long revNew = (Long)(source.get("client_revision"));
 		if(revNew == null) return 1;
 		return revNew.intValue();
 	}
-	
+
 	public boolean compatibleClientRevision() {
 		if(file == null) return true; // Assumptions!
 		Long revNew = (Long)(file.get("client_revision"));
 		if(revNew == null) { return false; // Ancient
 		} else return revNew.intValue() == VERSION;
 	}
-	
+
 	public HashMap<String, JSONObject> getOptionMap() {
 		HashMap<String, JSONObject> optionMap = new HashMap<String, JSONObject>();
 		if(file != null) {
@@ -99,7 +99,7 @@ public class AsieLauncher implements IProgressUpdater {
 		}
 		return optionMap;
 	}
-	
+
 	public void configureConfig() {
 		configFile = Utils.readJSONUrlFile(getClass().getResource("/resources/config.json"));
 		PREFIX = (String)configFile.get("directoryName");
@@ -108,7 +108,7 @@ public class AsieLauncher implements IProgressUpdater {
 			URL = "http://" + URL;
 		}
 	}
-	
+
 	public AsieLauncher() {
 		configureConfig();
 		baseDir = System.getProperty("user.home") + "/.asielauncher/";
@@ -129,12 +129,12 @@ public class AsieLauncher implements IProgressUpdater {
 		OS = Utils.getSystemName();
 		Utils.logger.log(Level.INFO, "OS: " + OS);
 	}
-	
+
 	public boolean isSupported() {
 		if(this.mcVersion == null) return true; // Default hack
-		return Utils.versionToInt(this.mcVersion) <= Utils.versionToInt("1.7.2");
+		return Utils.versionToInt(this.mcVersion) <= Utils.versionToInt("1.7.10");
 	}
-	
+
 	public boolean init() {
 		file = Utils.readJSONUrlFile(URL + "also.json");
 		if(!(file instanceof JSONObject)) {
@@ -149,12 +149,18 @@ public class AsieLauncher implements IProgressUpdater {
 				if(getFileRevision(file) >= 6) {
 					WINDOW_NAME = (String)file.get("windowName");
 				} else WINDOW_NAME = "";
-			} else mcVersion = "1.6.2";
+			} else mcVersion = "1.7.2";
 			if(Utils.versionToInt(this.mcVersion) <= Utils.versionToInt("1.5.2")) {
 				mc = new MinecraftHandler152();
 				if(onlineMode) auth = new AuthenticationMojangLegacy();
 			} else {
-				mc = new MinecraftHandler162();
+				if (Utils.versionToInt(this.mcVersion) >= Utils.versionToInt("1.6.0") && Utils.versionToInt(this.mcVersion) < Utils.versionToInt("1.7.0") )  {
+					mc = new MinecraftHandler162();
+				} else if (Utils.versionToInt(this.mcVersion) >= Utils.versionToInt("1.7.0") && Utils.versionToInt(this.mcVersion) < Utils.versionToInt("1.7.6") )  {
+					mc = new MinecraftHandler172();
+				} else {
+					mc = new MinecraftHandler1710();
+				}
 				if(onlineMode) auth = new AuthenticationYggdrasil(directory, false);
 			}
 			if(file.containsKey("jvmArguments")) {
@@ -164,15 +170,15 @@ public class AsieLauncher implements IProgressUpdater {
 		}
 		return false;
 	}
-	
+
 	public boolean askForPassword() {
 		return (auth != null && auth.requiresPassword());
 	}
-	
+
 	public boolean save() {
 		return Utils.saveStringToFile(directory + "also.json", file.toJSONString());
 	}
-	
+
 	public JSONObject getPlatformData(JSONObject source) {
 		JSONObject platforms = (JSONObject)source.get("platforms");
 		return (JSONObject)platforms.get(OS);
@@ -182,7 +188,7 @@ public class AsieLauncher implements IProgressUpdater {
 		JSONObject options = (JSONObject)source.get("options");
 		return (JSONObject)options.get(id);
 	}
-	
+
 	public void update(int progress, int total) {
 		if(updater != null) updater.update((fullProgress+progress), fullTotal);
 		if(progress == total) fullProgress += total;
@@ -191,7 +197,7 @@ public class AsieLauncher implements IProgressUpdater {
 		Utils.logger.log(Level.INFO, "Status: "+status);
 		if(updater != null) updater.setStatus(status);
 	}
-	
+
 	public ArrayList<FileDownloader> getFileList(JSONObject source, ArrayList<String> options) {
 		FileParserJSON parser = new FileParserJSON(URL, directory);
 		ArrayList<FileDownloader> files = parser.parse(source);
@@ -212,7 +218,7 @@ public class AsieLauncher implements IProgressUpdater {
 		Utils.logger.log(Level.FINER, "getFileList: got " + files.size() + " files");
 		return files;
 	}
-	
+
 	public int calculateTotalSize(ArrayList<FileDownloader> files) {
 		int totalSize = 0;
 		for(FileDownloader mf: files) {
@@ -220,9 +226,9 @@ public class AsieLauncher implements IProgressUpdater {
 		}
 		return totalSize;
 	}
-	
+
 	private ArrayList<String> installLog;
-	
+
 	public List<String> getRepackedFiles() {
 		ArrayList<String> rf = new ArrayList<String>();
 		JSONArray data = (JSONArray)file.get("jarPatches");
@@ -234,13 +240,13 @@ public class AsieLauncher implements IProgressUpdater {
 		return rf;
 	}
 	public String[] getInstallLog() { return installLog.toArray(new String[installLog.size()]); }
-	
+
 	public boolean install(boolean dry) {
 		ArrayList<String> options = new ArrayList<String>();
 		ArrayList<String> oldOptions = new ArrayList<String>();
 		return install(options, oldOptions, dry);
 	}
-	
+
 	public boolean authenticate(String username, String password) {
 		if(auth != null) {
 			setStatus(Strings.AUTH_STATUS);
@@ -251,7 +257,7 @@ public class AsieLauncher implements IProgressUpdater {
 			} else return true;
 		} else return true; // No authentication core set, offline mode.
 	}
-	
+
 	public boolean install(ArrayList<String> options, ArrayList<String> oldOptions, boolean dry) {
 		ArrayList<FileDownloader> installFiles = getFileList(file, options);
 		ArrayList<FileDownloader> oldInstallFiles = null;
@@ -314,11 +320,11 @@ public class AsieLauncher implements IProgressUpdater {
 		}
 		return true;
 	}
-	
+
 	public boolean isActive() {
 		return !launchedMinecraft || (mc != null && mc.isActive());
 	}
-	
+
 	public void launch(String _username, String password, String jvmArgs) {
 		// Update serverlist.
 		if(file != null) {
@@ -336,12 +342,14 @@ public class AsieLauncher implements IProgressUpdater {
 		}
 		// Authenticate, if necessary.
 		String username = _username;
-		String sessionID = "null";
+		String sessionID = "null"; 
+		String uuidString = "null";
 		if(updater != null) updater.update(100,100);
 		if(auth != null) {
 			username = auth.getUsername();
 			sessionID = auth.getSessionToken();
+			uuidString = auth.getUUID();
 		}
-		launchedMinecraft = mc.launch(directory, username, sessionID, jvmArgs, this);
+		launchedMinecraft = mc.launch(directory, username, sessionID, uuidString, jvmArgs, this);
 	}
 }
